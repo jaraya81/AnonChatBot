@@ -18,7 +18,7 @@
           <snapshots><enabled>false</enabled></snapshots>
         </repository>
         <repository>
-          <id>github-jaraya-utils</id>
+          <id>github-jaraya</id>
           <name>GitHub OWNER Apache Maven Packages</name>
           <url>https://maven.pkg.github.com/jaraya81</url>
 		  <releases><enabled>true</enabled></releases>
