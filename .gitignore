@@ -1,0 +1,7 @@
+.idea/
+AnonChatBot.iml
+db/
+local.properties
+logs/
+target/
+
