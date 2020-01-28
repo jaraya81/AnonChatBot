@@ -1,0 +1,25 @@
+START_OK=<b>Welcome!</b>\n\nWith this Bot you can meet new people in your same language while maintaining your anonymity.\n\n- To start, you must press the <b>Play</b>.\n\n- Subsequently change your bio (/bio your-bio).\n\n- If you don't want to chat with someone else, press the <b>Next!</b> button and you'll change someone else.\n\n- If you liked <b>Block</b> and it will be locked for you.\n\n- If it is SPAM, mark it as <b>SPAM</b> to eject it from the community.\n\n- Remember that both you and everyone are anonymous and the only way to identify yourself is with the bio, therefore, you can change it as many times as you want and leave no traces.\n\n- If you want to rest or sleep, press the <b> Pause </b> button.\n\n- If you want to change to a community in another language, type <i>/lang language</i> (Español /lang es, english /lang en).\n\n- For recommendations, questions, etc., contact me by the group https://t.me/RandomNextChat \n\n- Finally remember <b>not to give personal data or passwords to strangers.</b>\n\nEnjoy it!, \n\n                    <i>Julian</i>
+START_AGAIN=Welcome again! :D \n\nWith this Bot you can meet new people in your same language while maintaining your anonymity.\n\n- To start, you must press the <b>Play</b>.\n\n- Subsequently change your bio (/bio your-bio).\n\n- If you don't want to chat with someone else, press the <b>Next!</b> button and you'll change someone else.\n\n- If you liked <b>Block</b> and it will be locked for you.\n\n- If it is SPAM, mark it as <b>SPAM</b> to eject it from the community.\n\n- Remember that both you and everyone are anonymous and the only way to identify yourself is with the bio, therefore, you can change it as many times as you want and leave no traces.\n\n- If you want to rest or sleep, press the <b> Pause </b> button.\n\n- If you want to change to a community in another language, type <i>/lang language</i> (Español /lang es, english /lang en)..\n\n- For recommendations, questions, etc., contact me by the group https://t.me/RandomNextChat \n\n- Finally remember <b>not to give personal data or passwords to strangers.</b>\n\nEnjoy it!, \n\n                    <i>Julian</i>
+START_BANNED_USER=<pre>Sorry, you have been blocked from the community for accumulating complaints against you :(</pre>
+USER_PLAY=<pre>You are active, press <b>Next!</b> to search for your new Random.</pre>
+USER_PAUSE=<pre>You are paused, you will not receive chats or notifications for this chat.</pre>
+USER_REPORT=<pre>Your Random has been reported as SPAM, you will not see it again here!</pre>
+USER_1_NEXT_OK=<pre>NEXT! Say hello to your new Random.\nHis bio is: </pre>
+USER_2_NEXT_OK=<pre>NEXT! Say hello to your new Random.\nHis bio is: </pre>
+USER_NEXT_WAITING=<pre>NEXT! But no one is available to chat, expect them to find you :D</pre>
+USER_NO_CHAT=<pre>You are not in any chat, expect to be found or press <b>NEXT!</b>.</pre>
+SET_BIO_OK=<pre>You have modified your bio: </pre>
+BIO=<pre>Write a /bio that describes you no more than 140 characters.\n
++ Example: /bio I am a woman from Valencia, Spain, I am 24 years old. I love to run and have fun!</pre>
+CONFIG=<pre>Enter one of the options to be configured or <b>Play</b> to start.</pre>
+CHAT_TIMEOUT=<pre>Chat time is up, press <b>Next!</b> for a new Random.</pre>
+USER_BLOCK=<pre>Your Random has been blocked, you will not see it again here!\n
++ Press <b>Next!</b> again for a Random.</pre>
+ABOUT=<b>What is RandomNext?</b>\n\n
++ It's a chat where you can chat with other people anonymously. Every time you do <b>Next!</b> will connect you with a different person. \n\nIf you have questions or suggestions, you can enter the application chat: \n\nhttps://t.me/RandomNextChat \n\n<b>Do you have enough Bitcoins?</b>\n Give it to the project.\n Wallet: <pre>1JC6Y1XGqcMZyXjKtMxvomWsCuBRT2KXM5</pre>
+NEXT_YOU=<pre>It has made you <b>Next!</b> You do <b>Next!</b> to find your Random.</pre>
+INACTIVITY_USER=<pre>Your bot has been paused due to inactivity, press <b>PLAY</b> to continue chatting.</pre>
+SET_LANG_OK=<pre>Language defined: </pre>
+LANG=<pre>Write /lang followed by the language of your choice. Currently available languages 'es' (Español) and 'en' (English).\n\nExample: /lang es</pre>
+USER_ACTIVE=Active users: 
+NEW_BIO=I don't changed my bio, I'm 
