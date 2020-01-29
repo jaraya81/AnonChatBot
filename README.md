@@ -1,5 +1,6 @@
 ![Java CI](https://github.com/jaraya81/AnonChatBot/workflows/Java%20CI/badge.svg)
 
+
 # AnonChatBot
 
 A Telegram bot to chat with others anonymously
