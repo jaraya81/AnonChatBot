@@ -12,6 +12,8 @@ Replace the file example.properties to local.properties and setting the required
 
 [@RandomNextBot](http://t.me/RandomNextBot)
 
-[@RandomNextBot Telegram Group](https://t.me/RandomNextChat)
+## Contact
+
+[Project Group](https://t.me/AnonChatBotProject)
 
 
