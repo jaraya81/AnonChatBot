@@ -1,5 +1,5 @@
 ![Java CI](https://github.com/jaraya81/AnonChatBot/workflows/Java%20CI/badge.svg)
-
+![GitHub Logo](src/main/resources/images/AnonChatBot_logo.png)
 
 # AnonChatBot
 
