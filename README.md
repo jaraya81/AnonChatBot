@@ -1,6 +1,6 @@
 ![Java CI](https://github.com/jaraya81/AnonChatBot/workflows/Java%20CI/badge.svg)
 
-<img src="src/main/resources/images/AnonChatBot_logo.png" width="48">
+<img src="src/main/resources/images/AnonChatBot_logo.png" width="100">
 
 # AnonChatBot
 
