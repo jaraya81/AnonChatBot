@@ -17,7 +17,4 @@ public class TelegramException extends CoreException {
         super(cause);
     }
 
-    public TelegramException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-}
+  }

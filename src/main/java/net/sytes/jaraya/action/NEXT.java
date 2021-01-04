@@ -6,21 +6,20 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.exception.TelegramException;
-import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.vo.MessageChat;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
+import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
+import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.ServiceChat;
 import net.sytes.jaraya.state.ChatState;
-import net.sytes.jaraya.state.State;
-import net.sytes.jaraya.util.Keyboard;
+import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
+
+import static net.sytes.jaraya.util.Operator.elvis;
 
 @Builder
 @Slf4j
@@ -56,19 +55,19 @@ public class NEXT implements Action {
                         .disableNotification(true));
             }
 
-            cleanChat();
-            pauseUsersInactive();
             Chat chat = serviceChat.assignNewChat(user1.getIdUser(), user1.getLang());
             if (chat != null) {
                 User user2 = serviceChat.getUserRepo().getByIdUser(chat.getUser2());
-                SendResponse sendResponse1 = bot.execute(new SendMessage(user1.getIdUser(), msg.msg(Msg.USER_1_NEXT_OK, user1.getLang())
-                        + "<i>" + (user2.getDescription() != null ? user2.getDescription() : "") + "</i>")
+                SendResponse sendResponse1 = bot.execute(new SendMessage(
+                        user1.getIdUser(),
+                        msg.msg(Msg.USER_NEXT_OK, user1.getLang(), elvis(user1.getDescription(), ""), elvis(user2.getDescription(), "")))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
                         .disableNotification(true));
                 log.info(CODE + " :: " + message.getChatId() + " :: " + (sendResponse1.isOk() ? "OK" : "NOK"));
-                SendResponse sendResponse2 = bot.execute(new SendMessage(user2.getIdUser(), msg.msg(Msg.USER_2_NEXT_OK, user2.getLang())
-                        + "<i>" + (user1.getDescription() != null ? user1.getDescription() : "") + "</i>")
+                SendResponse sendResponse2 = bot.execute(new SendMessage(
+                        user2.getIdUser(),
+                        msg.msg(Msg.USER_NEXT_OK, user2.getLang(), elvis(user2.getDescription(), ""), elvis(user1.getDescription(), "")))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
                         .disableNotification(true));
@@ -82,30 +81,6 @@ public class NEXT implements Action {
             }
 
 
-        }
-    }
-
-    private void pauseUsersInactive() throws TelegramException {
-        List<User> users = serviceChat.getUsersInactive();
-        for (User user : users) {
-            user.setState(State.PAUSE.name());
-            serviceChat.getUserRepo().save(user);
-            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.INACTIVITY_USER, user.getLang()))
-                    .parseMode(ParseMode.HTML)
-                    .disableWebPagePreview(true)
-                    .disableNotification(false)
-                    .replyMarkup(Keyboard.pause()));
-        }
-    }
-
-    private void cleanChat() throws TelegramException {
-        Set<Long> ids = serviceChat.cleanerChat();
-        for (Long id : ids) {
-            User user = serviceChat.getUserRepo().getByIdUser(id);
-            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.CHAT_TIMEOUT, user.getLang()))
-                    .parseMode(ParseMode.HTML)
-                    .disableWebPagePreview(true)
-                    .disableNotification(true));
         }
     }
 

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.*;
 import net.sytes.jaraya.component.ActionHelper;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.CoreException;
 import net.sytes.jaraya.properties.Properties;
@@ -18,6 +19,8 @@ import spark.Route;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class AnonChatBot implements Route {
@@ -26,11 +29,11 @@ public class AnonChatBot implements Route {
     private TelegramBot bot;
     private List<Action> actions = new ArrayList<>();
 
-    public AnonChatBot() throws CoreException {
+    public AnonChatBot(Long userAdmin) throws CoreException {
 
         ServiceChat serviceChat = new ServiceChat();
         MsgProcess msg = new MsgProcess();
-        ActionHelper actionHelper = new ActionHelper(serviceChat);
+        ActionHelper actionHelper = new ActionHelper(serviceChat, userAdmin);
 
         token = Properties.get(Property.TOKEN_BOT.name());
         log.info("TOKEN: ..." + token.substring(0, 5));
@@ -47,6 +50,11 @@ public class AnonChatBot implements Route {
         actions.add(ABOUT.builder().bot(bot).msg(msg).serviceChat(serviceChat).build());
 
         actions.add(CHAT.builder().bot(bot).msg(msg).serviceChat(serviceChat).actionHelper(actionHelper).build());
+
+        final PeriodicalTasks periodicalTasks = new PeriodicalTasks(bot, serviceChat, msg);
+        Executors.newScheduledThreadPool(1)
+                .scheduleAtFixedRate(periodicalTasks::exec, 0, 1, TimeUnit.MINUTES);
+
     }
 
     @Override

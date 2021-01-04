@@ -4,10 +4,9 @@ import com.google.gson.GsonBuilder;
 import com.pengrad.telegrambot.TelegramBot;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.dto.StatsDto;
+import net.sytes.jaraya.dto.UsersDto;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.component.MsgProcess;
-import net.sytes.jaraya.dto.UsersDto;
 import net.sytes.jaraya.repo.UserRepo;
 import net.sytes.jaraya.state.State;
 import spark.Request;
@@ -22,7 +21,6 @@ public class Stats implements Route {
 
     private TelegramBot bot;
     private UserRepo userRepo = new UserRepo();
-    private MsgProcess msg = new MsgProcess();
 
     public Stats() throws TelegramException {
     }
@@ -45,7 +43,6 @@ public class Stats implements Route {
                     .build());
         } else if (type.contentEquals("users")) {
             String state = request.queryParams("state");
-
             List<User> users = userRepo.getAllByLang(lang)
                     .stream()
                     .filter(x -> state == null || x.getState().contentEquals(state)).collect(Collectors.toList());

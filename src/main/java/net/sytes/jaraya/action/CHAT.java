@@ -18,6 +18,7 @@ import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.ServiceChat;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.util.Keyboard;
+import net.sytes.jaraya.util.StringUtil;
 import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.List;
@@ -73,7 +74,14 @@ public class CHAT implements Action {
                         }
                     }
                     if (message.getText() != null) {
-                        if (actionHelper.isInactive(bot.execute(new SendMessage(id, message.getText())
+                        String msgText = String.format("%s", StringUtil.clean("» " + message.getText()));
+                        if (user.getIdUser().longValue() == actionHelper.getUserAdmin()) {
+                            bot.execute(new SendMessage(user.getIdUser(), msgText)
+                                    .parseMode(ParseMode.MarkdownV2)
+                                    .disableWebPagePreview(false)
+                                    .disableNotification(false));
+                        }
+                        if (actionHelper.isInactive(bot.execute(new SendMessage(id, msgText)
                                         .parseMode(ParseMode.MarkdownV2)
                                         .disableWebPagePreview(false)
                                         .disableNotification(false))

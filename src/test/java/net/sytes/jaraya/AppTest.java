@@ -1,20 +1,15 @@
 package net.sytes.jaraya;
 
-import static org.junit.Assert.assertTrue;
-
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-{
-    /**
-     * Rigorous Test :-)
-     */
+@Slf4j
+public class AppTest {
+
     @Test
-    public void shouldAnswerWithTrue()
-    {
-        assertTrue( true );
+    public void formar() {
+        log.info("{} {}", "hola", "mundo");
+        String value = String.format("%s %s", "hola", "mundo");
+        log.info(value);
     }
 }

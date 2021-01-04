@@ -142,9 +142,14 @@ public class ServiceChat {
     }
 
     public List<User> getUsersInactive() throws TelegramException {
-        return userRepo.getAllInactiveMinutes(60 * 12)
+        return getUsersInactive(State.PLAY, 60 * 12);
+    }
+
+    public List<User> getUsersInactive(State state, int minutes) throws TelegramException {
+        return userRepo.getAllInactiveMinutes(minutes)
                 .parallelStream()
-                .filter(x -> x.getState().contentEquals(State.PLAY.name()))
+                .filter(x -> x.getState().contentEquals(state.name()))
                 .collect(Collectors.toList());
     }
+
 }

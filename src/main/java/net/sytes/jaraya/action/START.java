@@ -17,6 +17,8 @@ import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.Objects;
 
+import static net.sytes.jaraya.util.Operator.elvis;
+
 @Builder
 @Slf4j
 public class START implements Action {
@@ -48,7 +50,10 @@ public class START implements Action {
                     .username(message.getFromUsername())
                     .state(State.NEW_USER.name())
                     .lang(message.getLanguageCode() != null ? message.getLanguageCode() : MsgProcess.ES)
-                    .description(msg.msg(Msg.NEW_BIO, message.getLanguageCode() != null ? message.getLanguageCode() : MsgProcess.ES) + message.getFromId().longValue() % 2879)
+                    .description(msg.msg(
+                            Msg.NEW_BIO,
+                            elvis(message.getLanguageCode(), MsgProcess.ES),
+                            message.getFromId().longValue() % 2879))
                     .build();
             serviceChat.getUserRepo().save(user);
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.START_OK, user.getLang()))

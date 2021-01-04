@@ -43,9 +43,14 @@ public class MsgProcess {
         return map;
     }
 
+    public String msg(Msg msg, String lang, Object... objects) {
+        String format = String.format(msg(msg, lang), objects);
+        return format.contentEquals(msg.code()) ? msg.code() : String.format(format, objects);
+    }
+
     public String msg(Msg msg, String lang) {
         if (Objects.isNull(msg)) {
-            return null;
+            return "";
         }
 
         String translate = languages.get(langAvailable(lang) ? lang : EN).get(msg);
