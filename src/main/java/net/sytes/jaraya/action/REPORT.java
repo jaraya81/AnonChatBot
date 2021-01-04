@@ -4,33 +4,30 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.ServiceChat;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.vo.MessageChat;
-import net.sytes.jaraya.component.MsgProcess;
-import net.sytes.jaraya.enums.Msg;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Builder
 @Slf4j
-public class REPORT implements Action {
+public class REPORT extends Action implements IAction {
     public static final String CODE = "Spam";
 
-    private TelegramBot bot;
-    private MsgProcess msg;
-
-    private ServiceChat serviceChat;
+    public REPORT(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+        super(bot, serviceChat, msg, userAdmin);
+    }
 
     @Override
-    public Action exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) throws TelegramException {
         if (check(message)) {
             report(message);
         }
@@ -61,7 +58,7 @@ public class REPORT implements Action {
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(true));
-            log.info(CODE + " :: " + message.getChatId() + " :: " + (sendResponse.isOk() ? "OK" : "NOK"));
+            logResult(CODE, message.getChatId(), sendResponse.isOk());
         }
 
     }

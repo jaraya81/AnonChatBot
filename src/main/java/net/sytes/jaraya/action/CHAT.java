@@ -7,9 +7,7 @@ import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.request.SendSticker;
 import com.pengrad.telegrambot.request.SendVoice;
 import com.pengrad.telegrambot.response.SendResponse;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.component.ActionHelper;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
@@ -25,18 +23,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Builder
 @Slf4j
-public class CHAT implements Action {
+public class CHAT extends Action implements IAction {
 
-    private TelegramBot bot;
-    private MsgProcess msg;
-
-    private ServiceChat serviceChat;
-    private ActionHelper actionHelper;
+    public CHAT(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+        super(bot, serviceChat, msg, userAdmin);
+    }
 
     @Override
-    public Action exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) throws TelegramException {
         if (check(message)) {
             chat(message);
         }
@@ -52,36 +47,35 @@ public class CHAT implements Action {
                 Chat chat = chats.get(0);
                 Long id = chat.otherId(user.getIdUser());
                 if (User.isPlayed(serviceChat.getUserRepo().getByIdUser(id))) {
-                    if (message.getStickerFileId() != null) {
-                        if (actionHelper.isInactive(bot.execute(new SendSticker(id, message.getStickerFileId())
-                                .disableNotification(false)), id)) {
-                            sendNextU(message, user, chat);
-                        }
+                    if (message.getStickerFileId() != null &&
+                            isInactive(bot.execute(new SendSticker(id, message.getStickerFileId())
+                                    .disableNotification(false)), id)) {
+                        sendNextU(message, user, chat);
                     }
-                    if (message.getPhoto() != null) {
-                        if (actionHelper.isInactive(bot.execute(new SendPhoto(id, message.getPhoto())
-                                .parseMode(ParseMode.MarkdownV2)
-                                .caption(message.getCaption() != null ? message.getCaption() : "")
-                                .disableNotification(false)), id)) {
-                            sendNextU(message, user, chat);
-                        }
+                    if (message.getPhoto() != null &&
+                            isInactive(bot.execute(new SendPhoto(id, message.getPhoto())
+                                    .parseMode(ParseMode.MarkdownV2)
+                                    .caption(message.getCaption() != null ? message.getCaption() : "")
+                                    .disableNotification(false)), id)) {
+                        sendNextU(message, user, chat);
                     }
-                    if (message.getVoiceFileId() != null) {
-                        if (actionHelper.isInactive(bot.execute(new SendVoice(id, message.getVoiceFileId())
-                                .parseMode(ParseMode.MarkdownV2)
-                                .disableNotification(false)), id)) {
-                            sendNextU(message, user, chat);
-                        }
+
+                    if (message.getVoiceFileId() != null &&
+                            isInactive(bot.execute(new SendVoice(id, message.getVoiceFileId())
+                                    .parseMode(ParseMode.MarkdownV2)
+                                    .disableNotification(false)), id)) {
+                        sendNextU(message, user, chat);
                     }
+
                     if (message.getText() != null) {
                         String msgText = String.format("%s", StringUtil.clean("» " + message.getText()));
-                        if (user.getIdUser().longValue() == actionHelper.getUserAdmin()) {
+                        if (user.getIdUser().longValue() == getUserAdmin()) {
                             bot.execute(new SendMessage(user.getIdUser(), msgText)
                                     .parseMode(ParseMode.MarkdownV2)
                                     .disableWebPagePreview(false)
                                     .disableNotification(false));
                         }
-                        if (actionHelper.isInactive(bot.execute(new SendMessage(id, msgText)
+                        if (isInactive(bot.execute(new SendMessage(id, msgText)
                                         .parseMode(ParseMode.MarkdownV2)
                                         .disableWebPagePreview(false)
                                         .disableNotification(false))
@@ -97,7 +91,7 @@ public class CHAT implements Action {
                         .disableWebPagePreview(true)
                         .disableNotification(true)
                         .replyMarkup(Keyboard.play()));
-                log.info("CHAT" + " :: " + message.getChatId() + " :: " + (sendResponse.isOk() ? "OK" : "NOK"));
+                logResult("CHAT", message.getChatId(), sendResponse.isOk());
             }
 
 
@@ -113,7 +107,7 @@ public class CHAT implements Action {
     }
 
 
-    private boolean check(MessageChat message) {
+    public boolean check(MessageChat message) {
         return Objects.nonNull(message)
                 && (message.getText() == null ||
                 (!message.getText().contentEquals(NEXT.CODE)

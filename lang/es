@@ -12,11 +12,14 @@ BIO=<pre>Escribe una /bio que te describa no más de 140 caracteres.\nEjemplo: /
 CONFIG=<pre>Ingresa a alguna de las opciones a configurar o <b>Play</b> para iniciar.</pre>
 CHAT_TIMEOUT=<pre>Tiempo de chat agotado, presiona <b>Next!</b> para un nuevo Random.</pre>
 USER_BLOCK=<pre>Tu Random ha sido bloqueado, ya no lo verás nuevamente por acá!\nPresiona nuevamente <b>Next!</b> para un Random</pre>
-ABOUT=<b>¿Qué es RandomNext?</b>\n\nEs un chat donde puedes conversar con otras personas de manera anónima. Cada vez que hagas <b>Next!</b> te conectará con una persona distinta.\n\nSi tienes dudas o sugerencias, puedes ingresar al chat de la aplicación:\n\nhttps://t.me/RandomNextChat \n\n<b>¿Te sobran Bitcoins?</b>\n Dónalo al proyecto.\n Wallet: <pre>1JC6Y1XGqcMZyXjKtMxvomWsCuBRT2KXM5</pre>
+ABOUT=<b>¿Qué es RandomNext?</b>%n%nEs un chat donde puedes conversar con otras personas de manera anónima.
++ Cada vez que hagas <b>Next!</b> te conectará con una persona distinta.%n%nSi tienes dudas o sugerencias,
++ puedes ingresar al chat de la aplicación:%n%nhttps://t.me/RandomNextChat %n%n<b>¿Te sobran Bitcoins?</b>
++ %n Dónalo al proyecto.%n Wallet: <pre>1JC6Y1XGqcMZyXjKtMxvomWsCuBRT2KXM5</pre>%n%n
++ Usuarios activos: %s
 NEXT_YOU=<pre>Te han hecho <b>Next!</b> Tú haz <b>Next!</b> para encontrar tu Random.</pre>
 INACTIVITY_USER=<pre>Se ha pausado tu bot por inactividad, presiona <b>PLAY</b> para continuar chateando.</pre>
 SET_LANG_OK=<pre>Idioma definido: </pre>
 LANG=<pre>Escribe /lang seguido del idioma de tu preferencia. Idiomas disponibles actualmente 'es' (Español) y 'en' (English)\n\nEjemplo: /lang es</pre>
-USER_ACTIVE=Usuarios activos: 
-NEW_BIO=Soy el usuario %s
+USER_ACTIVE=Usuarios activos: %s
 REMINDER_PAUSED_USER=Actívate y diviértete anónimamente con @RandomNextBot, presiona 'Play'.

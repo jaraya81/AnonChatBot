@@ -4,31 +4,29 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.ServiceChat;
 import net.sytes.jaraya.state.ChatState;
-import net.sytes.jaraya.vo.MessageChat;
-import net.sytes.jaraya.component.MsgProcess;
-import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.state.State;
 import net.sytes.jaraya.util.Keyboard;
+import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Builder
 @Slf4j
-public class PAUSE implements Action {
+public class PAUSE extends Action implements IAction {
     public final static String CODE = "Pause";
 
-    private ServiceChat serviceChat;
-    private TelegramBot bot;
-    private MsgProcess msg;
+    public PAUSE(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+        super(bot, serviceChat, msg, userAdmin);
+    }
 
     public static boolean check(MessageChat message) {
         return Objects.nonNull(message)
@@ -37,7 +35,7 @@ public class PAUSE implements Action {
     }
 
     @Override
-    public Action exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) throws TelegramException {
         if (check(message)) {
             pause(message);
         }
@@ -63,7 +61,7 @@ public class PAUSE implements Action {
                     .disableWebPagePreview(true)
                     .disableNotification(true)
                     .replyMarkup(Keyboard.pause()));
-            log.info(CODE + " :: " + message.getChatId() + " :: " + (sendResponse.isOk() ? "OK" : "NOK"));
+            logResult(CODE, message.getChatId(), sendResponse.isOk());
         }
     }
 }

@@ -5,7 +5,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.component.ActionHelper;
+import net.sytes.jaraya.action.Action;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.service.ServiceChat;
 import net.sytes.jaraya.state.State;
@@ -18,17 +18,10 @@ import java.util.Map;
 import static net.sytes.jaraya.util.Operator.elvis;
 
 @Slf4j
-public class Notification implements Route {
-
-    private final TelegramBot bot;
-    private final ServiceChat serviceChat = new ServiceChat();
-    private final ActionHelper helperBot;
-    private final Long userAdmin;
+public class Notification extends Action implements Route {
 
     public Notification(TelegramBot bot, Long userAdmin) throws TelegramException {
-        this.bot = bot;
-        this.userAdmin = userAdmin;
-        this.helperBot = new ActionHelper(serviceChat, userAdmin);
+        super(bot, new ServiceChat(), null, userAdmin);
     }
 
     @Override
@@ -48,7 +41,6 @@ public class Notification implements Route {
 
         String text = String.format("<pre>%s</pre>%n%n%s", elvis(type, "Broadcast Message"), msg);
         if (elvis(test, true)) {
-            if (userAdmin != null)
                 bot.execute(new SendMessage(userAdmin, "T:" + text)
                         .parseMode(ParseMode.HTML));
         } else {
@@ -56,7 +48,7 @@ public class Notification implements Route {
                     .filter(x -> !x.getState().contentEquals(State.BANNED.name()) && !x.getState().contentEquals(State.STOP.name()))
                     .forEach(x -> {
                         try {
-                            helperBot.isInactive(bot.execute(new SendMessage(x.getIdUser(), text)
+                            isInactive(bot.execute(new SendMessage(x.getIdUser(), text)
                                     .parseMode(ParseMode.HTML)), x.getIdUser());
                         } catch (TelegramException e) {
                             log.error("", e);

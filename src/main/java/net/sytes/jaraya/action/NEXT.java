@@ -4,7 +4,6 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
@@ -21,19 +20,18 @@ import java.util.stream.Collectors;
 
 import static net.sytes.jaraya.util.Operator.elvis;
 
-@Builder
 @Slf4j
-public class NEXT implements Action {
+public class NEXT extends Action implements IAction {
 
     public static final String CODE = "Next!";
 
-    private TelegramBot bot;
-    private MsgProcess msg;
+    public NEXT(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+        super(bot, serviceChat, msg, userAdmin);
+    }
 
-    private ServiceChat serviceChat;
 
     @Override
-    public Action exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) throws TelegramException {
         if (check(message)) {
             next(message);
         }
@@ -64,20 +62,20 @@ public class NEXT implements Action {
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
                         .disableNotification(true));
-                log.info(CODE + " :: " + message.getChatId() + " :: " + (sendResponse1.isOk() ? "OK" : "NOK"));
+                logResult(CODE, message.getChatId(), sendResponse1.isOk());
                 SendResponse sendResponse2 = bot.execute(new SendMessage(
                         user2.getIdUser(),
                         msg.msg(Msg.USER_NEXT_OK, user2.getLang(), elvis(user2.getDescription(), ""), elvis(user1.getDescription(), "")))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
                         .disableNotification(true));
-                log.info(CODE + " :: " + message.getChatId() + " :: " + (sendResponse2.isOk() ? "OK" : "NOK"));
+                logResult(CODE, message.getChatId(), sendResponse2.isOk());
             } else {
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_NEXT_WAITING, user1.getLang()))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
                         .disableNotification(true));
-                log.info(CODE + " :: " + message.getChatId() + " :: " + (sendResponse.isOk() ? "OK" : "NOK"));
+                logResult(CODE, message.getChatId(), sendResponse.isOk());
             }
 
 

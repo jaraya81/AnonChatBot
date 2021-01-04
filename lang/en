@@ -14,8 +14,12 @@ CONFIG=<pre>Enter one of the options to be configured or <b>Play</b> to start.</
 CHAT_TIMEOUT=<pre>Chat time is up, press <b>Next!</b> for a new Random.</pre>
 USER_BLOCK=<pre>Your Random has been blocked, you will not see it again here!\n
 + Press <b>Next!</b> again for a Random.</pre>
-ABOUT=<b>What is RandomNext?</b>\n\n
-+ It's a chat where you can chat with other people anonymously. Every time you do <b>Next!</b> will connect you with a different person. \n\nIf you have questions or suggestions, you can enter the application chat: \n\nhttps://t.me/RandomNextChat \n\n<b>Do you have enough Bitcoins?</b>\n Give it to the project.\n Wallet: <pre>1JC6Y1XGqcMZyXjKtMxvomWsCuBRT2KXM5</pre>
+ABOUT=<b>What is RandomNext?</b>%n%n
++ It's a chat where you can chat with other people anonymously. Every time you do <b>Next!</b>
++ will connect you with a different person. %n%nIf you have questions or suggestions, you can
++ enter the application chat: %n%nhttps://t.me/RandomNextChat %n%n<b>Do you have enough Bitcoins?</b>
++ %n Give it to the project.%n Wallet: <pre>1JC6Y1XGqcMZyXjKtMxvomWsCuBRT2KXM5</pre>
++
 NEXT_YOU=<pre>It has made you <b>Next!</b> You do <b>Next!</b> to find your Random.</pre>
 INACTIVITY_USER=<pre>Your bot has been paused due to inactivity, press <b>PLAY</b> to continue chatting.</pre>
 SET_LANG_OK=<pre>Language defined: </pre>

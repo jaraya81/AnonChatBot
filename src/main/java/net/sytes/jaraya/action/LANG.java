@@ -4,29 +4,28 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.ServiceChat;
 import net.sytes.jaraya.vo.MessageChat;
-import net.sytes.jaraya.component.MsgProcess;
-import net.sytes.jaraya.enums.Msg;
 
 import java.util.Objects;
 
 @Slf4j
-@Builder
-public class LANG implements Action {
+public class LANG extends Action implements IAction {
     public static final String CODE = "/lang";
     public static final String SET_CODE = "/lang ";
 
-    private ServiceChat serviceChat;
-    private TelegramBot bot;
-    private MsgProcess msg;
+
+    public LANG(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+        super(bot, serviceChat, msg, userAdmin);
+    }
 
     @Override
-    public Action exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) throws TelegramException {
         if (check(message)) {
             bio(message);
         }
@@ -53,13 +52,13 @@ public class LANG implements Action {
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
                         .disableNotification(true));
-                log.info(SET_CODE + " :: " + message.getChatId() + " :: " + (sendResponse.isOk() ? "OK" : "NOK"));
+                logResult(CODE, message.getChatId(), sendResponse.isOk());
             } else if (message.getText().contentEquals(CODE)) {
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.LANG, user.getLang()))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
                         .disableNotification(true));
-                log.info(CODE + " :: " + message.getChatId() + " :: " + (sendResponse.isOk() ? "OK" : "NOK"));
+                logResult(CODE, message.getChatId(), sendResponse.isOk());
             }
 
         }

@@ -5,7 +5,6 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.*;
-import net.sytes.jaraya.component.ActionHelper;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Property;
@@ -27,29 +26,27 @@ public class AnonChatBot implements Route {
 
     private String token;
     private TelegramBot bot;
-    private List<Action> actions = new ArrayList<>();
+    private List<IAction> actions = new ArrayList<>();
 
     public AnonChatBot(Long userAdmin) throws CoreException {
 
         ServiceChat serviceChat = new ServiceChat();
         MsgProcess msg = new MsgProcess();
-        ActionHelper actionHelper = new ActionHelper(serviceChat, userAdmin);
 
         token = Properties.get(Property.TOKEN_BOT.name());
         log.info("TOKEN: ..." + token.substring(0, 5));
         bot = new TelegramBot.Builder(token).build();
-        actions.add(START.builder().bot(bot).msg(msg).serviceChat(serviceChat).build());
-        actions.add(PLAY.builder().bot(bot).msg(msg).serviceChat(serviceChat).build());
-        actions.add(PAUSE.builder().bot(bot).msg(msg).serviceChat(serviceChat).build());
-        actions.add(NEXT.builder().bot(bot).msg(msg).serviceChat(serviceChat).build());
-        actions.add(BLOCK.builder().bot(bot).msg(msg).serviceChat(serviceChat).build());
-        actions.add(REPORT.builder().bot(bot).msg(msg).serviceChat(serviceChat).build());
-        actions.add(CONFIG.builder().bot(bot).msg(msg).serviceChat(serviceChat).build());
-        actions.add(BIO.builder().bot(bot).msg(msg).serviceChat(serviceChat).build());
-        actions.add(LANG.builder().bot(bot).msg(msg).serviceChat(serviceChat).build());
-        actions.add(ABOUT.builder().bot(bot).msg(msg).serviceChat(serviceChat).build());
-
-        actions.add(CHAT.builder().bot(bot).msg(msg).serviceChat(serviceChat).actionHelper(actionHelper).build());
+        actions.add(new START(bot, serviceChat, msg, userAdmin));
+        actions.add(new PLAY(bot, serviceChat, msg, userAdmin));
+        actions.add(new PAUSE(bot, serviceChat, msg, userAdmin));
+        actions.add(new NEXT(bot, serviceChat, msg, userAdmin));
+        actions.add(new BLOCK(bot, serviceChat, msg, userAdmin));
+        actions.add(new REPORT(bot, serviceChat, msg, userAdmin));
+        actions.add(new CONFIG(bot, serviceChat, msg, userAdmin));
+        actions.add(new BIO(bot, serviceChat, msg, userAdmin));
+        actions.add(new LANG(bot, serviceChat, msg, userAdmin));
+        actions.add(new ABOUT(bot, serviceChat, msg, userAdmin));
+        actions.add(new CHAT(bot, serviceChat, msg, userAdmin));
 
         final PeriodicalTasks periodicalTasks = new PeriodicalTasks(bot, serviceChat, msg);
         Executors.newScheduledThreadPool(1)
@@ -69,7 +66,7 @@ public class AnonChatBot implements Route {
             return "NULL PARSING MESSAGE";
         }
         log.info("message in " + message.getMessageId());
-        for (Action action : actions) {
+        for (IAction action : actions) {
             action.exec(message);
         }
         return "";
