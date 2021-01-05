@@ -7,7 +7,7 @@ import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.exception.UtilException;
 import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.properties.Properties;
+import net.sytes.jaraya.util.Properties;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;

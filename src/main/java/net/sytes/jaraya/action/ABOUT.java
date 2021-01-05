@@ -42,7 +42,7 @@ public class ABOUT extends Action implements IAction {
         if (User.exist(user) && !User.isBanned(user) && message.getText().startsWith(CODE)) {
             long size = serviceChat.getUserRepo().getAllByLang(user.getLang()).parallelStream().filter(x -> x.getState().contentEquals(State.PLAY.name())).count();
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(),
-                    msg.msg(Msg.ABOUT, user.getLang(), size))
+                    msg.msg(Msg.ABOUT, user.getLang(), String.valueOf(size)))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(true));

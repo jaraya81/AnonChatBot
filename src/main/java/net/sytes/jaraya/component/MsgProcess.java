@@ -1,20 +1,25 @@
 package net.sytes.jaraya.component;
 
+import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.enums.Msg;
-import net.sytes.jaraya.exception.UtilException;
-import net.sytes.jaraya.properties.Properties;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@Slf4j
 public class MsgProcess {
 
     public static final String EN = "en";
     public static final String ES = "es";
+    public static final String PT = "pt";
 
-    private Map<String, Map<Msg, String>> languages = new HashMap<>();
+    private final Map<String, Map<String, String>> languages = new HashMap<>();
 
     public MsgProcess() {
         super();
@@ -22,42 +27,37 @@ public class MsgProcess {
     }
 
     private void languages() {
-        languages.put(EN, getMap(EN));
         languages.put(ES, getMap(ES));
+        languages.put(EN, getMap(EN));
+        languages.put(PT, getMap(PT));
     }
 
-    private Map<Msg, String> getMap(String lang) {
-        Map<Msg, String> map = new HashMap<>();
+    private Map<String, String> getMap(String lang) {
 
-        File fileLang = new File("lang/" + lang);
-        if (!fileLang.exists()) {
-            return map;
-        }
+        File fileLang = new File("lang/" + lang + ".json");
         try {
-            for (Msg msg : Msg.values()) {
-                map.put(msg, Properties.get(msg.name(), fileLang.getAbsolutePath()));
-            }
-        } catch (UtilException e) {
-            e.printStackTrace();
+            return fileLang.exists()
+                    ? (Map<String, String>) new Gson().fromJson(new String(Files.readAllBytes(fileLang.toPath()), StandardCharsets.UTF_8), Map.class)
+                    : new HashMap<>();
+        } catch (IOException e) {
+            log.error("", e);
         }
-        return map;
+        return new HashMap<>();
     }
 
     public String msg(Msg msg, String lang, Object... objects) {
-        String format = String.format(msg(msg, lang), objects);
-        return format.contentEquals(msg.code()) ? msg.code() : String.format(format, objects);
-    }
-
-    public String msg(Msg msg, String lang) {
         if (Objects.isNull(msg)) {
             return "";
         }
-
-        String translate = languages.get(langAvailable(lang) ? lang : EN).get(msg);
-        return translate != null ? translate : msg.code();
+        String format = languages.get(langOrDefault(lang)).get(msg.name());
+        if (format != null) {
+            return objects.length != 0 ? String.format(format, objects) : format;
+        } else {
+            return msg.name();
+        }
     }
 
-    public boolean langAvailable(String lang) {
+    private boolean langAvailable(String lang) {
         if (Objects.isNull(lang) || lang.isEmpty()) {
             return false;
         }
@@ -65,6 +65,6 @@ public class MsgProcess {
     }
 
     public String langOrDefault(String lang) {
-        return langAvailable(lang) ? lang : EN;
+        return langAvailable(lang) ? lang : ES;
     }
 }

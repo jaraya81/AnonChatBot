@@ -9,7 +9,7 @@ import net.sytes.jaraya.controller.Stats;
 import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.CoreException;
 import net.sytes.jaraya.exception.TelegramException;
-import net.sytes.jaraya.properties.Properties;
+import net.sytes.jaraya.util.Properties;
 
 import static spark.Spark.*;
 

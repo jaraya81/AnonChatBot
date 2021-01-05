@@ -20,11 +20,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.sytes.jaraya</groupId>
-            <artifactId>jaraya-utils</artifactId>
-            <version>1.0-RC3</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.8.6</version>
@@ -80,13 +75,6 @@
             <version>[4.13.1,)</version>
         </dependency>
     </dependencies>
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub OWNER Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/jaraya81/jaraya-utils</url>
-        </repository>
-    </distributionManagement>
     <build>
         <plugins>
             <plugin>

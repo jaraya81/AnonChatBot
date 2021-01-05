@@ -5,6 +5,8 @@ public class StringUtil {
         if (text == null) return "";
         return text.replace(")", "\\)")
                 .replace(".", "\\.")
-                .replace("-", "\\-");
+                .replace("-", "\\-")
+                .replace("!", "\\!")
+                .replace("=", "\\=");
     }
 }

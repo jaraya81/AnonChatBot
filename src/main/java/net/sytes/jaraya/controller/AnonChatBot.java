@@ -9,7 +9,7 @@ import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.CoreException;
-import net.sytes.jaraya.properties.Properties;
+import net.sytes.jaraya.util.Properties;
 import net.sytes.jaraya.service.ServiceChat;
 import net.sytes.jaraya.vo.MessageChat;
 import spark.Request;

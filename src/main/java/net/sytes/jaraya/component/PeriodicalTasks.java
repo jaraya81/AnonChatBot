@@ -41,7 +41,7 @@ public class PeriodicalTasks {
     private void reminderInactiveUsers() throws TelegramException {
         List<User> users = serviceChat.getUsersInactive(State.PAUSE, 60 * 24);
         for (User user : users) {
-            log.info("{} :: {}", Msg.REMINDER_PAUSED_USER.code(), user.getIdUser());
+            log.info("{} :: {}", Msg.REMINDER_PAUSED_USER.name(), user.getIdUser());
             serviceChat.getUserRepo().save(user);
             bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang()))
                     .parseMode(ParseMode.HTML)
@@ -56,7 +56,7 @@ public class PeriodicalTasks {
         Set<Long> ids = serviceChat.cleanerChat();
         for (Long id : ids) {
             User user = serviceChat.getUserRepo().getByIdUser(id);
-            log.info("{} :: {}", Msg.CHAT_TIMEOUT.code(), user.getIdUser());
+            log.info("{} :: {}", Msg.CHAT_TIMEOUT.name(), user.getIdUser());
             bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.CHAT_TIMEOUT, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
@@ -68,7 +68,7 @@ public class PeriodicalTasks {
     private void pauseUsersInactive() throws TelegramException {
         List<User> users = serviceChat.getUsersInactive(State.PLAY, 60 * 24 * 7);
         for (User user : users) {
-            log.info("{} :: {}", Msg.INACTIVITY_USER.code(), user.getIdUser());
+            log.info("{} :: {}", Msg.INACTIVITY_USER.name(), user.getIdUser());
             user.setState(State.PAUSE.name());
             serviceChat.getUserRepo().save(user);
             bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.INACTIVITY_USER, user.getLang()))

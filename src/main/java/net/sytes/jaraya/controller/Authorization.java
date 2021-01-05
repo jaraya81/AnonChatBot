@@ -2,8 +2,8 @@ package net.sytes.jaraya.controller;
 
 import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.CoreException;
-import net.sytes.jaraya.properties.Properties;
 import net.sytes.jaraya.security.Base64;
+import net.sytes.jaraya.util.Properties;
 import spark.Filter;
 import spark.Request;
 import spark.Response;

@@ -60,21 +60,21 @@ public class NEXT extends Action implements IAction {
                         user1.getIdUser(),
                         msg.msg(Msg.USER_NEXT_OK, user1.getLang(), elvis(user1.getDescription(), ""), elvis(user2.getDescription(), "")))
                         .parseMode(ParseMode.HTML)
-                        .disableWebPagePreview(true)
-                        .disableNotification(true));
+                        .disableWebPagePreview(false)
+                        .disableNotification(false));
                 logResult(CODE, message.getChatId(), sendResponse1.isOk());
                 SendResponse sendResponse2 = bot.execute(new SendMessage(
                         user2.getIdUser(),
                         msg.msg(Msg.USER_NEXT_OK, user2.getLang(), elvis(user2.getDescription(), ""), elvis(user1.getDescription(), "")))
                         .parseMode(ParseMode.HTML)
-                        .disableWebPagePreview(true)
-                        .disableNotification(true));
+                        .disableWebPagePreview(false)
+                        .disableNotification(false));
                 logResult(CODE, message.getChatId(), sendResponse2.isOk());
             } else {
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_NEXT_WAITING, user1.getLang()))
                         .parseMode(ParseMode.HTML)
-                        .disableWebPagePreview(true)
-                        .disableNotification(true));
+                        .disableWebPagePreview(false)
+                        .disableNotification(false));
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
             }
 
