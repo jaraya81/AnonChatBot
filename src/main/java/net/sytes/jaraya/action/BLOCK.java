@@ -16,12 +16,11 @@ import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class BLOCK extends Action implements IAction {
 
-    public static final String CODE = "Block";
+    public static final String CODE = "✖ Block";
 
     public BLOCK(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
@@ -36,13 +35,13 @@ public class BLOCK extends Action implements IAction {
     }
 
     private void block(MessageChat message) throws TelegramException {
-        User user1 = serviceChat.getUserRepo().getByIdUser(message.getFromId().longValue());
+        User user1 = serviceChat.getUserByIdUser(message.getFromId().longValue());
         if (User.exist(user1) && !User.isBanned(user1) && User.isPlayed(user1)) {
-            List<Chat> chats = serviceChat.find(user1.getIdUser()).stream().filter(x -> x.getState().contentEquals(ChatState.ACTIVE.name())).collect(Collectors.toList());
+            List<Chat> chats = serviceChat.getChatsByIdUserAndState(user1.getIdUser(), ChatState.ACTIVE);
             if (!chats.isEmpty()) {
                 Chat chat = chats.get(0);
                 chat.setState(ChatState.BLOCKED.name());
-                serviceChat.getChatRepo().save(chat);
+                serviceChat.saveChat(chat);
                 SendResponse sendResponse = bot.execute(new SendMessage(user1.getIdUser(), msg.msg(Msg.USER_BLOCK, user1.getLang()))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)

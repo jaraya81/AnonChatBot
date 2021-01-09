@@ -16,13 +16,14 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 import java.io.File;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class ChatRepo {
+public class ChatRepo implements AutoCloseable {
 
     private static final String TABLE = "chats";
 
@@ -33,7 +34,7 @@ public class ChatRepo {
     private static final String COLUMN_CREATION = "datecreation";
     private static final String COLUMN_UPDATE = "dateupdate";
 
-    private Connection connect;
+    private final Connection connect;
 
     public ChatRepo() throws TelegramException {
         super();
@@ -89,6 +90,7 @@ public class ChatRepo {
 
     }
 
+    @Override
     public void close() throws TelegramException {
         try {
             DbUtils.close(connect);
@@ -97,7 +99,29 @@ public class ChatRepo {
         }
     }
 
+
     @SneakyThrows
+    public List<Chat> getByIdUserAndState(Long idUser, ChatState state) {
+        if (Objects.isNull(idUser)) {
+            return new ArrayList<>();
+        }
+        List<Chat> chats;
+        try {
+            String sql = String.format("SELECT * FROM %s WHERE %s=? AND (%s=? OR %s=?)",
+                    TABLE,
+                    COLUMN_STATE,
+                    COLUMN_ID_USER1,
+                    COLUMN_ID_USER2);
+            chats = new QueryRunner().query(connect, sql,
+                    new BeanListHandler<>(Chat.class), state.name(), idUser, idUser);
+        } catch (SQLException e) {
+            throw new TelegramException(e);
+        }
+        return chats;
+    }
+
+    @SneakyThrows
+    @Deprecated
     public List<Chat> getByIdUser(Long idUser) {
         if (Objects.isNull(idUser)) {
             return null;
@@ -138,19 +162,7 @@ public class ChatRepo {
 
     }
 
-    public List<Chat> getAll() throws TelegramException {
-
-        List<Chat> users;
-        try {
-            users = new QueryRunner().query(connect, "SELECT * FROM " + TABLE,
-                    new BeanListHandler<>(Chat.class));
-        } catch (SQLException e) {
-            throw new TelegramException(e);
-        }
-        return users;
-    }
-
-    public List<Chat> getAllStatusMinusMinute(ChatState chatState, int minutes) throws TelegramException {
+    public List<Chat> getByStatusAndMinusMinute(ChatState chatState, int minutes) throws TelegramException {
         List<Chat> chats;
         try {
             chats = new QueryRunner().query(connect, "SELECT * FROM " + TABLE + " WHERE " + COLUMN_STATE + "=?",
@@ -163,5 +175,21 @@ public class ChatRepo {
                 .filter(x -> x.getDateupdate().toLocalDateTime().plusMinutes(minutes).isBefore(LocalDateTime.now()))
                 .collect(Collectors.toList());
 
+    }
+
+    @SneakyThrows
+    public void delete(List<Chat> chats) {
+        chats.parallelStream().forEach(this::delete);
+    }
+
+    @SneakyThrows
+    public int delete(Chat chat) {
+        String insertQuery = String.format("DELETE FROM %s WHERE %s in (?)", TABLE, COLUMN_ID);
+        try {
+            return new QueryRunner().update(connect, insertQuery, chat.getId());
+        } catch (SQLException e) {
+            TelegramException.throwIt(e);
+        }
+        return 0;
     }
 }

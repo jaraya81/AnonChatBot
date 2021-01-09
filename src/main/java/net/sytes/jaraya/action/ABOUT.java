@@ -38,9 +38,9 @@ public class ABOUT extends Action implements IAction {
     }
 
     private void action(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserRepo().getByIdUser(message.getFromId().longValue());
+        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user) && message.getText().startsWith(CODE)) {
-            long size = serviceChat.getUserRepo().getAllByLang(user.getLang()).parallelStream().filter(x -> x.getState().contentEquals(State.PLAY.name())).count();
+            long size = serviceChat.getUsersByState(State.PLAY).size();
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(),
                     msg.msg(Msg.ABOUT, user.getLang(), String.valueOf(size)))
                     .parseMode(ParseMode.HTML)

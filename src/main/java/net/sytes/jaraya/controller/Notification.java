@@ -7,12 +7,15 @@ import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.Action;
 import net.sytes.jaraya.exception.TelegramException;
+import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.ServiceChat;
 import net.sytes.jaraya.state.State;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static net.sytes.jaraya.util.Operator.elvis;
@@ -32,20 +35,25 @@ public class Notification extends Action implements Route {
         Map params = new Gson().fromJson(request.body(), Map.class);
         Boolean test = (Boolean) params.get("test");
         String lang = (String) params.get("lang");
-        log.info(lang);
         String type = (String) params.get("type");
-        log.info(type);
-
         String msg = (String) params.get("msg");
-        log.info(msg);
+        Double lastMinutes = (Double) params.get("last_minutes");
 
         String text = String.format("<pre>%s</pre>%n%n%s", elvis(type, "Broadcast Message"), msg);
+
+        List<User> userList = new ArrayList<>();
         if (elvis(test, true)) {
-                bot.execute(new SendMessage(userAdmin, "T:" + text)
-                        .parseMode(ParseMode.HTML));
+            bot.execute(new SendMessage(userAdmin, "T:" + text)
+                    .parseMode(ParseMode.HTML));
         } else {
-            serviceChat.getUserRepo().getAllByLang(lang).parallelStream()
-                    .filter(x -> !x.getState().contentEquals(State.BANNED.name()) && !x.getState().contentEquals(State.STOP.name()))
+            if (lastMinutes == null) {
+                userList = serviceChat.getUsersByLang(lang);
+            } else {
+                userList = serviceChat.getByLangAndActivesUsers(lang, lastMinutes.intValue());
+            }
+            userList.parallelStream()
+                    .filter(x -> !x.getState().contentEquals(State.BANNED.name()))
+                    .filter(x -> !x.getState().contentEquals(State.STOP.name()))
                     .forEach(x -> {
                         try {
                             isInactive(bot.execute(new SendMessage(x.getIdUser(), text)
@@ -55,6 +63,6 @@ public class Notification extends Action implements Route {
                         }
                     });
         }
-        return text;
+        return userList.size();
     }
 }

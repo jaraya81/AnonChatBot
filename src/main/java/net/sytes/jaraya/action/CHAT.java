@@ -21,9 +21,6 @@ import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static net.sytes.jaraya.util.Operator.elvis;
 
 @Slf4j
 public class CHAT extends Action implements IAction {
@@ -41,36 +38,37 @@ public class CHAT extends Action implements IAction {
     }
 
     private void chat(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserRepo().getByIdUser(message.getFromId().longValue());
-        serviceChat.getUserRepo().save(user);
+        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
+        serviceChat.saveUser(user);
         if (User.exist(user) && !User.isBanned(user) && User.isPlayed(user)) {
-            List<Chat> chats = serviceChat.find(user.getIdUser()).stream().filter(x -> x.getState().contentEquals(ChatState.ACTIVE.name())).collect(Collectors.toList());
+            List<Chat> chats = serviceChat.getChatsByIdUserAndState(user.getIdUser(), ChatState.ACTIVE);
             if (!chats.isEmpty()) {
                 Chat chat = chats.get(0);
                 Long id = chat.otherId(user.getIdUser());
-                if (User.isPlayed(serviceChat.getUserRepo().getByIdUser(id))) {
+                if (User.isPlayed(serviceChat.getUserByIdUser(id))) {
                     if (message.getStickerFileId() != null &&
                             isInactive(bot.execute(new SendSticker(id, message.getStickerFileId())
                                     .disableNotification(false)), id)) {
-                        sendNextU(message, user, chat);
+                        sendNextU(user, chat);
                     }
                     if (message.getPhoto() != null &&
                             isInactive(bot.execute(new SendPhoto(id, message.getPhoto())
                                     .parseMode(ParseMode.MarkdownV2)
                                     .caption(message.getCaption() != null ? message.getCaption() : "")
                                     .disableNotification(false)), id)) {
-                        sendNextU(message, user, chat);
+                        sendNextU(user, chat);
                     }
 
                     if (message.getVoiceFileId() != null &&
                             isInactive(bot.execute(new SendVoice(id, message.getVoiceFileId())
                                     .parseMode(ParseMode.MarkdownV2)
                                     .disableNotification(false)), id)) {
-                        sendNextU(message, user, chat);
+                        sendNextU(user, chat);
                     }
 
                     if (message.getText() != null) {
                         String msgText = String.format("%s", StringUtil.clean("» " + message.getText()));
+                        log.info("{} -> {}: {}", user.getIdUser(), id, msgText.replaceAll("[\\d\\D]+", "*"));
                         if (user.getIdUser().longValue() == getUserAdmin()) {
                             bot.execute(new SendMessage(user.getIdUser(), msgText)
                                     .parseMode(ParseMode.MarkdownV2)
@@ -82,10 +80,10 @@ public class CHAT extends Action implements IAction {
                                         .disableWebPagePreview(false)
                                         .disableNotification(false))
                                 , id)) {
-                            sendNextU(message, user, chat);
+                            sendNextU(user, chat);
                         }
                     }
-                    serviceChat.getChatRepo().save(chat);
+                    serviceChat.saveChat(chat);
                 }
             } else {
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_NO_CHAT, user.getLang()))
@@ -93,18 +91,17 @@ public class CHAT extends Action implements IAction {
                         .disableWebPagePreview(true)
                         .disableNotification(true)
                         .replyMarkup(Keyboard.play()));
-                logResult("CHAT", message.getChatId(), sendResponse.isOk());
+                logResult(Msg.USER_NO_CHAT.name(), message.getChatId(), sendResponse.isOk());
             }
-
-
         }
     }
 
-    private void sendNextU(MessageChat message, User user, Chat chat) {
-        log.info("CHAT" + " :: " + message.getChatId() + " :: " + (bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.NEXT_YOU, user.getLang()))
-                .parseMode(ParseMode.HTML)
-                .disableWebPagePreview(true)
-                .disableNotification(true)).isOk() ? "OK" : "NOK"));
+    private void sendNextU(User user, Chat chat) {
+        log.info("{} :: {} :: {}", Msg.NEXT_YOU, user.getIdUser(),
+                bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.NEXT_YOU, user.getLang()))
+                        .parseMode(ParseMode.HTML)
+                        .disableWebPagePreview(true)
+                        .disableNotification(true)).isOk());
         chat.setState(ChatState.SKIPPED.name());
     }
 
@@ -113,6 +110,7 @@ public class CHAT extends Action implements IAction {
         return Objects.nonNull(message)
                 && (message.getText() == null ||
                 (!message.getText().contentEquals(NEXT.CODE)
+                        && !message.getText().contentEquals(NEXT.CODE_ALT)
                         && !message.getText().contentEquals(PAUSE.CODE)
                         && !message.getText().contentEquals(PLAY.CODE)
                         && !message.getText().contentEquals(BLOCK.CODE)

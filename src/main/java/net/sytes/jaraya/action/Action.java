@@ -42,15 +42,13 @@ public class Action {
             log.info("NOK " + response.description());
             if (response.description().contentEquals(FORBIDDEN_BLOCKED) ||
                     response.description().contentEquals(FORBIDDEN_DEACTIVATED)) {
-                log.info("STOP :: " + id);
-                User user = serviceChat.getUserRepo().getByIdUser(id);
+                User user = serviceChat.getUserByIdUser(id);
                 user.setState(State.STOP.name());
-                serviceChat.getUserRepo().save(user);
+                log.info("STOP :: {} :: {}", user.getIdUser(), serviceChat.saveUser(user));
                 return true;
             }
         }
         return false;
     }
-
 
 }

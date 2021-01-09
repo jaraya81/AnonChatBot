@@ -1,7 +1,7 @@
 package net.sytes.jaraya.service;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.Report;
@@ -12,7 +12,9 @@ import net.sytes.jaraya.repo.UserRepo;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,34 +22,53 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ServiceChat {
 
-    private static final String DEFAULT_LANG = MsgProcess.ES;
-
-    private ChatRepo chatRepo = new ChatRepo();
-    private UserRepo userRepo = new UserRepo();
-    private ReportRepo reportRepo = new ReportRepo();
+    private final ChatRepo chatRepo = new ChatRepo();
+    private final UserRepo userRepo = new UserRepo();
+    private final ReportRepo reportRepo = new ReportRepo();
 
 
     public ServiceChat() throws TelegramException {
+        // only for exception
     }
 
-    public List<Chat> find(Long user) {
-        return chatRepo.getByIdUser(user);
+    public void deleteChats(List<Chat> chats) {
+        chatRepo.delete(chats);
     }
 
-    public UserRepo getUserRepo() {
-        return userRepo;
+    public List<Chat> getChatsByStatusMinusMinute(ChatState chatState, int minutes) throws TelegramException {
+        return chatRepo.getByStatusAndMinusMinute(chatState, minutes);
     }
 
-    public ChatRepo getChatRepo() {
-        return chatRepo;
+    public List<User> getUsersByState(State state) {
+        return userRepo.getByState(state);
     }
 
-    public void addReport(Long userId) throws TelegramException {
+    public List<User> getUsersByLang(String lang) throws TelegramException {
+        return userRepo.getByLang(lang);
+    }
+
+    public List<Chat> getChatsByIdUserAndState(Long user, ChatState state) {
+        return chatRepo.getByIdUserAndState(user, state);
+    }
+
+    public Integer saveUser(User user) throws TelegramException {
+        return userRepo.save(user);
+    }
+
+    public Integer saveChat(Chat user) throws TelegramException {
+        return chatRepo.save(user);
+    }
+
+    public User getUserByIdUser(Long idUser) throws TelegramException {
+        return userRepo.getByIdUser(idUser);
+    }
+
+    public void reportUser(Long userId) throws TelegramException {
         reportRepo.save(Report.builder()
                 .user(userId)
                 .build());
         if (reportRepo.getByIdUser(userId).size() > 5) {
-            User user = userRepo.getByIdUser(userId);
+            User user = getUserByIdUser(userId);
             if (user != null) {
                 user.setState(State.BANNED.name());
                 userRepo.save(user);
@@ -55,83 +76,61 @@ public class ServiceChat {
         }
     }
 
-    public Chat assignNewChat(Long idUser, String lang) throws TelegramException {
-        List<User> users = userRepo.getAllByLang(lang == null || lang.isEmpty() ? DEFAULT_LANG : lang);
-        List<Long> ids = users.parallelStream()
+    public Chat assignNewChat(Long idUser) throws TelegramException {
+        List<User> users = userRepo.getByState(State.PLAY);
+        List<User> ids = users.parallelStream()
                 .filter(User::isPlayed)
-                .filter(x -> x.getIdUser().compareTo(idUser) != 0)
-                .filter(x -> isAsignable(x.getIdUser(), idUser))
-                .map(User::getIdUser)
+                .sorted(Comparator.comparing(User::getDateupdate).reversed())
+                .filter(user -> !isRepetido(user.getIdUser(), idUser))
+                .filter(user -> isAsignable(user.getIdUser(), idUser))
                 .collect(Collectors.toList());
+        log.info("{}/{}", ids.size(), users.size());
+        if (ids.isEmpty()) {
+            ids = users.parallelStream()
+                    .filter(User::isPlayed)
+                    .filter(user -> isAsignable(user.getIdUser(), idUser))
+                    .collect(Collectors.toList());
+            log.info("{}/{}", ids.size(), users.size());
+            Collections.shuffle(ids);
+        }
         if (!ids.isEmpty()) {
-            // Collections.shuffle(ids);
             Chat chat = Chat.builder()
                     .user1(idUser)
-                    .user2(ids.get(0))
+                    .user2(ids.get(0).getIdUser())
                     .state(ChatState.ACTIVE.name())
                     .build();
             chatRepo.save(chat);
+            log.info("{}", chat);
             return chat;
-        } else {
-            List<Long> reintentos = users.parallelStream()
-                    .filter(User::isPlayed)
-                    .filter(x -> x.getIdUser().compareTo(idUser) != 0)
-                    .filter(x -> isReintentable(x.getIdUser(), idUser))
-                    .map(User::getIdUser)
-                    .collect(Collectors.toList());
-            if (!reintentos.isEmpty()) {
-                Collections.shuffle(reintentos);
-                Chat chat = Chat.builder()
-                        .user1(idUser)
-                        .user2(reintentos.get(0))
-                        .state(ChatState.ACTIVE.name())
-                        .build();
-                chatRepo.save(chat);
-                return chat;
-            } else {
-                return null;
-            }
         }
+        return null;
+    }
+
+    private boolean isRepetido(long idUser, long yourId) {
+        if (idUser == yourId) {
+            return false;
+        }
+        return chatRepo.getByIdUser(idUser).stream().anyMatch(x -> x.getUser1() == yourId || x.getUser2() == yourId);
 
     }
 
-    private boolean isReintentable(Long idUser, Long yourId) {
+    private boolean isAsignable(long idUser, long yourId) {
+        if (idUser == yourId) {
+            return false;
+        }
         List<Chat> chats = chatRepo.getByIdUser(idUser);
-
-        boolean isBlocked = chats
-                .parallelStream()
-                .filter(x -> x.getState().contentEquals(ChatState.BLOCKED.name()))
-                .anyMatch(x -> (x.getUser1().compareTo(idUser) == 0 && x.getUser2().compareTo(yourId) == 0)
-                        || (x.getUser1().compareTo(yourId) == 0 && x.getUser2().compareTo(idUser) == 0));
-        if (isBlocked) {
+        if (chats.parallelStream()
+                .filter(x -> x.getState().contentEquals(ChatState.BLOCKED.name()) ||
+                        x.getState().contentEquals(ChatState.REPORT.name()))
+                .anyMatch(x -> x.getUser1() == yourId || x.getUser2() == yourId)) {
             return false;
         }
 
-        boolean isActive = chats
-                .parallelStream()
-                .anyMatch(x -> x.getState().contentEquals(ChatState.ACTIVE.name()));
-        return !isActive;
-
-    }
-
-    private boolean isAsignable(Long idUser, Long yourId) {
-        List<Chat> chats = chatRepo.getByIdUser(idUser);
-        boolean isActive = chats
-                .parallelStream()
-                .anyMatch(x -> x.getState().contentEquals(ChatState.ACTIVE.name()));
-        if (isActive) {
-            return false;
-        }
-
-        boolean isSkipped = chats
-                .parallelStream()
-                .anyMatch(x -> (x.getUser1().compareTo(idUser) == 0 && x.getUser2().compareTo(yourId) == 0)
-                        || (x.getUser1().compareTo(yourId) == 0 && x.getUser2().compareTo(idUser) == 0));
-        return !isSkipped;
+        return chats.parallelStream().noneMatch(x -> x.getState().contentEquals(ChatState.ACTIVE.name()));
     }
 
     public Set<Long> cleanerChat() throws TelegramException {
-        List<Chat> chats = chatRepo.getAllStatusMinusMinute(ChatState.ACTIVE, 5);
+        List<Chat> chats = chatRepo.getByStatusAndMinusMinute(ChatState.ACTIVE, 4);
         for (Chat chat : chats) {
             chat.setState(ChatState.SKIPPED.name());
             chatRepo.save(chat);
@@ -141,15 +140,19 @@ public class ServiceChat {
         return ids;
     }
 
-    public List<User> getUsersInactive() throws TelegramException {
-        return getUsersInactive(State.PLAY, 60 * 12);
-    }
-
-    public List<User> getUsersInactive(State state, int minutes) throws TelegramException {
-        return userRepo.getAllInactiveMinutes(minutes)
+    public List<User> getByInactiveUsers(State state, int minutes) throws TelegramException {
+        return userRepo.getByInactiveMinutes(minutes)
                 .parallelStream()
                 .filter(x -> x.getState().contentEquals(state.name()))
                 .collect(Collectors.toList());
     }
 
+    @SneakyThrows
+         public List<User> getByLangAndActivesUsers(String lang, Integer minutes) {
+        return userRepo.getByLang(lang)
+                .parallelStream()
+                .filter(x -> x.getDateupdate().toLocalDateTime().plusMinutes(minutes).isAfter(LocalDateTime.now()))
+                .collect(Collectors.toList());
+
+    }
 }

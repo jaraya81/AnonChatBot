@@ -18,11 +18,10 @@ import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class PAUSE extends Action implements IAction {
-    public final static String CODE = "Pause";
+    public static final String CODE = "⏸ Pause";
 
     public PAUSE(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
@@ -43,18 +42,14 @@ public class PAUSE extends Action implements IAction {
     }
 
     private void pause(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserRepo().getByIdUser(message.getFromId().longValue());
+        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user) && (User.isPlayed(user) || User.isPausedOrStop(user))) {
-            log.info(State.PAUSE.name() + " :: " + message.getFromId() + " :: " + message.getFromUsername());
             user.setState(State.PAUSE.name());
-            serviceChat.getUserRepo().save(user);
-            List<Chat> chats = serviceChat.getChatRepo().getByIdUser(user.getIdUser())
-                    .parallelStream()
-                    .filter(x -> x.getState().contentEquals(ChatState.ACTIVE.name()))
-                    .collect(Collectors.toList());
+            serviceChat.saveUser(user);
+            List<Chat> chats = serviceChat.getChatsByIdUserAndState(user.getIdUser(), ChatState.ACTIVE);
             for (Chat chat : chats) {
                 chat.setState(ChatState.SKIPPED.name());
-                serviceChat.getChatRepo().save(chat);
+                serviceChat.saveChat(chat);
             }
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_PAUSE, user.getLang()))
                     .parseMode(ParseMode.HTML)

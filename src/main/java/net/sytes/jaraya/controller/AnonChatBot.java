@@ -9,8 +9,8 @@ import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.CoreException;
-import net.sytes.jaraya.util.Properties;
 import net.sytes.jaraya.service.ServiceChat;
+import net.sytes.jaraya.util.Properties;
 import net.sytes.jaraya.vo.MessageChat;
 import spark.Request;
 import spark.Response;
@@ -24,9 +24,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class AnonChatBot implements Route {
 
-    private String token;
-    private TelegramBot bot;
-    private List<IAction> actions = new ArrayList<>();
+    private final String token;
+    private final TelegramBot bot;
+    private final List<IAction> actions = new ArrayList<>();
 
     public AnonChatBot(Long userAdmin) throws CoreException {
 
@@ -48,9 +48,9 @@ public class AnonChatBot implements Route {
         actions.add(new ABOUT(bot, serviceChat, msg, userAdmin));
         actions.add(new CHAT(bot, serviceChat, msg, userAdmin));
 
-        final PeriodicalTasks periodicalTasks = new PeriodicalTasks(bot, serviceChat, msg);
+        final PeriodicalTasks periodicalTasks = new PeriodicalTasks(bot, serviceChat, msg, userAdmin);
         Executors.newScheduledThreadPool(1)
-                .scheduleAtFixedRate(periodicalTasks::exec, 0, 1, TimeUnit.MINUTES);
+                .scheduleAtFixedRate(periodicalTasks::exec, 0, 2, TimeUnit.MINUTES);
 
     }
 
@@ -65,7 +65,6 @@ public class AnonChatBot implements Route {
         if (message == null) {
             return "NULL PARSING MESSAGE";
         }
-        log.info("message in " + message.getMessageId());
         for (IAction action : actions) {
             action.exec(message);
         }

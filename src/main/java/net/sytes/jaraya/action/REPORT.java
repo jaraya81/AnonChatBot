@@ -16,11 +16,10 @@ import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class REPORT extends Action implements IAction {
-    public static final String CODE = "Spam";
+    public static final String CODE = "\uD83D\uDEAE Spam";
 
     public REPORT(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
@@ -41,18 +40,18 @@ public class REPORT extends Action implements IAction {
     }
 
     private void report(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserRepo().getByIdUser(message.getFromId().longValue());
+        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user) && User.isPlayed(user)) {
-            List<Chat> chats = serviceChat.find(user.getIdUser()).stream().filter(x -> x.getState().contentEquals(ChatState.ACTIVE.name())).collect(Collectors.toList());
+            List<Chat> chats = serviceChat.getChatsByIdUserAndState(user.getIdUser(), ChatState.ACTIVE);
             if (chats.isEmpty()) {
                 return;
             }
             chats.get(0).setState(ChatState.REPORT.name());
-            serviceChat.getChatRepo().save(chats.get(0));
+            serviceChat.saveChat(chats.get(0));
 
             Long otherUser = chats.get(0).getUser1().compareTo(user.getIdUser()) != 0 ? chats.get(0).getUser1() : chats.get(0).getUser2();
 
-            serviceChat.addReport(otherUser);
+            serviceChat.reportUser(otherUser);
 
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_REPORT, user.getLang()))
                     .parseMode(ParseMode.HTML)

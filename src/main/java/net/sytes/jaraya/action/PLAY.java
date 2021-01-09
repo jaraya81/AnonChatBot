@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Slf4j
 public class PLAY extends Action implements IAction {
-    public static final String CODE = "Play";
+    public static final String CODE = "▶ Play";
 
     public PLAY(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
@@ -39,10 +39,10 @@ public class PLAY extends Action implements IAction {
     }
 
     private void play(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserRepo().getByIdUser(message.getFromId().longValue());
+        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user) && !User.isPlayed(user)) {
             user.setState(State.PLAY.name());
-            serviceChat.getUserRepo().save(user);
+            serviceChat.saveUser(user);
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_PLAY, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)

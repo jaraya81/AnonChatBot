@@ -1,12 +1,14 @@
 package net.sytes.jaraya.repo;
 
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.exception.UtilException;
 import net.sytes.jaraya.model.User;
+import net.sytes.jaraya.state.State;
 import net.sytes.jaraya.util.Properties;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
@@ -21,7 +23,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class UserRepo {
+public class UserRepo implements AutoCloseable {
 
     private static final String TABLE = "user";
 
@@ -34,7 +36,7 @@ public class UserRepo {
     private static final String COLUMN_CREATION = "datecreation";
     private static final String COLUMN_UPDATE = "dateupdate";
 
-    private Connection connect;
+    private final Connection connect;
 
     public UserRepo() throws TelegramException {
         super();
@@ -90,6 +92,7 @@ public class UserRepo {
 
     }
 
+    @Override
     public void close() throws TelegramException {
         try {
             DbUtils.close(connect);
@@ -136,19 +139,7 @@ public class UserRepo {
 
     }
 
-    public List<User> getxAll() throws TelegramException {
-
-        List<User> users;
-        try {
-            users = new QueryRunner().query(connect, "SELECT * FROM " + TABLE,
-                    new BeanListHandler<>(User.class));
-        } catch (SQLException e) {
-            throw new TelegramException(e);
-        }
-        return users;
-    }
-
-    public List<User> getAllByLang(String lang) throws TelegramException {
+    public List<User> getByLang(String lang) throws TelegramException {
         List<User> users;
         try {
             users = new QueryRunner().query(connect, "SELECT * FROM " + TABLE + " WHERE " + COLUMN_LANG + "=?",
@@ -159,7 +150,7 @@ public class UserRepo {
         return users;
     }
 
-    public List<User> getAllInactiveMinutes(int minutes) throws TelegramException {
+    public List<User> getByInactiveMinutes(int minutes) throws TelegramException {
         List<User> users;
         try {
             users = new QueryRunner().query(connect, "SELECT * FROM " + TABLE,
@@ -171,4 +162,19 @@ public class UserRepo {
                 .filter(x -> x.getDateupdate().toLocalDateTime().plusMinutes(minutes).isBefore(LocalDateTime.now()))
                 .collect(Collectors.toList());
     }
+
+    @SneakyThrows
+    public List<User> getByState(State state) {
+        List<User> users = null;
+        String sql = String.format("SELECT * FROM %s WHERE %s=?", TABLE, COLUMN_STATE);
+        try {
+            users = new QueryRunner().query(connect,
+                    sql,
+                    new BeanListHandler<>(User.class), state.name());
+        } catch (SQLException e) {
+            TelegramException.throwIt(e);
+        }
+        return users;
+    }
+
 }

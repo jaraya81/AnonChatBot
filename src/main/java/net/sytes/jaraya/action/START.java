@@ -16,8 +16,6 @@ import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.Objects;
 
-import static net.sytes.jaraya.util.Operator.elvis;
-
 @Slf4j
 public class START extends Action implements IAction {
     public static final String CODE = "/start";
@@ -41,25 +39,30 @@ public class START extends Action implements IAction {
     }
 
     private void start(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserRepo().getByIdUser(message.getFromId().longValue());
+        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
         if (Objects.isNull(user)) {
+            String lang = msg.langOrDefault(message.getLanguageCode());
             user = User.builder()
                     .idUser(message.getFromId().longValue())
                     .username(message.getFromUsername())
-                    .state(State.NEW_USER.name())
-                    .lang(message.getLanguageCode() != null ? message.getLanguageCode() : MsgProcess.ES)
-                    .description(msg.msg(
-                            Msg.NEW_BIO,
-                            elvis(message.getLanguageCode(), MsgProcess.ES),
-                            message.getFromId().longValue() % 2879))
+                    .state(State.PLAY.name())
+                    .lang(lang)
+                    .description(msg.anyDescription(lang))
                     .build();
-            serviceChat.getUserRepo().save(user);
+            serviceChat.saveUser(user);
+            log.info("NEW USER: {}", user);
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.START_OK, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(false)
                     .replyMarkup(Keyboard.start()));
             logResult(CODE, message.getChatId(), sendResponse.isOk());
+            SendResponse sendResponse2 = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_PLAY, user.getLang()))
+                    .parseMode(ParseMode.HTML)
+                    .disableWebPagePreview(false)
+                    .disableNotification(false)
+                    .replyMarkup(Keyboard.play()));
+            logResult(CODE, message.getChatId(), sendResponse2.isOk());
         } else if (User.isBanned(user)) {
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.START_BANNED_USER, user.getLang()))
                     .parseMode(ParseMode.HTML)
@@ -68,15 +71,20 @@ public class START extends Action implements IAction {
                     .replyMarkup(Keyboard.banned()));
             logResult(CODE, message.getChatId(), sendResponse.isOk());
         } else {
-            user.setState(State.NEW_USER.name());
-            serviceChat.getUserRepo().save(user);
+            user.setState(State.PLAY.name());
+            serviceChat.saveUser(user);
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.START_AGAIN, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(true)
                     .replyMarkup(Keyboard.start()));
             logResult(CODE, message.getChatId(), sendResponse.isOk());
+            SendResponse sendResponse2 = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_PLAY, user.getLang()))
+                    .parseMode(ParseMode.HTML)
+                    .disableWebPagePreview(false)
+                    .disableNotification(false)
+                    .replyMarkup(Keyboard.play()));
+            logResult(CODE, message.getChatId(), sendResponse2.isOk());
         }
-
     }
 }

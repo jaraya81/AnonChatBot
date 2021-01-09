@@ -8,9 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 public class MsgProcess {
@@ -21,9 +19,30 @@ public class MsgProcess {
 
     private final Map<String, Map<String, String>> languages = new HashMap<>();
 
+    private final Map<String, List<String>> descriptions = new HashMap<>();
+
     public MsgProcess() {
         super();
         languages();
+        descriptions();
+    }
+
+    private void descriptions() {
+        descriptions.put(ES, getDescriptions(ES));
+        descriptions.put(EN, getDescriptions(EN));
+        descriptions.put(PT, getDescriptions(PT));
+    }
+
+    private List<String> getDescriptions(String lang) {
+        File fileLang = new File("lang/descriptions_" + lang + ".json");
+        try {
+            return fileLang.exists()
+                    ? (List<String>) new Gson().fromJson(new String(Files.readAllBytes(fileLang.toPath()), StandardCharsets.UTF_8), List.class)
+                    : new ArrayList<>();
+        } catch (IOException e) {
+            log.error("", e);
+        }
+        return new ArrayList<>();
     }
 
     private void languages() {
@@ -51,7 +70,7 @@ public class MsgProcess {
         }
         String format = languages.get(langOrDefault(lang)).get(msg.name());
         if (format != null) {
-            return objects.length != 0 ? String.format(format, objects) : format;
+            return String.format(format, objects);
         } else {
             return msg.name();
         }
@@ -62,6 +81,12 @@ public class MsgProcess {
             return false;
         }
         return languages.get(lang) != null;
+    }
+
+    public String anyDescription(String lang) {
+        List<String> list = new ArrayList<>(descriptions.get(lang));
+        Collections.shuffle(list);
+        return list.stream().findFirst().orElse("NO_BIO");
     }
 
     public String langOrDefault(String lang) {

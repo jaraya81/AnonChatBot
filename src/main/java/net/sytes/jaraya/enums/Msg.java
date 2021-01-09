@@ -20,6 +20,5 @@ public enum Msg {
     INACTIVITY_USER,
     SET_LANG_OK,
     LANG,
-    NEW_BIO,
     REMINDER_PAUSED_USER;
 }

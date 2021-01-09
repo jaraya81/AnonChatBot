@@ -39,14 +39,14 @@ public class LANG extends Action implements IAction {
     }
 
     private void bio(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserRepo().getByIdUser(message.getFromId().longValue());
+        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
 
         if (User.exist(user) && !User.isBanned(user)) {
             if (message.getText().startsWith(SET_CODE)) {
                 String langUser = message.getText().replace(SET_CODE, "");
                 String lang = msg.langOrDefault(langUser.toLowerCase());
                 user.setLang(lang);
-                serviceChat.getUserRepo().save(user);
+                serviceChat.saveUser(user);
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.SET_LANG_OK, user.getLang())
                         + "<i>" + user.getLang() + "</i>")
                         .parseMode(ParseMode.HTML)

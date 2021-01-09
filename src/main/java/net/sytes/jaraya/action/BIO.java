@@ -40,7 +40,7 @@ public class BIO extends Action implements IAction {
     }
 
     private void bio(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserRepo().getByIdUser(message.getFromId().longValue());
+        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
 
         if (User.exist(user) && !User.isBanned(user)) {
             if (message.getText().startsWith(SET_CODE)) {
@@ -51,7 +51,7 @@ public class BIO extends Action implements IAction {
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(false)
                         .disableNotification(true));
-                serviceChat.getUserRepo().save(user);
+                serviceChat.saveUser(user);
                 logResult(SET_CODE, message.getChatId(), sendResponse.isOk());
             } else if (message.getText().contentEquals(CODE_1) || message.getText().contentEquals(CODE_2)) {
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.BIO, user.getLang())

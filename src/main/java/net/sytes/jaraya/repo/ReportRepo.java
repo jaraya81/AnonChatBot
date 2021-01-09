@@ -12,12 +12,13 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 import java.io.File;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class ReportRepo {
+public class ReportRepo implements AutoCloseable {
 
     private static final String TABLE = "report";
 
@@ -25,7 +26,7 @@ public class ReportRepo {
     private static final String COLUMN_ID_USER = "user";
     private static final String COLUMN_CREATION = "datecreation";
 
-    private Connection connect;
+    private final Connection connect;
 
     public ReportRepo() throws TelegramException {
         super();
@@ -81,6 +82,7 @@ public class ReportRepo {
 
     }
 
+    @Override
     public void close() throws TelegramException {
         try {
             DbUtils.close(connect);
@@ -92,9 +94,9 @@ public class ReportRepo {
 
     public List<Report> getByIdUser(Long idUser) throws TelegramException {
         if (Objects.isNull(idUser)) {
-            return null;
+            return new ArrayList<>();
         }
-        List<Report> reports = null;
+        List<Report> reports;
         try {
             reports = new QueryRunner().query(connect, "SELECT * FROM " + TABLE +
                             " WHERE " + COLUMN_ID_USER + "=?"
@@ -129,17 +131,5 @@ public class ReportRepo {
             }
         }
 
-    }
-
-    public List<Report> getAll() throws TelegramException {
-
-        List<Report> users = null;
-        try {
-            users = new QueryRunner().query(connect, "SELECT * FROM " + TABLE,
-                    new BeanListHandler<Report>(Report.class));
-        } catch (SQLException e) {
-            throw new TelegramException(e);
-        }
-        return users;
     }
 }

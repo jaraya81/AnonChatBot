@@ -38,7 +38,7 @@ public class CONFIG extends Action implements IAction {
     }
 
     private void config(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserRepo().getByIdUser(message.getFromId().longValue());
+        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user)) {
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.CONFIG, user.getLang()))
                     .parseMode(ParseMode.HTML)

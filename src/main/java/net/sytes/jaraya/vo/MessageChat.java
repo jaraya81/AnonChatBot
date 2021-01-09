@@ -28,7 +28,6 @@ public class MessageChat {
 
     public static MessageChat to(Message message) {
         if (message == null) return null;
-
         Optional<PhotoSize> photoSize = message.photo() != null ? Arrays.asList(message.photo()).stream().findFirst() : new ArrayList<PhotoSize>().stream().findFirst();
         return MessageChat.builder()
                 .messageId(message.messageId())
