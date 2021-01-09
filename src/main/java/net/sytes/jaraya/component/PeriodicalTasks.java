@@ -9,7 +9,7 @@ import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.service.ServiceChat;
+import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
 import net.sytes.jaraya.util.Keyboard;
@@ -22,11 +22,11 @@ import java.util.Set;
 public class PeriodicalTasks {
     private static final String MSG_LOG = "{} :: {}";
     private final TelegramBot bot;
-    private final ServiceChat serviceChat;
+    private final AnonChatService serviceChat;
     private final MsgProcess msg;
     private final Long userAdmin;
 
-    public PeriodicalTasks(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+    public PeriodicalTasks(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         this.bot = bot;
         this.serviceChat = serviceChat;
         this.msg = msg;
@@ -50,10 +50,10 @@ public class PeriodicalTasks {
     private void autoNext() {
         NEXT next = new NEXT(bot, serviceChat, msg, userAdmin);
 
-        List<User> users = serviceChat.getUsersByState(State.PLAY);
+        List<User> users = serviceChat.user.getByState(State.PLAY);
         Collections.shuffle(users);
         for (User user : users.subList(0, users.size() > 2 ? 1 : 0)) {
-            if (serviceChat.getChatsByIdUserAndState(user.getIdUser(), ChatState.ACTIVE).isEmpty()) {
+            if (serviceChat.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE).isEmpty()) {
                 log.info("AutoNext {}", user.getIdUser());
                 try {
                     next.next(user.getIdUser());
@@ -66,16 +66,16 @@ public class PeriodicalTasks {
     }
 
     private void deleteOldsSkips() throws TelegramException {
-        List<Chat> chats = serviceChat.getChatsByStatusMinusMinute(ChatState.SKIPPED, 60 * 6);
+        List<Chat> chats = serviceChat.chat.getByStatusMinusMinute(ChatState.SKIPPED, 60 * 6);
         log.info(MSG_LOG, "deleteOldsSkips", chats.size());
-        serviceChat.deleteChats(chats);
+        serviceChat.chat.deletes(chats);
     }
 
     private void reminderInactiveUsers() throws TelegramException {
-        List<User> users = serviceChat.getByInactiveUsers(State.PAUSE, 60 * 24);
+        List<User> users = serviceChat.user.getByInactives(State.PAUSE, 60 * 24);
         for (User user : users) {
             log.info(MSG_LOG, Msg.REMINDER_PAUSED_USER.name(), user.getIdUser());
-            serviceChat.saveUser(user);
+            serviceChat.user.save(user);
             bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
@@ -86,9 +86,9 @@ public class PeriodicalTasks {
     }
 
     private void cleanChat() throws TelegramException {
-        Set<Long> ids = serviceChat.cleanerChat();
+        Set<Long> ids = serviceChat.chat.cleaner();
         for (Long id : ids) {
-            User user = serviceChat.getUserByIdUser(id);
+            User user = serviceChat.user.getByIdUser(id);
             log.info(MSG_LOG, Msg.CHAT_TIMEOUT.name(), user.getIdUser());
             bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.CHAT_TIMEOUT, user.getLang()))
                     .parseMode(ParseMode.HTML)
@@ -99,11 +99,11 @@ public class PeriodicalTasks {
 
 
     private void pauseUsersInactive() throws TelegramException {
-        List<User> users = serviceChat.getByInactiveUsers(State.PLAY, 60 * 24 * 7);
+        List<User> users = serviceChat.user.getByInactives(State.PLAY, 60 * 24 * 7);
         for (User user : users) {
             log.info(MSG_LOG, Msg.INACTIVITY_USER.name(), user.getIdUser());
             user.setState(State.PAUSE.name());
-            serviceChat.saveUser(user);
+            serviceChat.user.save(user);
             bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.INACTIVITY_USER, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)

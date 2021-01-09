@@ -9,7 +9,7 @@ import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.service.ServiceChat;
+import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.util.Keyboard;
 import net.sytes.jaraya.vo.MessageChat;
 
@@ -19,7 +19,7 @@ import java.util.Objects;
 public class CONFIG extends Action implements IAction {
     public static final String CODE = "Config";
 
-    public CONFIG(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+    public CONFIG(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
@@ -38,7 +38,7 @@ public class CONFIG extends Action implements IAction {
     }
 
     private void config(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
+        User user = services.user.getByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user)) {
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.CONFIG, user.getLang()))
                     .parseMode(ParseMode.HTML)

@@ -9,7 +9,7 @@ import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.service.ServiceChat;
+import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.Objects;
@@ -21,7 +21,7 @@ public class BIO extends Action implements IAction {
     public static final String CODE_2 = "/bio";
     public static final String SET_CODE = "/bio ";
 
-    public BIO(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+    public BIO(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
@@ -40,7 +40,7 @@ public class BIO extends Action implements IAction {
     }
 
     private void bio(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
+        User user = services.user.getByIdUser(message.getFromId().longValue());
 
         if (User.exist(user) && !User.isBanned(user)) {
             if (message.getText().startsWith(SET_CODE)) {
@@ -51,7 +51,7 @@ public class BIO extends Action implements IAction {
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(false)
                         .disableNotification(true));
-                serviceChat.saveUser(user);
+                services.user.save(user);
                 logResult(SET_CODE, message.getChatId(), sendResponse.isOk());
             } else if (message.getText().contentEquals(CODE_1) || message.getText().contentEquals(CODE_2)) {
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.BIO, user.getLang())
