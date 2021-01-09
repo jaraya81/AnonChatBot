@@ -10,7 +10,7 @@ import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.service.ServiceChat;
+import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
 import net.sytes.jaraya.util.Keyboard;
@@ -23,7 +23,7 @@ import java.util.Objects;
 public class PAUSE extends Action implements IAction {
     public static final String CODE = "⏸ Pause";
 
-    public PAUSE(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+    public PAUSE(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
@@ -42,14 +42,14 @@ public class PAUSE extends Action implements IAction {
     }
 
     private void pause(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
+        User user = services.user.getByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user) && (User.isPlayed(user) || User.isPausedOrStop(user))) {
             user.setState(State.PAUSE.name());
-            serviceChat.saveUser(user);
-            List<Chat> chats = serviceChat.getChatsByIdUserAndState(user.getIdUser(), ChatState.ACTIVE);
+            services.user.save(user);
+            List<Chat> chats = services.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE);
             for (Chat chat : chats) {
                 chat.setState(ChatState.SKIPPED.name());
-                serviceChat.saveChat(chat);
+                services.chat.save(chat);
             }
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_PAUSE, user.getLang()))
                     .parseMode(ParseMode.HTML)

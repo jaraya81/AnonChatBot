@@ -10,7 +10,7 @@ import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.service.ServiceChat;
+import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.vo.MessageChat;
 
@@ -21,7 +21,7 @@ import java.util.Objects;
 public class REPORT extends Action implements IAction {
     public static final String CODE = "\uD83D\uDEAE Spam";
 
-    public REPORT(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+    public REPORT(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
@@ -40,18 +40,18 @@ public class REPORT extends Action implements IAction {
     }
 
     private void report(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
+        User user = services.user.getByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user) && User.isPlayed(user)) {
-            List<Chat> chats = serviceChat.getChatsByIdUserAndState(user.getIdUser(), ChatState.ACTIVE);
+            List<Chat> chats = services.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE);
             if (chats.isEmpty()) {
                 return;
             }
             chats.get(0).setState(ChatState.REPORT.name());
-            serviceChat.saveChat(chats.get(0));
+            services.chat.save(chats.get(0));
 
             Long otherUser = chats.get(0).getUser1().compareTo(user.getIdUser()) != 0 ? chats.get(0).getUser1() : chats.get(0).getUser2();
 
-            serviceChat.reportUser(otherUser);
+            services.report.report(otherUser);
 
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_REPORT, user.getLang()))
                     .parseMode(ParseMode.HTML)

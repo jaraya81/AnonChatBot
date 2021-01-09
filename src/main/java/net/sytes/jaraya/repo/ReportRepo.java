@@ -1,24 +1,20 @@
 package net.sytes.jaraya.repo;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.TelegramException;
-import net.sytes.jaraya.exception.UtilException;
 import net.sytes.jaraya.model.Report;
-import net.sytes.jaraya.util.Properties;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
-import java.io.File;
-import java.sql.*;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class ReportRepo implements AutoCloseable {
+public class ReportRepo extends Repository {
 
     private static final String TABLE = "report";
 
@@ -26,31 +22,16 @@ public class ReportRepo implements AutoCloseable {
     private static final String COLUMN_ID_USER = "user";
     private static final String COLUMN_CREATION = "datecreation";
 
-    private final Connection connect;
-
     public ReportRepo() throws TelegramException {
         super();
-        connect = initConnection();
-        preparing(TABLE);
+        preparing();
 
     }
 
-    private Connection initConnection() throws TelegramException {
-        try {
-            if (this.connect == null) {
-                new File("db/").mkdirs();
-                return DriverManager.getConnection("jdbc:sqlite:db/" + Properties.get(Property.NAME_BOT.name()) + ".db");
-            }
-            return connect;
-        } catch (SQLException | UtilException e) {
-            throw new TelegramException(e);
-        }
-    }
-
-    private void preparing(String tableName) throws TelegramException {
-        if (!tableExist(tableName)) {
+    private void preparing() throws TelegramException {
+        if (!tableExist(TABLE)) {
             String sql = String.format(
-                    "create table %s (%s INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, %s TEXT NOT NULL, %s DATETIME NOT NULL)", tableName,
+                    "create table %s (%s INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, %s TEXT NOT NULL, %s DATETIME NOT NULL)", TABLE,
                     COLUMN_ID, COLUMN_ID_USER, COLUMN_CREATION);
             log.info(sql);
             try {
@@ -61,36 +42,6 @@ public class ReportRepo implements AutoCloseable {
 
         }
     }
-
-    private boolean tableExist(String tableName) throws TelegramException {
-
-        String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?;";
-
-        try (PreparedStatement statement = connect.prepareStatement(sql)) {
-            statement.setString(1, tableName);
-            String ls = null;
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    ls = rs.getString("name");
-                }
-            }
-            return ls != null && !ls.isEmpty();
-
-        } catch (SQLException e) {
-            throw new TelegramException(e);
-        }
-
-    }
-
-    @Override
-    public void close() throws TelegramException {
-        try {
-            DbUtils.close(connect);
-        } catch (SQLException e) {
-            throw new TelegramException(e);
-        }
-    }
-
 
     public List<Report> getByIdUser(Long idUser) throws TelegramException {
         if (Objects.isNull(idUser)) {

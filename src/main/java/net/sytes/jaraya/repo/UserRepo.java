@@ -4,18 +4,13 @@ package net.sytes.jaraya.repo;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
-import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.TelegramException;
-import net.sytes.jaraya.exception.UtilException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.state.State;
-import net.sytes.jaraya.util.Properties;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
-import java.io.File;
-import java.sql.*;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +18,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class UserRepo implements AutoCloseable {
+public class UserRepo extends Repository {
 
     private static final String TABLE = "user";
 
@@ -35,33 +30,19 @@ public class UserRepo implements AutoCloseable {
     private static final String COLUMN_LANG = "lang";
     private static final String COLUMN_CREATION = "datecreation";
     private static final String COLUMN_UPDATE = "dateupdate";
-
-    private final Connection connect;
+    private static final String SELECT_FROM = "SELECT * FROM ";
 
     public UserRepo() throws TelegramException {
         super();
-        connect = initConnection();
-        preparing(TABLE);
+        preparing();
 
     }
 
-    private Connection initConnection() throws TelegramException {
-        try {
-            if (this.connect == null) {
-                new File("db/").mkdirs();
-                return DriverManager.getConnection("jdbc:sqlite:db/" + Properties.get(Property.NAME_BOT.name()) + ".db");
-            }
-            return connect;
-        } catch (SQLException | UtilException e) {
-            throw new TelegramException(e);
-        }
-    }
-
-    private void preparing(String tableName) throws TelegramException {
-        if (!tableExist(tableName)) {
+    private void preparing() throws TelegramException {
+        if (!tableExist(TABLE)) {
             String sql = String.format(
-                    "create table %s (%s INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, %s TEXT NOT NULL, %s TEXT, %s TEXT, %s TEXT NOT NULL, %s TEXT NOT NULL, %s DATETIME NOT NULL, %s DATETIME NOT NULL)", tableName,
-                    COLUMN_ID, COLUMN_ID_USER, COLUMN_USERNAME, COLUMN_DESCRIPTION, COLUMN_STATE, COLUMN_LANG, COLUMN_CREATION, COLUMN_UPDATE);
+                    "create table %s (%s INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, %s TEXT NOT NULL, %s TEXT, %s TEXT, %s TEXT NOT NULL, %s TEXT NOT NULL, %s DATETIME NOT NULL, %s DATETIME NOT NULL)",
+                    TABLE, COLUMN_ID, COLUMN_ID_USER, COLUMN_USERNAME, COLUMN_DESCRIPTION, COLUMN_STATE, COLUMN_LANG, COLUMN_CREATION, COLUMN_UPDATE);
             log.info(sql);
             try {
                 new QueryRunner().update(connect, sql);
@@ -72,43 +53,13 @@ public class UserRepo implements AutoCloseable {
         }
     }
 
-    private boolean tableExist(String tableName) throws TelegramException {
-
-        String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?;";
-
-        try (PreparedStatement statement = connect.prepareStatement(sql)) {
-            statement.setString(1, tableName);
-            String ls = null;
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    ls = rs.getString("name");
-                }
-            }
-            return ls != null && !ls.isEmpty();
-
-        } catch (SQLException e) {
-            throw new TelegramException(e);
-        }
-
-    }
-
-    @Override
-    public void close() throws TelegramException {
-        try {
-            DbUtils.close(connect);
-        } catch (SQLException e) {
-            throw new TelegramException(e);
-        }
-    }
-
-
     public User getByIdUser(Long idUser) throws TelegramException {
         if (Objects.isNull(idUser)) {
             return null;
         }
         List<User> users;
         try {
-            users = new QueryRunner().query(connect, "SELECT * FROM " + TABLE + " WHERE " + COLUMN_ID_USER + "=?",
+            users = new QueryRunner().query(connect, SELECT_FROM + TABLE + " WHERE " + COLUMN_ID_USER + "=?",
                     new BeanListHandler<>(User.class), idUser);
         } catch (SQLException e) {
             throw new TelegramException(e);
@@ -142,7 +93,7 @@ public class UserRepo implements AutoCloseable {
     public List<User> getByLang(String lang) throws TelegramException {
         List<User> users;
         try {
-            users = new QueryRunner().query(connect, "SELECT * FROM " + TABLE + " WHERE " + COLUMN_LANG + "=?",
+            users = new QueryRunner().query(connect, SELECT_FROM + TABLE + " WHERE " + COLUMN_LANG + "=?",
                     new BeanListHandler<>(User.class), lang == null || lang.isEmpty() ? MsgProcess.ES : lang);
         } catch (SQLException e) {
             throw new TelegramException(e);
@@ -153,7 +104,7 @@ public class UserRepo implements AutoCloseable {
     public List<User> getByInactiveMinutes(int minutes) throws TelegramException {
         List<User> users;
         try {
-            users = new QueryRunner().query(connect, "SELECT * FROM " + TABLE,
+            users = new QueryRunner().query(connect, SELECT_FROM + TABLE,
                     new BeanListHandler<>(User.class));
         } catch (SQLException e) {
             throw new TelegramException(e);

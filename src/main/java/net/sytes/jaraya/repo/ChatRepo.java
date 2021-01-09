@@ -3,18 +3,13 @@ package net.sytes.jaraya.repo;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.TelegramException;
-import net.sytes.jaraya.exception.UtilException;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.state.ChatState;
-import net.sytes.jaraya.util.Properties;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
-import java.io.File;
-import java.sql.*;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,7 +18,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class ChatRepo implements AutoCloseable {
+public class ChatRepo extends Repository {
 
     private static final String TABLE = "chats";
 
@@ -34,31 +29,17 @@ public class ChatRepo implements AutoCloseable {
     private static final String COLUMN_CREATION = "datecreation";
     private static final String COLUMN_UPDATE = "dateupdate";
 
-    private final Connection connect;
 
     public ChatRepo() throws TelegramException {
         super();
-        connect = initConnection();
-        preparing(TABLE);
-
+        preparing();
     }
 
-    private Connection initConnection() throws TelegramException {
-        try {
-            if (this.connect == null) {
-                new File("db/").mkdirs();
-                return DriverManager.getConnection("jdbc:sqlite:db/" + Properties.get(Property.NAME_BOT.name()) + ".db");
-            }
-            return connect;
-        } catch (SQLException | UtilException e) {
-            throw new TelegramException(e);
-        }
-    }
 
-    private void preparing(String tableName) throws TelegramException {
-        if (!tableExist(tableName)) {
+    private void preparing() throws TelegramException {
+        if (!tableExist(TABLE)) {
             String sql = String.format(
-                    "create table %s (%s INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, %s TEXT NOT NULL, %s TEXT, %s TEXT NOT NULL, %s DATETIME NOT NULL, %s DATETIME NOT NULL)", tableName,
+                    "create table %s (%s INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, %s TEXT NOT NULL, %s TEXT, %s TEXT NOT NULL, %s DATETIME NOT NULL, %s DATETIME NOT NULL)", TABLE,
                     COLUMN_ID, COLUMN_ID_USER1, COLUMN_ID_USER2, COLUMN_STATE, COLUMN_CREATION, COLUMN_UPDATE);
             log.info(sql);
             try {
@@ -66,39 +47,8 @@ public class ChatRepo implements AutoCloseable {
             } catch (SQLException e) {
                 throw new TelegramException(e);
             }
-
         }
     }
-
-    private boolean tableExist(String tableName) throws TelegramException {
-
-        String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?;";
-
-        try (PreparedStatement statement = connect.prepareStatement(sql)) {
-            statement.setString(1, tableName);
-            String ls = null;
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    ls = rs.getString("name");
-                }
-            }
-            return ls != null && !ls.isEmpty();
-
-        } catch (SQLException e) {
-            throw new TelegramException(e);
-        }
-
-    }
-
-    @Override
-    public void close() throws TelegramException {
-        try {
-            DbUtils.close(connect);
-        } catch (SQLException e) {
-            throw new TelegramException(e);
-        }
-    }
-
 
     @SneakyThrows
     public List<Chat> getByIdUserAndState(Long idUser, ChatState state) {
@@ -121,17 +71,12 @@ public class ChatRepo implements AutoCloseable {
     }
 
     @SneakyThrows
-    @Deprecated
-    public List<Chat> getByIdUser(Long idUser) {
-        if (Objects.isNull(idUser)) {
-            return null;
-        }
+    public List<Chat> getByIdUser(long idUser) {
         List<Chat> chats;
         try {
             chats = new QueryRunner().query(connect, "SELECT * FROM " + TABLE +
                             " WHERE " + COLUMN_ID_USER1 + "=?"
-                            + " OR " + COLUMN_ID_USER2 + "=?"
-                    ,
+                            + " OR " + COLUMN_ID_USER2 + "=?",
                     new BeanListHandler<>(Chat.class), idUser, idUser);
         } catch (SQLException e) {
             throw new TelegramException(e);
@@ -139,7 +84,8 @@ public class ChatRepo implements AutoCloseable {
         return chats;
     }
 
-    public Integer save(Chat user) throws TelegramException {
+    @SneakyThrows
+    public Integer save(Chat user) {
         if (Objects.isNull(user) || Objects.isNull(user.getUser1()) || Objects.isNull(user.getUser2()) || Objects.isNull(user.getState())) {
             return null;
         }

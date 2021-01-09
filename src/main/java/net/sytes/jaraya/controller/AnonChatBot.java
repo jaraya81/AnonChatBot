@@ -9,7 +9,7 @@ import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.CoreException;
-import net.sytes.jaraya.service.ServiceChat;
+import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.util.Properties;
 import net.sytes.jaraya.vo.MessageChat;
 import spark.Request;
@@ -30,7 +30,7 @@ public class AnonChatBot implements Route {
 
     public AnonChatBot(Long userAdmin) throws CoreException {
 
-        ServiceChat serviceChat = new ServiceChat();
+        AnonChatService serviceChat = new AnonChatService();
         MsgProcess msg = new MsgProcess();
 
         token = Properties.get(Property.TOKEN_BOT.name());

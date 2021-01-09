@@ -9,7 +9,7 @@ import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.service.ServiceChat;
+import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.State;
 import net.sytes.jaraya.vo.MessageChat;
 
@@ -19,7 +19,7 @@ import java.util.Objects;
 public class ABOUT extends Action implements IAction {
     public static final String CODE = "/about";
 
-    public ABOUT(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+    public ABOUT(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
@@ -38,9 +38,9 @@ public class ABOUT extends Action implements IAction {
     }
 
     private void action(MessageChat message) throws TelegramException {
-        User user = serviceChat.getUserByIdUser(message.getFromId().longValue());
+        User user = services.user.getByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user) && message.getText().startsWith(CODE)) {
-            long size = serviceChat.getUsersByState(State.PLAY).size();
+            long size = services.user.getByState(State.PLAY).size();
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(),
                     msg.msg(Msg.ABOUT, user.getLang(), String.valueOf(size)))
                     .parseMode(ParseMode.HTML)

@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.Action;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.service.ServiceChat;
+import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.State;
 import spark.Request;
 import spark.Response;
@@ -24,7 +24,7 @@ import static net.sytes.jaraya.util.Operator.elvis;
 public class Notification extends Action implements Route {
 
     public Notification(TelegramBot bot, Long userAdmin) throws TelegramException {
-        super(bot, new ServiceChat(), null, userAdmin);
+        super(bot, new AnonChatService(), null, userAdmin);
     }
 
     @Override
@@ -47,9 +47,9 @@ public class Notification extends Action implements Route {
                     .parseMode(ParseMode.HTML));
         } else {
             if (lastMinutes == null) {
-                userList = serviceChat.getUsersByLang(lang);
+                userList = services.user.getByLang(lang);
             } else {
-                userList = serviceChat.getByLangAndActivesUsers(lang, lastMinutes.intValue());
+                userList = services.user.getByLangAndActives(lang, lastMinutes.intValue());
             }
             userList.parallelStream()
                     .filter(x -> !x.getState().contentEquals(State.BANNED.name()))

@@ -10,7 +10,7 @@ import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.service.ServiceChat;
+import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.vo.MessageChat;
 
@@ -22,7 +22,7 @@ public class BLOCK extends Action implements IAction {
 
     public static final String CODE = "✖ Block";
 
-    public BLOCK(TelegramBot bot, ServiceChat serviceChat, MsgProcess msg, Long userAdmin) {
+    public BLOCK(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
@@ -35,13 +35,13 @@ public class BLOCK extends Action implements IAction {
     }
 
     private void block(MessageChat message) throws TelegramException {
-        User user1 = serviceChat.getUserByIdUser(message.getFromId().longValue());
+        User user1 = services.user.getByIdUser(message.getFromId().longValue());
         if (User.exist(user1) && !User.isBanned(user1) && User.isPlayed(user1)) {
-            List<Chat> chats = serviceChat.getChatsByIdUserAndState(user1.getIdUser(), ChatState.ACTIVE);
+            List<Chat> chats = services.chat.getByIdUserAndState(user1.getIdUser(), ChatState.ACTIVE);
             if (!chats.isEmpty()) {
                 Chat chat = chats.get(0);
                 chat.setState(ChatState.BLOCKED.name());
-                serviceChat.saveChat(chat);
+                services.chat.save(chat);
                 SendResponse sendResponse = bot.execute(new SendMessage(user1.getIdUser(), msg.msg(Msg.USER_BLOCK, user1.getLang()))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
