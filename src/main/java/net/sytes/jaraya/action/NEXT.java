@@ -10,8 +10,8 @@ import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.Tag;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
-import net.sytes.jaraya.model.UserTag;
 import net.sytes.jaraya.model.User;
+import net.sytes.jaraya.model.UserTag;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
@@ -38,19 +38,17 @@ public class NEXT extends Action implements IAction {
 
     @Override
     public IAction exec(MessageChat message) throws TelegramException {
-        if (check(message)) {
-            next(message);
-        }
+        next(message);
         return this;
     }
 
     private void next(MessageChat message) throws TelegramException {
-        next(message.getFromId().longValue());
+        User me = services.user.getByIdUser(message.getFromId().longValue());
+        services.user.save(me);
+        next(me);
     }
 
-    public void next(long userId) throws TelegramException {
-        User me = services.user.getByIdUser(userId);
-        services.user.save(me);
+    public void next(User me) throws TelegramException {
         if (User.exist(me) && User.isPlayed(me)) {
             boolean isOK;
             do {
@@ -70,7 +68,7 @@ public class NEXT extends Action implements IAction {
                             .disableWebPagePreview(false)
                             .disableNotification(false));
                     if (isInactive(sendResponse1, me.getIdUser())) {
-                        isOK = false;
+                        break;
                     }
                     SendResponse sendResponse2 = bot.execute(new SendMessage(
                             other.getIdUser(),
@@ -209,7 +207,8 @@ public class NEXT extends Action implements IAction {
                 .disableNotification(true)), otherUser.getIdUser());
     }
 
-    private boolean check(MessageChat message) {
+    @Override
+    public boolean check(MessageChat message) {
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
                 && (message.getText().contentEquals(CODE) || message.getText().contentEquals(CODE_ALT));

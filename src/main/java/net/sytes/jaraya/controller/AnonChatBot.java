@@ -37,6 +37,7 @@ public class AnonChatBot implements Route {
         log.info("TOKEN: ..." + token.substring(0, 5));
         bot = new TelegramBot.Builder(token).build();
         actions.add(new START(bot, serviceChat, msg, userAdmin));
+        actions.add(new FORCE_BIO(bot, serviceChat, msg, userAdmin));
         actions.add(new PLAY(bot, serviceChat, msg, userAdmin));
         actions.add(new PAUSE(bot, serviceChat, msg, userAdmin));
         actions.add(new NEXT(bot, serviceChat, msg, userAdmin));
@@ -66,7 +67,10 @@ public class AnonChatBot implements Route {
             return "NULL PARSING MESSAGE";
         }
         for (IAction action : actions) {
-            action.exec(message);
+            if (action.check(message)) {
+                action.exec(message);
+                break;
+            }
         }
         return "";
 

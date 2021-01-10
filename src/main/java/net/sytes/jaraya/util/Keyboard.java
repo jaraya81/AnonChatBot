@@ -21,6 +21,10 @@ public class Keyboard {
         return new ReplyKeyboardRemove();
     }
 
+    public static com.pengrad.telegrambot.model.request.Keyboard remove() {
+        return new ReplyKeyboardRemove();
+    }
+
     public static com.pengrad.telegrambot.model.request.Keyboard start() {
         return new ReplyKeyboardMarkup(
                 new KeyboardButton(PLAY.CODE),

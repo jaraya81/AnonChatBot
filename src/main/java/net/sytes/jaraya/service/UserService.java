@@ -30,7 +30,8 @@ public class UserService {
         return userRepo.save(user);
     }
 
-    public User getByIdUser(Long idUser) throws TelegramException {
+    @SneakyThrows
+    public User getByIdUser(Long idUser) {
         return userRepo.getByIdUser(idUser);
     }
 

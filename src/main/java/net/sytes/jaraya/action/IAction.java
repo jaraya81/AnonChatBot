@@ -7,5 +7,6 @@ public interface IAction {
 
     IAction exec(MessageChat message) throws TelegramException;
 
+    boolean check(MessageChat message);
 
 }

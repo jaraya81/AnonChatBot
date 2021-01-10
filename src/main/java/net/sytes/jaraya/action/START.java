@@ -28,13 +28,12 @@ public class START extends Action implements IAction {
 
     @Override
     public IAction exec(MessageChat message) throws TelegramException {
-        if (check(message)) {
-            start(message);
-        }
+        start(message);
         return this;
     }
 
-    public static boolean check(MessageChat message) {
+    @Override
+    public boolean check(MessageChat message) {
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
                 && message.getText().contentEquals(CODE);
@@ -47,9 +46,9 @@ public class START extends Action implements IAction {
             user = User.builder()
                     .idUser(message.getFromId().longValue())
                     .username(message.getFromUsername())
-                    .state(State.PLAY.name())
+                    .state(State.EMPTY_BIO.name())
                     .lang(lang)
-                    .description(msg.anyDescription(lang))
+//                    .description(msg.anyDescription(lang))
                     .build();
             services.user.save(user);
             log.info("NEW USER: {}", user);
@@ -62,8 +61,9 @@ public class START extends Action implements IAction {
                     .replyMarkup(Keyboard.banned()));
             logResult(Msg.START_BANNED_USER.name(), message.getChatId(), sendResponse.isOk());
         } else {
-            if (!User.isPlayed(user)) {
-                user.setState(State.PLAY.name());
+            if (!User.isEmptyBio(user)) {
+                user.setState(State.EMPTY_BIO.name());
+                user.setDescription("");
                 services.user.save(user);
             }
             services.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE)
@@ -78,14 +78,16 @@ public class START extends Action implements IAction {
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(false)
-                    .replyMarkup(Keyboard.start()));
+                    .replyMarkup(Keyboard.remove())
+            );
             logResult(Msg.START_OK.name(), message.getChatId(), sendResponse.isOk());
-            SendResponse sendResponse2 = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_PLAY, user.getLang()))
-                    .parseMode(ParseMode.HTML)
-                    .disableWebPagePreview(false)
-                    .disableNotification(false)
-                    .replyMarkup(Keyboard.play()));
-            logResult(Msg.USER_PLAY.name(), message.getChatId(), sendResponse2.isOk());
+            SendResponse sendResponse2 = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.EMPTY_BIO, user.getLang()))
+                            .parseMode(ParseMode.HTML)
+                            .disableWebPagePreview(false)
+                            .disableNotification(false)
+                    //        .replyMarkup(Keyboard.play())
+            );
+            logResult(Msg.EMPTY_BIO.name(), message.getChatId(), sendResponse2.isOk());
         }
 
     }

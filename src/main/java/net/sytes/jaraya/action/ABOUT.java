@@ -25,13 +25,12 @@ public class ABOUT extends Action implements IAction {
 
     @Override
     public IAction exec(MessageChat message) throws TelegramException {
-        if (check(message)) {
-            action(message);
-        }
+        action(message);
         return this;
     }
 
-    private boolean check(MessageChat message) {
+    @Override
+    public boolean check(MessageChat message) {
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
                 && message.getText().startsWith(CODE);
