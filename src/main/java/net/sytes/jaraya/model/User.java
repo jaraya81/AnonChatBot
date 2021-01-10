@@ -58,4 +58,8 @@ public class User implements Serializable {
     public static boolean isPlayed(User user) {
         return is(user, State.PLAY);
     }
+
+    public static boolean isEmptyBio(User user) {
+        return is(user, State.EMPTY_BIO);
+    }
 }

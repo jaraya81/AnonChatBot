@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
+import net.sytes.jaraya.action.FORCE_BIO;
 import net.sytes.jaraya.action.NEXT;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.exception.TelegramException;
@@ -41,9 +42,19 @@ public class PeriodicalTasks {
             deleteOldsSkips();
             pauseUsersInactive();
             reminderInactiveUsers();
+            updateEmptyBio();
             // autoNext();
         } catch (TelegramException e) {
             log.error("", e);
+        }
+    }
+
+    private void updateEmptyBio() throws TelegramException {
+        List<User> users = serviceChat.user.getByInactives(State.EMPTY_BIO, 2);
+        FORCE_BIO forceBio = new FORCE_BIO(bot, serviceChat, msg, userAdmin);
+        for (User user : users) {
+            log.info("{}: {}", "updateEmptyBio", user.getIdUser());
+            forceBio.forceBio(user, msg.anyDescription(user.getLang()));
         }
     }
 
@@ -56,7 +67,7 @@ public class PeriodicalTasks {
             if (serviceChat.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE).isEmpty()) {
                 log.info("AutoNext {}", user.getIdUser());
                 try {
-                    next.next(user.getIdUser());
+                    next.next(user);
                 } catch (TelegramException e) {
                     log.error("", e);
                 }

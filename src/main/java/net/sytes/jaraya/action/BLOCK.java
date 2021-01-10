@@ -28,9 +28,7 @@ public class BLOCK extends Action implements IAction {
 
     @Override
     public IAction exec(MessageChat message) throws TelegramException {
-        if (check(message)) {
-            block(message);
-        }
+        block(message);
         return this;
     }
 
@@ -52,7 +50,8 @@ public class BLOCK extends Action implements IAction {
         }
     }
 
-    private boolean check(MessageChat message) {
+    @Override
+    public boolean check(MessageChat message) {
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
                 && message.getText().contentEquals(CODE);

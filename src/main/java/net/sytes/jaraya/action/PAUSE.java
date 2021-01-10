@@ -27,7 +27,8 @@ public class PAUSE extends Action implements IAction {
         super(bot, serviceChat, msg, userAdmin);
     }
 
-    public static boolean check(MessageChat message) {
+    @Override
+    public boolean check(MessageChat message) {
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
                 && message.getText().contentEquals(CODE);
@@ -35,9 +36,7 @@ public class PAUSE extends Action implements IAction {
 
     @Override
     public IAction exec(MessageChat message) throws TelegramException {
-        if (check(message)) {
-            pause(message);
-        }
+        pause(message);
         return this;
     }
 

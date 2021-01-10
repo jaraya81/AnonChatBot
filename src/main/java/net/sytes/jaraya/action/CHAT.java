@@ -31,9 +31,7 @@ public class CHAT extends Action implements IAction {
 
     @Override
     public IAction exec(MessageChat message) throws TelegramException {
-        if (check(message)) {
-            chat(message);
-        }
+        chat(message);
         return this;
     }
 
@@ -106,6 +104,7 @@ public class CHAT extends Action implements IAction {
     }
 
 
+    @Override
     public boolean check(MessageChat message) {
         return Objects.nonNull(message)
                 && (message.getText() == null ||

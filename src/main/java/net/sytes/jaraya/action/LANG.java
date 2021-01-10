@@ -26,13 +26,12 @@ public class LANG extends Action implements IAction {
 
     @Override
     public IAction exec(MessageChat message) throws TelegramException {
-        if (check(message)) {
-            bio(message);
-        }
+        bio(message);
         return this;
     }
 
-    public static boolean check(MessageChat message) {
+    @Override
+    public boolean check(MessageChat message) {
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
                 && (message.getText().contentEquals(CODE) || message.getText().startsWith(SET_CODE));
