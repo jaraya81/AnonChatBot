@@ -47,6 +47,7 @@ public class AnonChatBot implements Route {
         actions.add(new BIO(bot, serviceChat, msg, userAdmin));
         actions.add(new LANG(bot, serviceChat, msg, userAdmin));
         actions.add(new ABOUT(bot, serviceChat, msg, userAdmin));
+        actions.add(new REGISTERPREMIUM(bot, serviceChat, msg, userAdmin));
         actions.add(new CHAT(bot, serviceChat, msg, userAdmin));
 
         final PeriodicalTasks periodicalTasks = new PeriodicalTasks(bot, serviceChat, msg, userAdmin);

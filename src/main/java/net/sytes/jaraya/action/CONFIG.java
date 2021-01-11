@@ -7,7 +7,6 @@ import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
-import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.util.Keyboard;
@@ -24,7 +23,7 @@ public class CONFIG extends Action implements IAction {
     }
 
     @Override
-    public IAction exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) {
         config(message);
         return this;
     }
@@ -36,7 +35,7 @@ public class CONFIG extends Action implements IAction {
                 && message.getText().contentEquals(CODE);
     }
 
-    private void config(MessageChat message) throws TelegramException {
+    private void config(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user)) {
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.CONFIG, user.getLang()))

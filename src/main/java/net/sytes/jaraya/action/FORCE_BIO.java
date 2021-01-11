@@ -7,7 +7,6 @@ import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
-import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.State;
@@ -23,7 +22,7 @@ public class FORCE_BIO extends Action implements IAction {
     }
 
     @Override
-    public IAction exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) {
         forceBio(message);
         return this;
     }
@@ -39,14 +38,16 @@ public class FORCE_BIO extends Action implements IAction {
         return false;
     }
 
-    private void forceBio(MessageChat message) throws TelegramException {
+    private void forceBio(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         forceBio(user, message.getText());
     }
 
-    public void forceBio(User user, String text) throws TelegramException {
+    public void forceBio(User user, String text) {
         if (User.exist(user) && User.isEmptyBio(user)) {
-            user.setDescription(text.length() <= 240 ? text : text.substring(0, 239));
+            user.setDescription(text.length() <= 240 ?
+                    text
+                    : text.substring(0, 239));
             SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.SET_BIO_OK, user.getLang())
                     + "<i>" + (user.getDescription() != null ? user.getDescription() : "") + "</i>")
                     .parseMode(ParseMode.HTML)

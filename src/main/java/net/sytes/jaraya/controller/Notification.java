@@ -54,14 +54,8 @@ public class Notification extends Action implements Route {
             userList.parallelStream()
                     .filter(x -> !x.getState().contentEquals(State.BANNED.name()))
                     .filter(x -> !x.getState().contentEquals(State.STOP.name()))
-                    .forEach(x -> {
-                        try {
-                            isInactive(bot.execute(new SendMessage(x.getIdUser(), text)
-                                    .parseMode(ParseMode.HTML)), x.getIdUser());
-                        } catch (TelegramException e) {
-                            log.error("", e);
-                        }
-                    });
+                    .forEach(x -> isInactive(bot.execute(new SendMessage(x.getIdUser(), text)
+                            .parseMode(ParseMode.HTML)), x.getIdUser()));
         }
         return userList.size();
     }

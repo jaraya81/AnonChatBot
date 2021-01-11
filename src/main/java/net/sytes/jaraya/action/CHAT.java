@@ -10,7 +10,6 @@ import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
-import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
@@ -30,12 +29,12 @@ public class CHAT extends Action implements IAction {
     }
 
     @Override
-    public IAction exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) {
         chat(message);
         return this;
     }
 
-    private void chat(MessageChat message) throws TelegramException {
+    private void chat(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         services.user.save(user);
         if (User.exist(user) && !User.isBanned(user) && User.isPlayed(user)) {
@@ -44,43 +43,10 @@ public class CHAT extends Action implements IAction {
                 Chat chat = chats.get(0);
                 Long id = chat.otherId(user.getIdUser());
                 if (User.isPlayed(services.user.getByIdUser(id))) {
-                    if (message.getStickerFileId() != null &&
-                            isInactive(bot.execute(new SendSticker(id, message.getStickerFileId())
-                                    .disableNotification(false)), id)) {
-                        sendNextU(user, chat);
-                    }
-                    if (message.getPhoto() != null &&
-                            isInactive(bot.execute(new SendPhoto(id, message.getPhoto())
-                                    .parseMode(ParseMode.MarkdownV2)
-                                    .caption(message.getCaption() != null ? message.getCaption() : "")
-                                    .disableNotification(false)), id)) {
-                        sendNextU(user, chat);
-                    }
-
-                    if (message.getVoiceFileId() != null &&
-                            isInactive(bot.execute(new SendVoice(id, message.getVoiceFileId())
-                                    .parseMode(ParseMode.MarkdownV2)
-                                    .disableNotification(false)), id)) {
-                        sendNextU(user, chat);
-                    }
-
-                    if (message.getText() != null) {
-                        String msgText = String.format("%s", StringUtil.clean("» " + message.getText()));
-                        log.info("{} -> {}: {}", user.getIdUser(), id, msgText.replaceAll("[\\d\\D]+", "*"));
-                        if (user.getIdUser().longValue() == getUserAdmin()) {
-                            bot.execute(new SendMessage(user.getIdUser(), msgText)
-                                    .parseMode(ParseMode.MarkdownV2)
-                                    .disableWebPagePreview(false)
-                                    .disableNotification(false));
-                        }
-                        if (isInactive(bot.execute(new SendMessage(id, msgText)
-                                        .parseMode(ParseMode.MarkdownV2)
-                                        .disableWebPagePreview(false)
-                                        .disableNotification(false))
-                                , id)) {
-                            sendNextU(user, chat);
-                        }
-                    }
+                    ifIsStickerSend(message, user, id, chat);
+                    ifIsPhotoSend(message, user, id, chat);
+                    ifIsVoiceSend(message, user, id, chat);
+                    ifIsTextSend(message, user, id, chat);
                     services.chat.save(chat);
                 }
             } else {
@@ -91,6 +57,74 @@ public class CHAT extends Action implements IAction {
                         .replyMarkup(Keyboard.play()));
                 logResult(Msg.USER_NO_CHAT.name(), message.getChatId(), sendResponse.isOk());
             }
+        }
+    }
+
+    private void ifIsTextSend(MessageChat message, User user, Long id, Chat chat) {
+        if (message.getText() != null) {
+            String msgText = cleanText(message.getText(), user);
+            if (msgText != null) {
+                log.info("{} -> {}: {}", user.getIdUser(), id, msgText.replaceAll("[\\d\\D]+", "*"));
+                if (user.getIdUser().longValue() == getUserAdmin()) {
+                    bot.execute(new SendMessage(user.getIdUser(), msgText)
+                            .parseMode(ParseMode.MarkdownV2)
+                            .disableWebPagePreview(false)
+                            .disableNotification(false));
+                }
+                if (isInactive(bot.execute(new SendMessage(id, msgText)
+                                .parseMode(ParseMode.MarkdownV2)
+                                .disableWebPagePreview(!user.isPremium())
+                                .disableNotification(false))
+                        , id)) {
+                    sendNextU(user, chat);
+                }
+            }
+        }
+
+    }
+
+    private String cleanText(String text, User user) {
+        if (containsHttp(text) && !isPremium(user, "HTTP")) {
+            return null;
+        }
+        return String.format("%s", StringUtil.clean("» " + text));
+    }
+
+    private boolean containsHttp(String text) {
+        return text.toLowerCase().contains("http:")
+                || text.toLowerCase().contains("https:")
+                || text.matches("[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)");
+    }
+
+    private void ifIsVoiceSend(MessageChat message, User me, Long otherId, Chat chat) {
+        if (message.getVoiceFileId() != null
+                && isPremium(me, "Voice")
+                && isInactive(bot.execute(new SendVoice(otherId, message.getVoiceFileId())
+                .parseMode(ParseMode.MarkdownV2)
+                .disableNotification(false)), otherId)) {
+            sendNextU(me, chat);
+        }
+
+    }
+
+    private void ifIsPhotoSend(MessageChat message, User me, Long otherId, Chat chat) {
+        if (message.getPhoto() != null
+                && isPremium(me, "Photo")
+                && isInactive(bot.execute(new SendPhoto(otherId, message.getPhoto())
+                .parseMode(ParseMode.MarkdownV2)
+                .caption(message.getCaption() != null ? message.getCaption() : "")
+                .disableNotification(false)), otherId)) {
+            sendNextU(me, chat);
+        }
+
+    }
+
+    private void ifIsStickerSend(MessageChat message, User me, Long otherId, Chat chat) {
+        if (message.getStickerFileId() != null
+                && isPremium(me, "Stickers")
+                && isInactive(bot.execute(new SendSticker(otherId, message.getStickerFileId())
+                .disableNotification(false)), otherId)) {
+            sendNextU(me, chat);
         }
     }
 

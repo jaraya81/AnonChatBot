@@ -1,7 +1,7 @@
 {
   "START_OK": "<b>¡Hola!</b>%n%n- Con este Bot puedes conocer nuevas personas manteniendo tu anonimato.%n%n- Recuerda mantener el anonimato cambiando tu bio las veces que quieras.%n%n- Si el participante se porta mal, reportalo presionando <b>SPAM</b>, la acumulación de denuncias lo expulsarán del bot.%n%n- Si quieres descansar o dormir, presiona el botón <b>Pause</b>.%n%n- Para recomendaciones, preguntas, etc., comunícate por el grupo https://t.me/RandomNextChat %n%n- Por último recuerda <b>no entregar datos personales ni contraseñas a desconocidos.</b>%n%n¡Que lo disfrutes!,%n%n",
   "START_AGAIN": "<b>¡Hola!</b>%n%n- Con este Bot puedes conocer nuevas personas manteniendo tu anonimato.%n%n- Recuerda mantener el anonimato cambiando tu bio las veces que quieras.%n%n- Si el participante se porta mal, reportalo presionando <b>SPAM</b>, la acumulación de denuncias lo expulsarán del bot.%n%n- Si quieres descansar o dormir, presiona el botón <b>Pause</b>.%n%n- Para recomendaciones, preguntas, etc., comunícate por el grupo https://t.me/RandomNextChat %n%n- Por último recuerda <b>no entregar datos personales ni contraseñas a desconocidos.</b>%n%n¡Que lo disfrutes!,%n%n",
-  "START_BANNED_USER": "<pre>Lo siento, has sido bloqueado de la comunidad por acumulación de quejas en tu contra :(</pre>",
+  "START_BANNED_USER": "Lo siento, has sido suspendido por la comunidad debido a acumulación de quejas. Si tu cuenta es Premium presiona /start dentro de 24 horas para levantar la suspensión. Para ser Premium contacta a <b>@MyUsernameIsJulian</b>",
   "USER_PLAY": "<pre>Estás participando, cada vez que quieras cambiar de chat presiona <b>⏭ Next!</b>.</pre>",
   "USER_PAUSE": "<pre>Estás en pausa, no recibirás nuevos chats hasta presionar PLAY.</pre>",
   "USER_REPORT": "<pre>El participante ha sido reportado, si se acumulas más denuncias en su contra, será expulsado del chat!.</pre>",
@@ -19,5 +19,9 @@
   "SET_LANG_OK": "<pre>Idioma: </pre>",
   "LANG": "<pre>Escribe /lang seguido del idioma de tu preferencia. Idiomas disponibles actualmente 'es' (Español), 'en' (English) y 'pt' (Português)%n%nEjemplo: /lang es</pre>%n%n",
   "REMINDER_PAUSED_USER": "Actívate y diviértete anónimamente con @RandomNextBot, presiona 'Play'.",
-  "EMPTY_BIO": "Dicen que la primera impresión es la que cuenta, escribe una pequeña bio que permita describirte un poco ante los otros participantes.%nPor ejemplo \uD83D\uDCDD: <i>Soy mujer de Valencia, España, tengo 24 años. Me encanta correr y pasarla bien!</i>%n%n<pre>Si luego de 2 minutos no escribes tu bio, será creada de forma automática.</pre>"
+  "EMPTY_BIO": "Dicen que la primera impresión es la que cuenta, escribe una pequeña bio que permita describirte un poco ante los otros participantes.%nPor ejemplo \uD83D\uDCDD: <i>Soy mujer de Valencia, España, tengo 24 años. Me encanta correr y pasarla bien!</i>%n%n<pre>Si luego de 2 minutos no escribes tu bio, será creada de forma automática.</pre>",
+  "PREMIUM_REQUIRED": "<pre>Actualmente \"%s\" sólo está disponible para usuarios Premium. Para cambiarte a algún plan Premium contacta a</pre> <b>@MyUsernameIsJulian</b>",
+  "PREMIUM_REGISTER_ADMIN": "<pre>Usuario \"%s\" registrado como \"%s\"</pre>",
+  "PREMIUM_REGISTER_USER": "<pre>Has sido registrado con tu id \"%s\" como usuario Premium \"%s\" a partir de ahora, para cualquier requerimiento adicional contacta a @MyUsernameIsJulian<pre>",
+  "PREMIUM_EXPIRED": "<pre>Tu cuenta premium ha expirado, para renovarla contacta a</pre> <b>@MyUsernameIsJulian</b>"
 }

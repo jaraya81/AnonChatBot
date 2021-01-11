@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.experimental.Tolerate;
+import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.state.State;
 
@@ -25,10 +26,30 @@ public class User implements Serializable {
     private String lang;
     private Timestamp datecreation;
     private Timestamp dateupdate;
+    private String premiumType;
+    private Timestamp datePremium;
 
     @Tolerate
     public User() {
         super();
+    }
+
+    public void setDescription(String description) {
+        this.description = description != null
+                ? description.replace("\uD83C\uDF1F", "").trim()
+                : null;
+    }
+
+    public void setPremium(String premium) {
+        this.premiumType = premium;
+    }
+
+    public boolean isPremium() {
+        return premiumType != null && (
+                premiumType.contentEquals(PremiumType.ANNUAL.name())
+                        || premiumType.contentEquals(PremiumType.PERMANENT.name())
+                        || premiumType.contentEquals(PremiumType.TEMPORAL.name())
+        );
     }
 
     public static boolean exist(User user) {
@@ -61,5 +82,29 @@ public class User implements Serializable {
 
     public static boolean isEmptyBio(User user) {
         return is(user, State.EMPTY_BIO);
+    }
+
+
+    public enum Columns {
+        ID("id"),
+        ID_USER("iduser"),
+        USERNAME("username"),
+        DESCRIPTION("description"),
+        STATE("state"),
+        LANG("lang"),
+        PREMIUM("premiumType"),
+        CREATION("datecreation"),
+        UPDATE("dateupdate"),
+        DATE_PREMIUM("datePremium");
+
+        String value;
+
+        Columns(String value) {
+            this.value = value;
+        }
+
+        public String value() {
+            return value;
+        }
     }
 }

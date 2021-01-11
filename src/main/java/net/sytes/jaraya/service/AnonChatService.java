@@ -7,7 +7,7 @@ public class AnonChatService {
     public AnonChatService() throws TelegramException {
         this.user = new UserService();
         this.tag = new TagService();
-        this.chat = new ChatService(user);
+        this.chat = new ChatService();
         this.report = new ReportService(user);
     }
 

@@ -1,7 +1,5 @@
 package net.sytes.jaraya.exception;
 
-import java.sql.SQLException;
-
 public class TelegramException extends CoreException {
 
     public TelegramException() {
@@ -19,7 +17,11 @@ public class TelegramException extends CoreException {
         super(cause);
     }
 
-    public static void throwIt(SQLException e) throws TelegramException {
+    public static void throwIt(String cause) throws TelegramException {
+        throw new TelegramException(cause);
+    }
+
+    public static void throwIt(Throwable e) throws TelegramException {
         throw new TelegramException(e);
     }
 }

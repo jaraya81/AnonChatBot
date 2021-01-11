@@ -108,7 +108,8 @@ public class ChatRepo extends Repository {
 
     }
 
-    public List<Chat> getByStatusAndMinusMinute(ChatState chatState, int minutes) throws TelegramException {
+    @SneakyThrows
+    public List<Chat> getByStatusAndMinusMinute(ChatState chatState, int minutes) {
         List<Chat> chats;
         try {
             chats = new QueryRunner().query(connect, "SELECT * FROM " + TABLE + " WHERE " + COLUMN_STATE + "=?",
