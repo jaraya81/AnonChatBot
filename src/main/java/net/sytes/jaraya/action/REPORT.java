@@ -7,7 +7,6 @@ import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
-import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
@@ -26,7 +25,7 @@ public class REPORT extends Action implements IAction {
     }
 
     @Override
-    public IAction exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) {
         report(message);
         return this;
     }
@@ -38,7 +37,7 @@ public class REPORT extends Action implements IAction {
                 && message.getText().contentEquals(CODE);
     }
 
-    private void report(MessageChat message) throws TelegramException {
+    private void report(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user) && User.isPlayed(user)) {
             List<Chat> chats = services.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE);

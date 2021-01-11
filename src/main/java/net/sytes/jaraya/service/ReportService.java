@@ -15,7 +15,7 @@ public class ReportService {
         this.userService = userService;
     }
 
-    public void report(Long userId) throws TelegramException {
+    public void report(Long userId) {
         reportRepo.save(Report.builder()
                 .user(userId)
                 .build());

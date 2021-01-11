@@ -1,5 +1,6 @@
 package net.sytes.jaraya.repo;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Report;
@@ -43,7 +44,8 @@ public class ReportRepo extends Repository {
         }
     }
 
-    public List<Report> getByIdUser(Long idUser) throws TelegramException {
+    @SneakyThrows
+    public List<Report> getByIdUser(Long idUser) {
         if (Objects.isNull(idUser)) {
             return new ArrayList<>();
         }
@@ -61,7 +63,8 @@ public class ReportRepo extends Repository {
         return reports;
     }
 
-    public Integer save(Report user) throws TelegramException {
+    @SneakyThrows
+    public Integer save(Report user) {
         if (Objects.isNull(user) || Objects.isNull(user.getUser())) {
             return null;
         }

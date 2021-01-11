@@ -1,10 +1,12 @@
 package net.sytes.jaraya.action;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
-import net.sytes.jaraya.exception.TelegramException;
+import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.State;
@@ -37,7 +39,7 @@ public class Action {
         return userAdmin;
     }
 
-    public boolean isInactive(SendResponse response, Long id) throws TelegramException {
+    public boolean isInactive(SendResponse response, Long id) {
         if (!response.isOk() && response.description() != null) {
             log.info("NOK " + response.description());
             if (response.description().contentEquals(FORBIDDEN_BLOCKED) ||
@@ -51,4 +53,16 @@ public class Action {
         return false;
     }
 
+    protected boolean isPremium(User me, String action) {
+        if (me.isPremium()) {
+            return true;
+        } else {
+            bot.execute(new SendMessage(me.getIdUser(),
+                    msg.msg(Msg.PREMIUM_REQUIRED, me.getLang(), action))
+                    .parseMode(ParseMode.HTML)
+                    .disableWebPagePreview(false)
+                    .disableNotification(false));
+            return false;
+        }
+    }
 }

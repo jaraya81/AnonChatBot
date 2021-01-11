@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import static net.sytes.jaraya.model.UserTag.Columns.*;
 import static net.sytes.jaraya.util.Validation.check;
 
 @Slf4j
@@ -28,7 +29,11 @@ public class TagUserRepo extends Repository {
             String sql = String.format(
                     "create table %s (%s INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, %s TEXT NOT NULL, %s TEXT NOT NULL, %s DATETIME NOT NULL)",
                     TABLE,
-                    UserTag.Columns.ID.value(), UserTag.Columns.ID_USER.value(), UserTag.Columns.TAG.value(), UserTag.Columns.CREATION.value());
+                    ID.value(),
+                    ID_USER.value(),
+                    TAG.value(),
+                    CREATION.value()
+            );
             log.info(sql);
             try {
                 new QueryRunner().update(connect, sql);
@@ -65,9 +70,9 @@ public class TagUserRepo extends Repository {
         if (tagUser == null) {
             String insertQuery = String.format("INSERT INTO %s (%s,%s,%s) VALUES (?,?,?)",
                     TABLE,
-                    UserTag.Columns.ID_USER.value(),
-                    UserTag.Columns.TAG.value(),
-                    UserTag.Columns.CREATION.value()
+                    ID_USER.value(),
+                    TAG.value(),
+                    CREATION.value()
             );
             try {
                 return new QueryRunner().update(connect, insertQuery, userId, tag, new Date());
@@ -82,7 +87,7 @@ public class TagUserRepo extends Repository {
     public int delete(UserTag tag) {
         check(tag != null, "TagUser null");
         check(tag.getIdUser() != null, "idUser is null");
-        String insertQuery = String.format("DELETE FROM %s WHERE %s=?", TABLE, UserTag.Columns.ID.value());
+        String insertQuery = String.format("DELETE FROM %s WHERE %s=?", TABLE, ID.value());
         try {
             return new QueryRunner().update(connect, insertQuery, tag.getId());
         } catch (SQLException e) {

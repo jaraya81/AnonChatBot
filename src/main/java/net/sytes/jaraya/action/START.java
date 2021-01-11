@@ -7,8 +7,8 @@ import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
+import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.enums.Tag;
-import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
@@ -27,7 +27,7 @@ public class START extends Action implements IAction {
     }
 
     @Override
-    public IAction exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) {
         start(message);
         return this;
     }
@@ -39,7 +39,7 @@ public class START extends Action implements IAction {
                 && message.getText().contentEquals(CODE);
     }
 
-    private void start(MessageChat message) throws TelegramException {
+    private void start(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         if (user == null) {
             String lang = msg.langOrDefault(message.getLanguageCode());
@@ -47,8 +47,9 @@ public class START extends Action implements IAction {
                     .idUser(message.getFromId().longValue())
                     .username(message.getFromUsername())
                     .state(State.EMPTY_BIO.name())
+                    .premiumType(PremiumType.TEMPORAL.name())
                     .lang(lang)
-//                    .description(msg.anyDescription(lang))
+                    .description("")
                     .build();
             services.user.save(user);
             log.info("NEW USER: {}", user);

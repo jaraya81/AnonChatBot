@@ -7,7 +7,6 @@ import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
-import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.vo.MessageChat;
@@ -26,7 +25,7 @@ public class BIO extends Action implements IAction {
     }
 
     @Override
-    public IAction exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) {
         bio(message);
         return this;
     }
@@ -38,15 +37,16 @@ public class BIO extends Action implements IAction {
                 && (message.getText().contentEquals(CODE_1) || message.getText().contentEquals(CODE_2) || message.getText().startsWith(SET_CODE));
     }
 
-    private void bio(MessageChat message) throws TelegramException {
+    private void bio(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
 
         if (User.exist(user) && !User.isBanned(user)) {
             if (message.getText().startsWith(SET_CODE)) {
                 String bio = message.getText().replace(SET_CODE, "");
                 user.setDescription(bio.length() <= 140 ? bio : bio.substring(0, 139));
-                SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.SET_BIO_OK, user.getLang())
-                        + "<i>" + (user.getDescription() != null ? user.getDescription() : "") + "</i>")
+                SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(),
+                        msg.msg(Msg.SET_BIO_OK, user.getLang())
+                                + "<i>" + (user.getDescription() != null ? user.getDescription() : "") + "</i>")
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(false)
                         .disableNotification(true));

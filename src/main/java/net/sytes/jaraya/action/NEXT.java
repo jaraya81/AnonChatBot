@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.Tag;
-import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.model.UserTag;
@@ -23,8 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static net.sytes.jaraya.util.Operator.elvis;
-
 @Slf4j
 public class NEXT extends Action implements IAction {
 
@@ -37,18 +34,18 @@ public class NEXT extends Action implements IAction {
 
 
     @Override
-    public IAction exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) {
         next(message);
         return this;
     }
 
-    private void next(MessageChat message) throws TelegramException {
+    private void next(MessageChat message) {
         User me = services.user.getByIdUser(message.getFromId().longValue());
         services.user.save(me);
         next(me);
     }
 
-    public void next(User me) throws TelegramException {
+    public void next(User me) {
         if (User.exist(me) && User.isPlayed(me)) {
             boolean isOK;
             do {
@@ -61,8 +58,10 @@ public class NEXT extends Action implements IAction {
                     SendResponse sendResponse1 = bot.execute(new SendMessage(
                             me.getIdUser(),
                             msg.msg(Msg.USER_NEXT_OK, me.getLang(),
-                                    elvis(me.getDescription(), ""),
-                                    elvis(other.getDescription(), ""),
+                                    me.isPremium() ? me.getDescription() + " \uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F"
+                                            : me.getDescription(),
+                                    other.isPremium() ? other.getDescription() + " \uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F"
+                                            : other.getDescription(),
                                     formatTags(commonsTags)))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
@@ -74,8 +73,10 @@ public class NEXT extends Action implements IAction {
                             other.getIdUser(),
                             msg.msg(Msg.USER_NEXT_OK,
                                     other.getLang(),
-                                    elvis(other.getDescription(), ""),
-                                    elvis(me.getDescription(), ""),
+                                    other.isPremium() ? other.getDescription() + " \uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F"
+                                            : other.getDescription(),
+                                    me.isPremium() ? me.getDescription() + " \uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F"
+                                            : me.getDescription(),
                                     formatTags(commonsTags)))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
@@ -146,7 +147,7 @@ public class NEXT extends Action implements IAction {
         return filter.isEmpty() ? null : filter.get(0);
     }
 
-    public Chat assignNew(User me, User other) throws TelegramException {
+    public Chat assignNew(User me, User other) {
         if (me == null || other == null) {
             return null;
         }
@@ -156,7 +157,6 @@ public class NEXT extends Action implements IAction {
                 .state(ChatState.ACTIVE.name())
                 .build();
         services.chat.save(chat);
-        log.info("{}", chat);
         return chat;
     }
 
@@ -190,14 +190,14 @@ public class NEXT extends Action implements IAction {
     }
 
 
-    private void skippedChats(User myUser) throws TelegramException {
+    private void skippedChats(User myUser) {
         List<Chat> chats = services.chat.getByIdUserAndState(myUser.getIdUser(), ChatState.ACTIVE);
         for (Chat chat : chats) {
             skippedChat(chat, myUser.getIdUser());
         }
     }
 
-    private void skippedChat(Chat chat, long myUserId) throws TelegramException {
+    private void skippedChat(Chat chat, long myUserId) {
         chat.setState(ChatState.SKIPPED.name());
         services.chat.save(chat);
         User otherUser = services.user.getByIdUser(chat.getUser1().compareTo(myUserId) != 0 ? chat.getUser1() : chat.getUser2());

@@ -26,7 +26,7 @@ public class UserService {
         return userRepo.getByLang(lang);
     }
 
-    public Integer save(User user) throws TelegramException {
+    public int save(User user) {
         return userRepo.save(user);
     }
 
@@ -35,7 +35,7 @@ public class UserService {
         return userRepo.getByIdUser(idUser);
     }
 
-    public List<User> getByInactives(State state, int minutes) throws TelegramException {
+    public List<User> getByInactives(State state, int minutes) {
         return userRepo.getByInactiveMinutes(minutes)
                 .parallelStream()
                 .filter(x -> x.getState().contentEquals(state.name()))

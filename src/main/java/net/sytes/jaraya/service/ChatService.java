@@ -14,20 +14,17 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ChatService {
 
-    private ChatRepo chatRepo = new ChatRepo();
-    private UserService userService;
+    private final ChatRepo chatRepo = new ChatRepo();
 
-
-    public ChatService(UserService userService) throws TelegramException {
-        this.userService = userService;
-        chatRepo = new ChatRepo();
+    public ChatService() throws TelegramException {
+// exception
     }
 
     public void deletes(List<Chat> chats) {
         chatRepo.delete(chats);
     }
 
-    public List<Chat> getByStatusMinusMinute(ChatState chatState, int minutes) throws TelegramException {
+    public List<Chat> getByStatusMinusMinute(ChatState chatState, int minutes) {
         return chatRepo.getByStatusAndMinusMinute(chatState, minutes);
     }
 

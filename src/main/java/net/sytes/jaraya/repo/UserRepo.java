@@ -4,6 +4,7 @@ package net.sytes.jaraya.repo;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.state.State;
@@ -17,20 +18,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static net.sytes.jaraya.model.User.Columns.*;
+
 @Slf4j
 public class UserRepo extends Repository {
 
     private static final String TABLE = "user";
-
-    private static final String COLUMN_ID = "id";
-    private static final String COLUMN_ID_USER = "iduser";
-    private static final String COLUMN_USERNAME = "username";
-    private static final String COLUMN_DESCRIPTION = "description";
-    private static final String COLUMN_STATE = "state";
-    private static final String COLUMN_LANG = "lang";
-    private static final String COLUMN_CREATION = "datecreation";
-    private static final String COLUMN_UPDATE = "dateupdate";
-    private static final String SELECT_FROM = "SELECT * FROM ";
+    private static final String QUERY_BASIC = "SELECT * FROM %s WHERE %s=?";
 
     public UserRepo() throws TelegramException {
         super();
@@ -41,8 +35,18 @@ public class UserRepo extends Repository {
     private void preparing() throws TelegramException {
         if (!tableExist(TABLE)) {
             String sql = String.format(
-                    "create table %s (%s INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, %s TEXT NOT NULL, %s TEXT, %s TEXT, %s TEXT NOT NULL, %s TEXT NOT NULL, %s DATETIME NOT NULL, %s DATETIME NOT NULL)",
-                    TABLE, COLUMN_ID, COLUMN_ID_USER, COLUMN_USERNAME, COLUMN_DESCRIPTION, COLUMN_STATE, COLUMN_LANG, COLUMN_CREATION, COLUMN_UPDATE);
+                    "create table %s (%s INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, %s TEXT NOT NULL, %s TEXT, %s TEXT, %s TEXT NOT NULL, %s TEXT NOT NULL, %s TEXT, %s DATETIME, %s DATETIME NOT NULL, %s DATETIME NOT NULL)",
+                    TABLE,
+                    ID.value(),
+                    ID_USER.value(),
+                    USERNAME.value(),
+                    DESCRIPTION.value(),
+                    STATE.value(),
+                    LANG.value(),
+                    PREMIUM.value(),
+                    DATE_PREMIUM.value(),
+                    CREATION.value(),
+                    UPDATE.value());
             log.info(sql);
             try {
                 new QueryRunner().update(connect, sql);
@@ -59,7 +63,9 @@ public class UserRepo extends Repository {
         }
         List<User> users;
         try {
-            users = new QueryRunner().query(connect, SELECT_FROM + TABLE + " WHERE " + COLUMN_ID_USER + "=?",
+            String query = String.format(QUERY_BASIC, TABLE, ID_USER.value());
+            users = new QueryRunner().query(connect,
+                    query,
                     new BeanListHandler<>(User.class), idUser);
         } catch (SQLException e) {
             throw new TelegramException(e);
@@ -67,25 +73,63 @@ public class UserRepo extends Repository {
         return !users.isEmpty() ? users.get(0) : null;
     }
 
-    public Integer save(User user) throws TelegramException {
+    @SneakyThrows
+    public int save(User user) {
         if (Objects.isNull(user) || Objects.isNull(user.getIdUser()) || Objects.isNull(user.getState())) {
-            return null;
+            throw new TelegramException("");
         }
-        if (Objects.isNull(user.getId())) {
-            String insertQuery = "INSERT INTO " + TABLE + "(" + COLUMN_ID_USER + "," + COLUMN_USERNAME + "," + COLUMN_DESCRIPTION + "," + COLUMN_STATE + "," + COLUMN_LANG + "," + COLUMN_CREATION + "," + COLUMN_UPDATE + ") VALUES (?,?,?,?,?,?,?)";
-            try {
-                return new QueryRunner().update(connect, insertQuery, user.getIdUser(), user.getUsername(), user.getDescription(), user.getState(), user.getLang() != null && !user.getLang().isEmpty() ? user.getLang() : MsgProcess.ES,
-                        new Date(), new Date());
-            } catch (SQLException e) {
-                throw new TelegramException(e);
+        try {
+            if (Objects.isNull(user.getId())) {
+                String query = String.format(
+                        "INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?)",
+                        TABLE,
+                        ID_USER.value(),
+                        USERNAME.value(),
+                        DESCRIPTION.value(),
+                        STATE.value(),
+                        LANG.value(),
+                        PREMIUM.value(),
+                        CREATION.value(),
+                        UPDATE.value(),
+                        DATE_PREMIUM.value()
+                );
+                return new QueryRunner().update(connect, query,
+                        user.getIdUser(),
+                        user.getUsername(),
+                        user.getDescription(),
+                        user.getState(),
+                        user.getLang() != null && !user.getLang().isEmpty() ? user.getLang() : MsgProcess.ES,
+                        user.getPremiumType(),
+                        new Date(),
+                        new Date(),
+                        new Date()
+                );
+            } else {
+                String query = String.format("UPDATE %s SET %s=?,%s=?,%s=?,%s=?,%s=?,%s=?,%s=?,%s=? WHERE %s=?",
+                        TABLE,
+                        ID_USER.value(),
+                        USERNAME.value(),
+                        DESCRIPTION.value(),
+                        STATE.value(),
+                        LANG.value(),
+                        PREMIUM.value(),
+                        DATE_PREMIUM.value(),
+                        UPDATE.value(),
+                        ID.value());
+                return new QueryRunner().update(connect, query,
+                        user.getIdUser(),
+                        user.getUsername(),
+                        user.getDescription(),
+                        user.getState(),
+                        user.getLang() != null && !user.getLang().isEmpty() ? user.getLang() : MsgProcess.ES,
+                        user.getPremiumType() != null ? user.getPremiumType() : PremiumType.TEMPORAL.name(),
+                        user.getPremiumType() != null ? user.getDatePremium() : new Date(),
+                        new Date(),
+                        user.getId()
+                );
             }
-        } else {
-            String updateQuery = "UPDATE " + TABLE + " SET " + COLUMN_ID_USER + "=?," + COLUMN_USERNAME + "=?," + COLUMN_DESCRIPTION + "=?," + COLUMN_STATE + "=?," + COLUMN_LANG + "=?," + COLUMN_UPDATE + "=? WHERE " + COLUMN_ID + "=?";
-            try {
-                return new QueryRunner().update(connect, updateQuery, user.getIdUser(), user.getUsername(), user.getDescription(), user.getState(), user.getLang() != null && !user.getLang().isEmpty() ? user.getLang() : MsgProcess.ES, new Date(), user.getId());
-            } catch (SQLException e) {
-                throw new TelegramException(e);
-            }
+        } catch (SQLException e) {
+            throw new TelegramException(e);
         }
 
     }
@@ -93,18 +137,25 @@ public class UserRepo extends Repository {
     public List<User> getByLang(String lang) throws TelegramException {
         List<User> users;
         try {
-            users = new QueryRunner().query(connect, SELECT_FROM + TABLE + " WHERE " + COLUMN_LANG + "=?",
-                    new BeanListHandler<>(User.class), lang == null || lang.isEmpty() ? MsgProcess.ES : lang);
+            String query = String.format(QUERY_BASIC,
+                    TABLE,
+                    LANG);
+            users = new QueryRunner().query(connect, query,
+                    new BeanListHandler<>(User.class),
+                    lang == null || lang.isEmpty() ? MsgProcess.ES : lang);
         } catch (SQLException e) {
             throw new TelegramException(e);
         }
         return users;
     }
 
-    public List<User> getByInactiveMinutes(int minutes) throws TelegramException {
+    @SneakyThrows
+    public List<User> getByInactiveMinutes(int minutes) {
         List<User> users;
         try {
-            users = new QueryRunner().query(connect, SELECT_FROM + TABLE,
+            String query = String.format("SELECT * FROM %s",
+                    TABLE);
+            users = new QueryRunner().query(connect, query,
                     new BeanListHandler<>(User.class));
         } catch (SQLException e) {
             throw new TelegramException(e);
@@ -117,7 +168,8 @@ public class UserRepo extends Repository {
     @SneakyThrows
     public List<User> getByState(State state) {
         List<User> users = null;
-        String sql = String.format("SELECT * FROM %s WHERE %s=?", TABLE, COLUMN_STATE);
+        String sql = String.format(QUERY_BASIC,
+                TABLE, STATE);
         try {
             users = new QueryRunner().query(connect,
                     sql,

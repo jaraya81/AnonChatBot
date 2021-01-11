@@ -3,7 +3,6 @@ package net.sytes.jaraya.enums;
 public enum Msg {
     START_OK,
     START_BANNED_USER,
-    START_AGAIN,
     USER_PLAY,
     USER_PAUSE,
     USER_REPORT,
@@ -21,5 +20,9 @@ public enum Msg {
     SET_LANG_OK,
     LANG,
     REMINDER_PAUSED_USER,
-    EMPTY_BIO;
+    EMPTY_BIO,
+    PREMIUM_REQUIRED,
+    PREMIUM_REGISTER_ADMIN,
+    PREMIUM_REGISTER_USER,
+    PREMIUM_EXPIRED;
 }

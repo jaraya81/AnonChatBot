@@ -5,17 +5,16 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.FORCE_BIO;
-import net.sytes.jaraya.action.NEXT;
 import net.sytes.jaraya.enums.Msg;
+import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.exception.TelegramException;
-import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
 import net.sytes.jaraya.util.Keyboard;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -43,55 +42,73 @@ public class PeriodicalTasks {
             pauseUsersInactive();
             reminderInactiveUsers();
             updateEmptyBio();
-            // autoNext();
+            expirePremium();
+            removeSuspension();
         } catch (TelegramException e) {
             log.error("", e);
         }
     }
 
-    private void updateEmptyBio() throws TelegramException {
-        List<User> users = serviceChat.user.getByInactives(State.EMPTY_BIO, 2);
+    private void removeSuspension() {
+        serviceChat.user.getByInactives(State.BANNED, 60)
+                .parallelStream()
+                .filter(User::isPremium)
+                .forEach(user -> {
+                    user.setState(State.STOP.name());
+                    serviceChat.user.save(user);
+                    log.info(MSG_LOG, "removeSuspension", user.getIdUser());
+                });
+    }
+
+    private void expirePremium() {
+        serviceChat.user.getByState(State.PLAY)
+                .parallelStream()
+                .filter(User::isPremium)
+                .filter(user -> {
+                    if (user.getPremiumType().contentEquals(PremiumType.TEMPORAL.name())
+                            && user.getDatePremium().toLocalDateTime().plusDays(10).isBefore(LocalDateTime.now())) {
+                        return true;
+                    } else
+                        return user.getPremiumType().contentEquals(PremiumType.ANNUAL.name())
+                                && user.getDatePremium().toLocalDateTime().plusYears(1).isBefore(LocalDateTime.now());
+                })
+                .forEach(user -> {
+                    user.setPremium(PremiumType.NO.name());
+                    serviceChat.user.save(user);
+                    bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.PREMIUM_EXPIRED, user.getLang()))
+                            .parseMode(ParseMode.HTML)
+                            .disableWebPagePreview(true)
+                            .disableNotification(false)
+                    );
+                    log.info(MSG_LOG, Msg.PREMIUM_EXPIRED.name(), user.getIdUser());
+                });
+    }
+
+    private void updateEmptyBio() {
         FORCE_BIO forceBio = new FORCE_BIO(bot, serviceChat, msg, userAdmin);
+        List<User> users = serviceChat.user.getByInactives(State.EMPTY_BIO, 2);
         for (User user : users) {
-            log.info("{}: {}", "updateEmptyBio", user.getIdUser());
+            log.info(MSG_LOG, "updateEmptyBio", user.getIdUser());
             forceBio.forceBio(user, msg.anyDescription(user.getLang()));
         }
     }
 
-    private void autoNext() {
-        NEXT next = new NEXT(bot, serviceChat, msg, userAdmin);
-
-        List<User> users = serviceChat.user.getByState(State.PLAY);
-        Collections.shuffle(users);
-        for (User user : users.subList(0, users.size() > 2 ? 1 : 0)) {
-            if (serviceChat.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE).isEmpty()) {
-                log.info("AutoNext {}", user.getIdUser());
-                try {
-                    next.next(user);
-                } catch (TelegramException e) {
-                    log.error("", e);
-                }
-            }
-        }
-
+    private void deleteOldsSkips() {
+        serviceChat.chat.deletes(
+                serviceChat.chat.getByStatusMinusMinute(ChatState.SKIPPED, 60 * 6)
+        );
     }
 
-    private void deleteOldsSkips() throws TelegramException {
-        List<Chat> chats = serviceChat.chat.getByStatusMinusMinute(ChatState.SKIPPED, 60 * 6);
-        log.info(MSG_LOG, "deleteOldsSkips", chats.size());
-        serviceChat.chat.deletes(chats);
-    }
-
-    private void reminderInactiveUsers() throws TelegramException {
+    private void reminderInactiveUsers() {
         List<User> users = serviceChat.user.getByInactives(State.PAUSE, 60 * 24);
         for (User user : users) {
-            log.info(MSG_LOG, Msg.REMINDER_PAUSED_USER.name(), user.getIdUser());
             serviceChat.user.save(user);
             bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(false)
                     .replyMarkup(Keyboard.pause()));
+            log.info(MSG_LOG, Msg.REMINDER_PAUSED_USER.name(), user.getIdUser());
         }
 
     }
@@ -109,7 +126,7 @@ public class PeriodicalTasks {
     }
 
 
-    private void pauseUsersInactive() throws TelegramException {
+    private void pauseUsersInactive() {
         List<User> users = serviceChat.user.getByInactives(State.PLAY, 60 * 24 * 7);
         for (User user : users) {
             log.info(MSG_LOG, Msg.INACTIVITY_USER.name(), user.getIdUser());

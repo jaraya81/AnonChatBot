@@ -7,7 +7,6 @@ import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
-import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.State;
@@ -25,7 +24,7 @@ public class PLAY extends Action implements IAction {
     }
 
     @Override
-    public IAction exec(MessageChat message) throws TelegramException {
+    public IAction exec(MessageChat message) {
         play(message);
         return this;
     }
@@ -37,12 +36,12 @@ public class PLAY extends Action implements IAction {
                 && message.getText().contentEquals(CODE);
     }
 
-    private void play(MessageChat message) throws TelegramException {
+    private void play(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         play(user);
     }
 
-    public void play(User user) throws TelegramException {
+    public void play(User user) {
         if (User.exist(user) && !User.isBanned(user) && !User.isPlayed(user)) {
             user.setState(State.PLAY.name());
             services.user.save(user);
