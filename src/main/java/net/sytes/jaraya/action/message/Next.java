@@ -105,7 +105,7 @@ public class Next extends Action implements IAction {
     }
 
     private List<String> commonsTags(User me, User other) {
-        List<String> meTags = services.tag.getByUserId(me.getIdUser())
+        List<String> meTags = services.tag.getByUserId(me)
                 .stream()
                 .map(UserTag::getTag)
                 .collect(Collectors.toList());
