@@ -61,7 +61,6 @@ public class AnonChatBot implements Route {
 
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        log.info(">> " + request.body());
         Update update = BotUtils.parseUpdate(request.body());
         if (update == null) {
             return "UPDATE NOK";
