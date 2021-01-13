@@ -76,7 +76,7 @@ public class UserRepo extends Repository {
     @SneakyThrows
     public int save(User user) {
         if (Objects.isNull(user) || Objects.isNull(user.getIdUser()) || Objects.isNull(user.getState())) {
-            throw new TelegramException("");
+            throw new TelegramException(String.format("%s", user != null ? user : "user is null"));
         }
         try {
             if (Objects.isNull(user.getId())) {
