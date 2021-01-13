@@ -1,4 +1,4 @@
-package net.sytes.jaraya.action;
+package net.sytes.jaraya.action.message;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;

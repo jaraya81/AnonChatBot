@@ -5,7 +5,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.action.Action;
+import net.sytes.jaraya.action.message.Action;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;

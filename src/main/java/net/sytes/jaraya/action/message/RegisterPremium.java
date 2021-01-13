@@ -1,4 +1,4 @@
-package net.sytes.jaraya.action;
+package net.sytes.jaraya.action.message;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
@@ -10,27 +10,30 @@ import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
+import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
 import java.sql.Timestamp;
 import java.util.Date;
 
 @Slf4j
-public class REGISTERPREMIUM extends Action implements IAction {
+public class RegisterPremium extends Action implements IAction {
     public static final String CODE = "/premium";
 
-    public REGISTERPREMIUM(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public RegisterPremium(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
     @Override
-    public IAction exec(MessageChat message) {
+    public IAction exec(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
         action(message);
         return this;
     }
 
     @Override
-    public boolean check(MessageChat message) {
+    public boolean check(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
         if (message != null
                 && message.getText() != null
                 && message.getText().startsWith(CODE)) {

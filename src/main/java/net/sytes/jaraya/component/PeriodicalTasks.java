@@ -4,7 +4,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.action.FORCE_BIO;
+import net.sytes.jaraya.action.message.ForceBio;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.exception.TelegramException;
@@ -85,7 +85,7 @@ public class PeriodicalTasks {
     }
 
     private void updateEmptyBio() {
-        FORCE_BIO forceBio = new FORCE_BIO(bot, serviceChat, msg, userAdmin);
+        ForceBio forceBio = new ForceBio(bot, serviceChat, msg, userAdmin);
         List<User> users = serviceChat.user.getByInactives(State.EMPTY_BIO, 2);
         for (User user : users) {
             log.info(MSG_LOG, "updateEmptyBio", user.getIdUser());
