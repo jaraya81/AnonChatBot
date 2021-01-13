@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.*;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.component.PeriodicalTasks;
+import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.CoreException;
 import net.sytes.jaraya.service.AnonChatService;
@@ -30,11 +31,12 @@ public class AnonChatBot implements Route {
     private final String token;
     private final TelegramBot bot;
     private final List<IAction> actions = new ArrayList<>();
+    private final MsgProcess msg;
 
     public AnonChatBot(Long userAdmin) throws CoreException {
 
         AnonChatService serviceChat = new AnonChatService();
-        MsgProcess msg = new MsgProcess();
+        msg = new MsgProcess();
 
         token = Properties.get(Property.TOKEN_BOT.name());
         log.info("TOKEN: ..." + token.substring(0, 5));
@@ -69,8 +71,8 @@ public class AnonChatBot implements Route {
                 update.message().chat() != null
                 && update.message().chat().type() != null
                 && update.message().chat().type() != Chat.Type.Private) {
-            bot.execute(new SendMessage(update.message().chat().id(), "Soy sólo un bot para privados sufro miedo escénico, sácame de aquí \uD83D\uDE12")
-                    .parseMode(ParseMode.MarkdownV2)
+            bot.execute(new SendMessage(update.message().chat().id(), msg.msg(Msg.ONLY_PRIVATE, "es"))
+                    .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(false));
             return "Not private update chat";

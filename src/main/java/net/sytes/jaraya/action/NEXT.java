@@ -58,9 +58,9 @@ public class NEXT extends Action implements IAction {
                     SendResponse sendResponse1 = bot.execute(new SendMessage(
                             me.getIdUser(),
                             msg.msg(Msg.USER_NEXT_OK, me.getLang(),
-                                    me.isPremium() ? me.getDescription() + " \uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F"
+                                    me.isPremium() ? me.bioPremium()
                                             : me.getDescription(),
-                                    other.isPremium() ? other.getDescription() + " \uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F"
+                                    other.isPremium() ? other.bioPremium()
                                             : other.getDescription(),
                                     formatTags(commonsTags)))
                             .parseMode(ParseMode.HTML)
@@ -73,9 +73,9 @@ public class NEXT extends Action implements IAction {
                             other.getIdUser(),
                             msg.msg(Msg.USER_NEXT_OK,
                                     other.getLang(),
-                                    other.isPremium() ? other.getDescription() + " \uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F"
+                                    other.isPremium() ? other.bioPremium()
                                             : other.getDescription(),
-                                    me.isPremium() ? me.getDescription() + " \uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F"
+                                    me.isPremium() ? me.bioPremium()
                                             : me.getDescription(),
                                     formatTags(commonsTags)))
                             .parseMode(ParseMode.HTML)

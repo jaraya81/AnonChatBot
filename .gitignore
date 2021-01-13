@@ -4,4 +4,4 @@ db/
 local.properties
 logs/
 target/
-
+src/test/java/net/sytes/jaraya/BotTesting.java

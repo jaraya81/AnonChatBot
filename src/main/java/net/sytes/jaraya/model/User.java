@@ -18,6 +18,8 @@ import java.util.Objects;
 @ToString
 public class User implements Serializable {
 
+    private static final String START_PREMIUM = "\uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F";
+
     private Long id;
     private Long idUser;
     private String username;
@@ -82,6 +84,10 @@ public class User implements Serializable {
 
     public static boolean isEmptyBio(User user) {
         return is(user, State.EMPTY_BIO);
+    }
+
+    public String bioPremium() {
+        return String.format("%s %s", START_PREMIUM, getDescription());
     }
 
 
