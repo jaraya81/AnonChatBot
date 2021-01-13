@@ -2,7 +2,10 @@ package net.sytes.jaraya.controller;
 
 import com.pengrad.telegrambot.BotUtils;
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.*;
 import net.sytes.jaraya.component.MsgProcess;
@@ -58,15 +61,27 @@ public class AnonChatBot implements Route {
 
     @Override
     public Object handle(Request request, Response response) throws Exception {
+        log.info(">> " + request.body());
         Update update = BotUtils.parseUpdate(request.body());
         if (update == null) {
             return "UPDATE NOK";
+        }
+        if (update.message() != null &&
+                update.message().chat() != null
+                && update.message().chat().type() != null
+                && update.message().chat().type() != Chat.Type.Private) {
+            bot.execute(new SendMessage(update.message().chat().id(), "Soy sólo un bot para privados sufro miedo escénico, sácame de aquí \uD83D\uDE12")
+                    .parseMode(ParseMode.MarkdownV2)
+                    .disableWebPagePreview(false)
+                    .disableNotification(false));
+            return "Not private update chat";
         }
         MessageChat message = MessageChat.to(update.message());
 
         if (message == null) {
             return "NULL PARSING MESSAGE";
         }
+
         for (IAction action : actions) {
             if (action.check(message)) {
                 action.exec(message);
