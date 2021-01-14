@@ -7,7 +7,8 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.action.*;
+import net.sytes.jaraya.action.callback.Interests;
+import net.sytes.jaraya.action.message.*;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
@@ -15,6 +16,8 @@ import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.CoreException;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.util.Properties;
+import net.sytes.jaraya.vo.BaseUpdate;
+import net.sytes.jaraya.vo.CBQuery;
 import net.sytes.jaraya.vo.MessageChat;
 import spark.Request;
 import spark.Response;
@@ -30,39 +33,43 @@ public class AnonChatBot implements Route {
 
     private final String token;
     private final TelegramBot bot;
-    private final List<IAction> actions = new ArrayList<>();
+    private final List<IAction> messageActions = new ArrayList<>();
+    private final List<IAction> callbackActions = new ArrayList<>();
     private final MsgProcess msg;
 
     public AnonChatBot(Long userAdmin) throws CoreException {
 
-        AnonChatService serviceChat = new AnonChatService();
+        AnonChatService service = new AnonChatService();
         msg = new MsgProcess();
 
         token = Properties.get(Property.TOKEN_BOT.name());
         log.info("TOKEN: ..." + token.substring(0, 5));
         bot = new TelegramBot.Builder(token).build();
-        actions.add(new START(bot, serviceChat, msg, userAdmin));
-        actions.add(new FORCE_BIO(bot, serviceChat, msg, userAdmin));
-        actions.add(new PLAY(bot, serviceChat, msg, userAdmin));
-        actions.add(new PAUSE(bot, serviceChat, msg, userAdmin));
-        actions.add(new NEXT(bot, serviceChat, msg, userAdmin));
-        actions.add(new BLOCK(bot, serviceChat, msg, userAdmin));
-        actions.add(new REPORT(bot, serviceChat, msg, userAdmin));
-        actions.add(new CONFIG(bot, serviceChat, msg, userAdmin));
-        actions.add(new BIO(bot, serviceChat, msg, userAdmin));
-        actions.add(new LANG(bot, serviceChat, msg, userAdmin));
-        actions.add(new ABOUT(bot, serviceChat, msg, userAdmin));
-        actions.add(new REGISTERPREMIUM(bot, serviceChat, msg, userAdmin));
-        actions.add(new CHAT(bot, serviceChat, msg, userAdmin));
+        messageActions.add(new Start(bot, service, msg, userAdmin));
+        messageActions.add(new ForceBio(bot, service, msg, userAdmin));
+        messageActions.add(new Play(bot, service, msg, userAdmin));
+        messageActions.add(new Pause(bot, service, msg, userAdmin));
+        messageActions.add(new Next(bot, service, msg, userAdmin));
+        messageActions.add(new Block(bot, service, msg, userAdmin));
+        messageActions.add(new Report(bot, service, msg, userAdmin));
+        messageActions.add(new Config(bot, service, msg, userAdmin));
+        messageActions.add(new Bio(bot, service, msg, userAdmin));
+        messageActions.add(new Lang(bot, service, msg, userAdmin));
+        messageActions.add(new About(bot, service, msg, userAdmin));
+        messageActions.add(new RegisterPremium(bot, service, msg, userAdmin));
+        messageActions.add(new Tags(bot, service, msg, userAdmin));
+        messageActions.add(new CHAT(bot, service, msg, userAdmin));
 
-        final PeriodicalTasks periodicalTasks = new PeriodicalTasks(bot, serviceChat, msg, userAdmin);
+        callbackActions.add(new Interests(bot, service, msg, userAdmin));
+
+        final PeriodicalTasks periodicalTasks = new PeriodicalTasks(bot, service, msg, userAdmin);
         Executors.newScheduledThreadPool(1)
                 .scheduleAtFixedRate(periodicalTasks::exec, 0, 2, TimeUnit.MINUTES);
 
     }
 
     @Override
-    public Object handle(Request request, Response response) throws Exception {
+    public Object handle(Request request, Response response) {
         Update update = BotUtils.parseUpdate(request.body());
         if (update == null) {
             return "UPDATE NOK";
@@ -78,20 +85,24 @@ public class AnonChatBot implements Route {
             return "Not private update chat";
         }
         MessageChat message = MessageChat.to(update.message());
+        execActions(message, messageActions);
 
-        if (message == null) {
-            return "NULL PARSING MESSAGE";
-        }
+        CBQuery callBackQuery = CBQuery.to(update.callbackQuery());
+        execActions(callBackQuery, callbackActions);
 
-        for (IAction action : actions) {
-            if (action.check(message)) {
-                action.exec(message);
-                break;
+        return "";
+    }
+
+    private void execActions(BaseUpdate update, List<IAction> actions) {
+        if (update != null) {
+            for (IAction action : actions) {
+                if (action.check(update)) {
+                    action.exec(update);
+                    break;
+                }
             }
         }
-        return "";
-
-    }
+}
 
     public TelegramBot getBot() {
         return bot;

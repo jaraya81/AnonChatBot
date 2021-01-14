@@ -3,8 +3,8 @@ package net.sytes.jaraya.service;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.exception.TelegramException;
-import net.sytes.jaraya.model.UserTag;
 import net.sytes.jaraya.model.User;
+import net.sytes.jaraya.model.UserTag;
 import net.sytes.jaraya.repo.TagUserRepo;
 
 import java.util.Arrays;
@@ -21,6 +21,11 @@ public class TagService {
         // only for exception
     }
 
+    public List<UserTag> getByUserId(User user) {
+        return repo.getByUserId(user.getIdUser());
+    }
+
+    @Deprecated
     public List<UserTag> getByUserId(long userId) {
         return repo.getByUserId(userId);
     }
@@ -32,9 +37,13 @@ public class TagService {
         Arrays.stream(tags).forEach(tag -> repo.save(user.getIdUser(), tag));
     }
 
-    public void removeAll(User user) {
+    public void deleteAll(User user) {
         getByUserId(user.getIdUser())
                 .parallelStream()
                 .forEach(repo::delete);
+    }
+
+    public void delete(UserTag userTag) {
+        repo.delete(userTag);
     }
 }

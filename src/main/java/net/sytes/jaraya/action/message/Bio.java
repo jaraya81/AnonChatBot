@@ -1,4 +1,4 @@
-package net.sytes.jaraya.action;
+package net.sytes.jaraya.action.message;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
@@ -9,29 +9,32 @@ import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
+import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.Objects;
 
 @Slf4j
-public class BIO extends Action implements IAction {
+public class Bio extends Action implements IAction {
 
     public static final String CODE_1 = "Bio";
     public static final String CODE_2 = "/bio";
     public static final String SET_CODE = "/bio ";
 
-    public BIO(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public Bio(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
     @Override
-    public IAction exec(MessageChat message) {
+    public IAction exec(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
         bio(message);
         return this;
     }
 
     @Override
-    public boolean check(MessageChat message) {
+    public boolean check(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
                 && (message.getText().contentEquals(CODE_1) || message.getText().contentEquals(CODE_2) || message.getText().startsWith(SET_CODE));

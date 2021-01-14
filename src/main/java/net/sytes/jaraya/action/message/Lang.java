@@ -1,4 +1,4 @@
-package net.sytes.jaraya.action;
+package net.sytes.jaraya.action.message;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
@@ -9,28 +9,31 @@ import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
+import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.Objects;
 
 @Slf4j
-public class LANG extends Action implements IAction {
+public class Lang extends Action implements IAction {
     public static final String CODE = "/lang";
     public static final String SET_CODE = "/lang ";
 
 
-    public LANG(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public Lang(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
     @Override
-    public IAction exec(MessageChat message) {
+    public IAction exec(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
         bio(message);
         return this;
     }
 
     @Override
-    public boolean check(MessageChat message) {
+    public boolean check(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
                 && (message.getText().contentEquals(CODE) || message.getText().startsWith(SET_CODE));

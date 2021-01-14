@@ -1,4 +1,4 @@
-package net.sytes.jaraya.action;
+package net.sytes.jaraya.action.message;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
@@ -14,27 +14,26 @@ import net.sytes.jaraya.model.UserTag;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
+import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class NEXT extends Action implements IAction {
+public class Next extends Action implements IAction {
 
     public static final String CODE = "⏩ Next!";
     public static final String CODE_ALT = "⏩";
 
-    public NEXT(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public Next(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
 
     @Override
-    public IAction exec(MessageChat message) {
+    public IAction exec(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
         next(message);
         return this;
     }
@@ -54,7 +53,7 @@ public class NEXT extends Action implements IAction {
                 User other = selectNewNext(me);
                 Chat chat = assignNew(me, other);
                 if (chat != null) {
-                    List<String> commonsTags = commonsTags(me, other);
+                    List<Tag> commonsTags = commonsTags(me, other);
                     SendResponse sendResponse1 = bot.execute(new SendMessage(
                             me.getIdUser(),
                             msg.msg(Msg.USER_NEXT_OK, me.getLang(),
@@ -62,7 +61,7 @@ public class NEXT extends Action implements IAction {
                                             : me.getDescription(),
                                     other.isPremium() ? other.bioPremium()
                                             : other.getDescription(),
-                                    formatTags(commonsTags)))
+                                    formatTags(commonsTags, me.getLang())))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
                             .disableNotification(false));
@@ -77,7 +76,7 @@ public class NEXT extends Action implements IAction {
                                             : other.getDescription(),
                                     me.isPremium() ? me.bioPremium()
                                             : me.getDescription(),
-                                    formatTags(commonsTags)))
+                                    formatReverseTags(commonsTags, other.getLang())))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
                             .disableNotification(false));
@@ -97,31 +96,47 @@ public class NEXT extends Action implements IAction {
         }
     }
 
-    private String formatTags(List<String> commonsTags) {
+    private String formatReverseTags(List<Tag> commonsTags, String lang) {
         return commonsTags.stream()
-                .map(x -> "#" + x).collect(Collectors.joining(" "));
+                .map(x -> "#" + msg.reverseTag(x, lang)).collect(Collectors.joining(", "));
     }
 
-    private List<String> commonsTags(User me, User other) {
-        List<String> meTags = services.tag.getByUserId(me.getIdUser())
+    private String formatTags(List<Tag> commonsTags, String lang) {
+        return commonsTags.stream()
+                .map(x -> "#" + msg.tag(x, lang)).collect(Collectors.joining(", "));
+    }
+
+    private List<Tag> commonsTags(User me, User other) {
+        List<String> meUTags = services.tag.getByUserId(me)
                 .stream()
                 .map(UserTag::getTag)
                 .collect(Collectors.toList());
-        if (meTags.isEmpty()) {
-            services.tag.add(me, Tag.GENERAL.value());
-            meTags.add(Tag.GENERAL.value());
+        if (meUTags.isEmpty()) {
+            services.tag.add(me, Tag.GENERAL.name());
+            meUTags.add(Tag.GENERAL.name());
         }
-        List<String> otherTags = services.tag.getByUserId(other.getIdUser())
+        List<String> otherUTags = services.tag.getByUserId(other)
                 .stream()
                 .map(UserTag::getTag)
                 .collect(Collectors.toList());
-        if (otherTags.isEmpty()) {
-            otherTags.add(Tag.GENERAL.value());
+        if (otherUTags.isEmpty()) {
+            otherUTags.add(Tag.GENERAL.reverse());
         }
+        List<Tag> meTags = meUTags.parallelStream()
+                .map(x -> Arrays.stream(Tag.values())
+                        .filter(y -> y.name().contentEquals(x)).findFirst().orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        List<Tag> otherTags = otherUTags.parallelStream()
+                .map(x -> Arrays.stream(Tag.values())
+                        .filter(y -> y.name().contentEquals(x)).findFirst().orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
         return otherTags
                 .parallelStream()
                 .filter(x -> meTags.parallelStream()
-                        .anyMatch(y -> y.contentEquals(x)))
+                        .anyMatch(y -> y.name().contentEquals(x.reverse())))
                 .collect(Collectors.toList());
     }
 
@@ -208,7 +223,8 @@ public class NEXT extends Action implements IAction {
     }
 
     @Override
-    public boolean check(MessageChat message) {
+    public boolean check(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
                 && (message.getText().contentEquals(CODE) || message.getText().contentEquals(CODE_ALT));

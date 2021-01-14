@@ -13,7 +13,7 @@ import java.util.Optional;
 @Data
 @Builder
 @ToString
-public class MessageChat {
+public class MessageChat extends BaseUpdate {
 
     private Integer fromId;
     private Integer messageId;

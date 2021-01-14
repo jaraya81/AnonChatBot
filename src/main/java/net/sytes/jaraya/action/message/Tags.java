@@ -1,4 +1,4 @@
-package net.sytes.jaraya.action;
+package net.sytes.jaraya.action.message;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
@@ -10,26 +10,30 @@ import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.State;
+import net.sytes.jaraya.util.Keyboard;
+import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.Objects;
 
 @Slf4j
-public class ABOUT extends Action implements IAction {
-    public static final String CODE = "/about";
+public class Tags extends Action implements IAction {
+    public static final String CODE = "/tags";
 
-    public ABOUT(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public Tags(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
     @Override
-    public IAction exec(MessageChat message) {
+    public IAction exec(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
         action(message);
         return this;
     }
 
     @Override
-    public boolean check(MessageChat message) {
+    public boolean check(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
                 && message.getText().startsWith(CODE);
@@ -40,11 +44,13 @@ public class ABOUT extends Action implements IAction {
         if (User.exist(user) && !User.isBanned(user) && message.getText().startsWith(CODE)) {
             long size = services.user.getByState(State.PLAY).size();
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(),
-                    msg.msg(Msg.ABOUT, user.getLang(), String.valueOf(size)))
+                    msg.msg(Msg.TAGS_PREFERENCES, user.getLang(), String.valueOf(size)))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
-                    .disableNotification(true));
-            logResult(CODE, message.getChatId(), sendResponse.isOk());
+                    .disableNotification(true)
+                    .replyMarkup(Keyboard.getInlineKeyboardPref(services.tag.getByUserId(user), msg, user.getLang()))
+            );
+            logResult(Msg.TAGS_PREFERENCES.name(), message.getChatId(), sendResponse.isOk());
         }
     }
 

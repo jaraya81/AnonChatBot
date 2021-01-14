@@ -1,4 +1,4 @@
-package net.sytes.jaraya.action;
+package net.sytes.jaraya.action.message;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
@@ -16,6 +16,7 @@ import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.util.Keyboard;
 import net.sytes.jaraya.util.StringUtil;
+import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.List;
@@ -29,9 +30,31 @@ public class CHAT extends Action implements IAction {
     }
 
     @Override
-    public IAction exec(MessageChat message) {
+    public IAction exec(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
         chat(message);
         return this;
+    }
+
+    @Override
+    public boolean check(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
+        return Objects.nonNull(message)
+                && (message.getText() == null ||
+                (!message.getText().contentEquals(Next.CODE)
+                        && !message.getText().contentEquals(Next.CODE_ALT)
+                        && !message.getText().contentEquals(Pause.CODE)
+                        && !message.getText().contentEquals(Play.CODE)
+                        && !message.getText().contentEquals(Block.CODE)
+                        && !message.getText().contentEquals(Report.CODE)
+                        && !message.getText().contentEquals(Start.CODE)
+                        && !message.getText().contentEquals(Bio.CODE_1)
+                        && !message.getText().contentEquals(Bio.CODE_2)
+                        && !message.getText().startsWith(Bio.SET_CODE)
+                        && !message.getText().startsWith(About.CODE)
+                        && !message.getText().contentEquals(Lang.CODE)
+                        && !message.getText().startsWith(Lang.SET_CODE)))
+                ;
     }
 
     private void chat(MessageChat message) {
@@ -138,24 +161,5 @@ public class CHAT extends Action implements IAction {
     }
 
 
-    @Override
-    public boolean check(MessageChat message) {
-        return Objects.nonNull(message)
-                && (message.getText() == null ||
-                (!message.getText().contentEquals(NEXT.CODE)
-                        && !message.getText().contentEquals(NEXT.CODE_ALT)
-                        && !message.getText().contentEquals(PAUSE.CODE)
-                        && !message.getText().contentEquals(PLAY.CODE)
-                        && !message.getText().contentEquals(BLOCK.CODE)
-                        && !message.getText().contentEquals(REPORT.CODE)
-                        && !message.getText().contentEquals(START.CODE)
-                        && !message.getText().contentEquals(BIO.CODE_1)
-                        && !message.getText().contentEquals(BIO.CODE_2)
-                        && !message.getText().startsWith(BIO.SET_CODE)
-                        && !message.getText().startsWith(ABOUT.CODE)
-                        && !message.getText().contentEquals(LANG.CODE)
-                        && !message.getText().startsWith(LANG.SET_CODE)))
-                ;
-    }
 
 }
