@@ -76,7 +76,7 @@ public class Start extends Action implements IAction {
                         x.setState(ChatState.SKIPPED.name());
                         services.chat.save(x);
                     });
-            services.tag.removeAll(user);
+            services.tag.deleteAll(user);
             services.tag.add(user, Tag.GENERAL.name());
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.START_OK, user.getLang()))
                     .parseMode(ParseMode.HTML)

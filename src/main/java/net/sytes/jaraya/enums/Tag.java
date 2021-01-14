@@ -2,6 +2,7 @@ package net.sytes.jaraya.enums;
 
 public enum Tag {
     GENERAL("GENERAL"),
+    AMISTAD("AMISTAD"),
     MENS("WOMEN"),
     WOMEN("MENS"),
     H_H("H_H"),
@@ -10,6 +11,7 @@ public enum Tag {
     SPORT("SPORT"),
     VIDEO_GAMES("VIDEO_GAMES"),
     ANIME("ANIME"),
+    ARGENTINA("ARGENTINA"),
     BRASIL("BRASIL"),
     CANADA("CANADA"),
     CHILE("CHILE"),
@@ -18,6 +20,7 @@ public enum Tag {
     ESPANA("ESPANA"),
     MEXICO("MEXICO"),
     PANAMA("PANAMA"),
+    PERU("PERU"),
     PORTUGAL("PORTUGAL"),
     REP_DOMINICANA("REP_DOMINICANA"),
     USA("USA"),

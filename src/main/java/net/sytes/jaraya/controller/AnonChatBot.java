@@ -39,29 +39,30 @@ public class AnonChatBot implements Route {
 
     public AnonChatBot(Long userAdmin) throws CoreException {
 
-        AnonChatService serviceChat = new AnonChatService();
+        AnonChatService service = new AnonChatService();
         msg = new MsgProcess();
 
         token = Properties.get(Property.TOKEN_BOT.name());
         log.info("TOKEN: ..." + token.substring(0, 5));
         bot = new TelegramBot.Builder(token).build();
-        messageActions.add(new Start(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new ForceBio(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new Play(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new Pause(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new Next(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new Block(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new Report(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new Config(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new Bio(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new Lang(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new About(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new RegisterPremium(bot, serviceChat, msg, userAdmin));
-        messageActions.add(new CHAT(bot, serviceChat, msg, userAdmin));
+        messageActions.add(new Start(bot, service, msg, userAdmin));
+        messageActions.add(new ForceBio(bot, service, msg, userAdmin));
+        messageActions.add(new Play(bot, service, msg, userAdmin));
+        messageActions.add(new Pause(bot, service, msg, userAdmin));
+        messageActions.add(new Next(bot, service, msg, userAdmin));
+        messageActions.add(new Block(bot, service, msg, userAdmin));
+        messageActions.add(new Report(bot, service, msg, userAdmin));
+        messageActions.add(new Config(bot, service, msg, userAdmin));
+        messageActions.add(new Bio(bot, service, msg, userAdmin));
+        messageActions.add(new Lang(bot, service, msg, userAdmin));
+        messageActions.add(new About(bot, service, msg, userAdmin));
+        messageActions.add(new RegisterPremium(bot, service, msg, userAdmin));
+        messageActions.add(new Tags(bot, service, msg, userAdmin));
+        messageActions.add(new CHAT(bot, service, msg, userAdmin));
 
-        callbackActions.add(new Interests(bot, serviceChat, msg, userAdmin));
+        callbackActions.add(new Interests(bot, service, msg, userAdmin));
 
-        final PeriodicalTasks periodicalTasks = new PeriodicalTasks(bot, serviceChat, msg, userAdmin);
+        final PeriodicalTasks periodicalTasks = new PeriodicalTasks(bot, service, msg, userAdmin);
         Executors.newScheduledThreadPool(1)
                 .scheduleAtFixedRate(periodicalTasks::exec, 0, 2, TimeUnit.MINUTES);
 

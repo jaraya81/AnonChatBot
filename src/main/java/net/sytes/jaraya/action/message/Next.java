@@ -17,10 +17,7 @@ import net.sytes.jaraya.state.State;
 import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -56,7 +53,7 @@ public class Next extends Action implements IAction {
                 User other = selectNewNext(me);
                 Chat chat = assignNew(me, other);
                 if (chat != null) {
-                    List<String> commonsTags = commonsTags(me, other);
+                    List<Tag> commonsTags = commonsTags(me, other);
                     SendResponse sendResponse1 = bot.execute(new SendMessage(
                             me.getIdUser(),
                             msg.msg(Msg.USER_NEXT_OK, me.getLang(),
@@ -64,7 +61,7 @@ public class Next extends Action implements IAction {
                                             : me.getDescription(),
                                     other.isPremium() ? other.bioPremium()
                                             : other.getDescription(),
-                                    formatTags(commonsTags)))
+                                    formatTags(commonsTags, me.getLang())))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
                             .disableNotification(false));
@@ -79,7 +76,7 @@ public class Next extends Action implements IAction {
                                             : other.getDescription(),
                                     me.isPremium() ? me.bioPremium()
                                             : me.getDescription(),
-                                    formatTags(commonsTags)))
+                                    formatReverseTags(commonsTags, other.getLang())))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
                             .disableNotification(false));
@@ -99,31 +96,47 @@ public class Next extends Action implements IAction {
         }
     }
 
-    private String formatTags(List<String> commonsTags) {
+    private String formatReverseTags(List<Tag> commonsTags, String lang) {
         return commonsTags.stream()
-                .map(x -> "#" + x).collect(Collectors.joining(" "));
+                .map(x -> "#" + msg.reverseTag(x, lang)).collect(Collectors.joining(", "));
     }
 
-    private List<String> commonsTags(User me, User other) {
-        List<String> meTags = services.tag.getByUserId(me)
+    private String formatTags(List<Tag> commonsTags, String lang) {
+        return commonsTags.stream()
+                .map(x -> "#" + msg.tag(x, lang)).collect(Collectors.joining(", "));
+    }
+
+    private List<Tag> commonsTags(User me, User other) {
+        List<String> meUTags = services.tag.getByUserId(me)
                 .stream()
                 .map(UserTag::getTag)
                 .collect(Collectors.toList());
-        if (meTags.isEmpty()) {
+        if (meUTags.isEmpty()) {
             services.tag.add(me, Tag.GENERAL.name());
-            meTags.add(Tag.GENERAL.name());
+            meUTags.add(Tag.GENERAL.name());
         }
-        List<String> otherTags = services.tag.getByUserId(other.getIdUser())
+        List<String> otherUTags = services.tag.getByUserId(other)
                 .stream()
                 .map(UserTag::getTag)
                 .collect(Collectors.toList());
-        if (otherTags.isEmpty()) {
-            otherTags.add(Tag.GENERAL.reverse());
+        if (otherUTags.isEmpty()) {
+            otherUTags.add(Tag.GENERAL.reverse());
         }
+        List<Tag> meTags = meUTags.parallelStream()
+                .map(x -> Arrays.stream(Tag.values())
+                        .filter(y -> y.name().contentEquals(x)).findFirst().orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        List<Tag> otherTags = otherUTags.parallelStream()
+                .map(x -> Arrays.stream(Tag.values())
+                        .filter(y -> y.name().contentEquals(x)).findFirst().orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
         return otherTags
                 .parallelStream()
                 .filter(x -> meTags.parallelStream()
-                        .anyMatch(y -> y.contentEquals(x)))
+                        .anyMatch(y -> y.name().contentEquals(x.reverse())))
                 .collect(Collectors.toList());
     }
 

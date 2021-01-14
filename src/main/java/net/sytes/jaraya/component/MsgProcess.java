@@ -3,6 +3,7 @@ package net.sytes.jaraya.component;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.enums.Msg;
+import net.sytes.jaraya.enums.Tag;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,16 +65,23 @@ public class MsgProcess {
         return new HashMap<>();
     }
 
+    private String get(String msg, String lang, Object... objects) {
+        if (Objects.isNull(msg)) {
+            return "";
+        }
+        String format = languages.get(langOrDefault(lang)).get(msg);
+        if (format != null) {
+            return String.format(format, objects);
+        } else {
+            return msg;
+        }
+    }
+
     public String msg(Msg msg, String lang, Object... objects) {
         if (Objects.isNull(msg)) {
             return "";
         }
-        String format = languages.get(langOrDefault(lang)).get(msg.name());
-        if (format != null) {
-            return String.format(format, objects);
-        } else {
-            return msg.name();
-        }
+        return get(msg.name(), lang, objects);
     }
 
     private boolean langAvailable(String lang) {
@@ -91,5 +99,19 @@ public class MsgProcess {
 
     public String langOrDefault(String lang) {
         return langAvailable(lang) ? lang : ES;
+    }
+
+    public String reverseTag(Tag tag, String lang, Object... objects) {
+        if (Objects.isNull(tag)) {
+            return "";
+        }
+        return get(tag.reverse(), lang, objects);
+    }
+
+    public String tag(Tag tag, String lang, Object... objects) {
+        if (Objects.isNull(tag)) {
+            return "";
+        }
+        return get(tag.name(), lang, objects);
     }
 }
