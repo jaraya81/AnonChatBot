@@ -15,7 +15,7 @@ import net.sytes.jaraya.vo.MessageChat;
 import java.util.Objects;
 
 @Slf4j
-public class Bio extends Action implements IAction {
+public class Bio extends SuperAction implements IAction {
 
     public static final String CODE_1 = "Bio";
     public static final String CODE_2 = "/bio";

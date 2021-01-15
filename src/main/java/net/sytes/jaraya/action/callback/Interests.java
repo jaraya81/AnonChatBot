@@ -7,7 +7,7 @@ import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.response.BaseResponse;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.action.message.Action;
+import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Tag;
@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
-public class Interests extends Action implements IAction {
+public class Interests extends SuperAction implements IAction {
 
     public Interests(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);

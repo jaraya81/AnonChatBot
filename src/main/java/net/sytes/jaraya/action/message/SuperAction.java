@@ -12,7 +12,7 @@ import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.State;
 
 @Slf4j
-public class Action {
+public class SuperAction {
     private static final String FORBIDDEN_BLOCKED = "Forbidden: bot was blocked by the user";
     private static final String FORBIDDEN_DEACTIVATED = "Forbidden: user is deactivated";
 
@@ -21,10 +21,10 @@ public class Action {
     protected MsgProcess msg;
     protected long userAdmin;
 
-    protected Action(TelegramBot bot,
-                     AnonChatService serviceChat,
-                     MsgProcess msg,
-                     Long userAdmin) {
+    protected SuperAction(TelegramBot bot,
+                          AnonChatService serviceChat,
+                          MsgProcess msg,
+                          Long userAdmin) {
         this.services = serviceChat;
         this.bot = bot;
         this.msg = msg;

@@ -5,11 +5,12 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.action.message.Action;
+import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.State;
+import net.sytes.jaraya.util.Keyboard;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -17,11 +18,12 @@ import spark.Route;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static net.sytes.jaraya.util.Operator.elvis;
 
 @Slf4j
-public class Notification extends Action implements Route {
+public class Notification extends SuperAction implements Route {
 
     public Notification(TelegramBot bot, Long userAdmin) throws TelegramException {
         super(bot, new AnonChatService(), null, userAdmin);
@@ -43,19 +45,23 @@ public class Notification extends Action implements Route {
 
         List<User> userList = new ArrayList<>();
         if (elvis(test, true)) {
-            bot.execute(new SendMessage(userAdmin, "T:" + text)
-                    .parseMode(ParseMode.HTML));
+            User user = services.user.getByIdUser(userAdmin);
+            bot.execute(new SendMessage(user.getIdUser(), "T:" + text)
+                    .parseMode(ParseMode.HTML)
+                    .replyMarkup(Keyboard.getByStatus(State.valueOf(user.getState())))
+            );
         } else {
             if (lastMinutes == null) {
                 userList = services.user.getByLang(lang);
             } else {
                 userList = services.user.getByLangAndActives(lang, lastMinutes.intValue());
             }
-            userList.parallelStream()
+            userList = userList.parallelStream()
                     .filter(x -> !x.getState().contentEquals(State.BANNED.name()))
                     .filter(x -> !x.getState().contentEquals(State.STOP.name()))
-                    .forEach(x -> isInactive(bot.execute(new SendMessage(x.getIdUser(), text)
-                            .parseMode(ParseMode.HTML)), x.getIdUser()));
+                    .collect(Collectors.toList());
+            userList.forEach(x -> isInactive(bot.execute(new SendMessage(x.getIdUser(), text)
+                    .parseMode(ParseMode.HTML)), x.getIdUser()));
         }
         return userList.size();
     }

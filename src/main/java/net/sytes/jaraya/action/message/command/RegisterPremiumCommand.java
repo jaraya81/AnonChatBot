@@ -1,10 +1,12 @@
-package net.sytes.jaraya.action.message;
+package net.sytes.jaraya.action.message.command;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
+import net.sytes.jaraya.action.message.IAction;
+import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.PremiumType;
@@ -17,10 +19,10 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 @Slf4j
-public class RegisterPremium extends Action implements IAction {
+public class RegisterPremiumCommand extends SuperAction implements IAction {
     public static final String CODE = "/premium";
 
-    public RegisterPremium(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public RegisterPremiumCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 

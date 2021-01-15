@@ -5,6 +5,8 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
+import net.sytes.jaraya.action.message.button.PlayButton;
+import net.sytes.jaraya.action.message.command.StartCommand;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
@@ -16,7 +18,7 @@ import net.sytes.jaraya.vo.MessageChat;
 import java.util.Objects;
 
 @Slf4j
-public class ForceBio extends Action implements IAction {
+public class ForceBio extends SuperAction implements IAction {
 
     public ForceBio(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
@@ -34,7 +36,7 @@ public class ForceBio extends Action implements IAction {
         MessageChat message = (MessageChat) baseUpdate;
         if (Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
-                && !message.getText().contentEquals(Start.CODE)) {
+                && !message.getText().contentEquals(StartCommand.CODE)) {
             User user = services.user.getByIdUser(message.getFromId().longValue());
             return user != null && (user.getState().contentEquals(State.EMPTY_BIO.name()) || user.getDescription() == null || user.getDescription().isEmpty());
         }
@@ -58,7 +60,7 @@ public class ForceBio extends Action implements IAction {
                     .disableNotification(true));
             services.user.save(user);
             logResult(Msg.SET_BIO_OK.name(), user.getIdUser(), sendResponse.isOk());
-            new Play(bot, services, msg, userAdmin).play(user);
+            new PlayButton(bot, services, msg, userAdmin).play(user);
         } else if (User.exist(user) && !User.isBanned(user) && user.getDescription() == null || user.getDescription().isEmpty()) {
             SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.EMPTY_BIO, user.getLang())
                     + "\n\n<i>" + (user.getDescription() != null ? user.getDescription() : "") + "</i>")
