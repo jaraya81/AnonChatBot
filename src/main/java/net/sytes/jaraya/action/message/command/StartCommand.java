@@ -1,10 +1,12 @@
-package net.sytes.jaraya.action.message;
+package net.sytes.jaraya.action.message.command;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
+import net.sytes.jaraya.action.message.IAction;
+import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.PremiumType;
@@ -13,17 +15,16 @@ import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
-import net.sytes.jaraya.util.Keyboard;
 import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.Objects;
 
 @Slf4j
-public class Start extends Action implements IAction {
+public class StartCommand extends SuperAction implements IAction {
     public static final String CODE = "/start";
 
-    public Start(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public StartCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
@@ -62,7 +63,7 @@ public class Start extends Action implements IAction {
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(true)
-                    .replyMarkup(Keyboard.banned()));
+                    .replyMarkup(keyboard.getByUserStatus(user)));
             logResult(Msg.START_BANNED_USER.name(), message.getChatId(), sendResponse.isOk());
         } else {
             if (!User.isEmptyBio(user)) {
@@ -82,14 +83,14 @@ public class Start extends Action implements IAction {
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(false)
-                    .replyMarkup(Keyboard.remove())
+                    .replyMarkup(keyboard.getByUserStatus(user))
             );
             logResult(Msg.START_OK.name(), message.getChatId(), sendResponse.isOk());
             SendResponse sendResponse2 = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.EMPTY_BIO, user.getLang()))
-                            .parseMode(ParseMode.HTML)
-                            .disableWebPagePreview(false)
-                            .disableNotification(false)
-                    //        .replyMarkup(Keyboard.play())
+                    .parseMode(ParseMode.HTML)
+                    .disableWebPagePreview(false)
+                    .disableNotification(false)
+                    .replyMarkup(keyboard.getByUserStatus(user))
             );
             logResult(Msg.EMPTY_BIO.name(), message.getChatId(), sendResponse2.isOk());
         }

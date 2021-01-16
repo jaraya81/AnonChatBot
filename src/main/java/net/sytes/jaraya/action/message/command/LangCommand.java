@@ -1,10 +1,12 @@
-package net.sytes.jaraya.action.message;
+package net.sytes.jaraya.action.message.command;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
+import net.sytes.jaraya.action.message.IAction;
+import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
@@ -15,12 +17,12 @@ import net.sytes.jaraya.vo.MessageChat;
 import java.util.Objects;
 
 @Slf4j
-public class Lang extends Action implements IAction {
+public class LangCommand extends SuperAction implements IAction {
     public static final String CODE = "/lang";
     public static final String SET_CODE = "/lang ";
 
 
-    public Lang(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public LangCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 

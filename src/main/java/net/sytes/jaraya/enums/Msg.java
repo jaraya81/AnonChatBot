@@ -26,5 +26,11 @@ public enum Msg {
     PREMIUM_REGISTER_USER,
     PREMIUM_EXPIRED,
     ONLY_PRIVATE,
-    TAGS_PREFERENCES;
+    TAGS_PREFERENCES,
+    PAUSE,
+    PLAY,
+    BLOCK,
+    REPORT,
+    NEXT
+    ;
 }

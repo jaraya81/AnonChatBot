@@ -7,14 +7,13 @@ import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.response.BaseResponse;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.action.message.Action;
 import net.sytes.jaraya.action.message.IAction;
+import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Tag;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.model.UserTag;
 import net.sytes.jaraya.service.AnonChatService;
-import net.sytes.jaraya.util.Keyboard;
 import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.CBQuery;
 
@@ -24,7 +23,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
-public class Interests extends Action implements IAction {
+public class Interests extends SuperAction implements IAction {
 
     public Interests(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
@@ -73,7 +72,7 @@ public class Interests extends Action implements IAction {
                         callbackQuery.message().chat().id(),
                         callbackQuery.message().messageId(),
                         callbackQuery.message().text())
-                        .replyMarkup(Keyboard.getInlineKeyboardPref(services.tag.getByUserId(user), msg, user.getLang()))
+                        .replyMarkup(keyboard.getInlineKeyboardPref(services.tag.getByUserId(user), msg, user.getLang()))
                         .parseMode(ParseMode.MarkdownV2);
 
                 BaseResponse responseEdit = bot.execute(edit);

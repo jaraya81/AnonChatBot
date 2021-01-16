@@ -8,22 +8,23 @@ import com.pengrad.telegrambot.request.SendSticker;
 import com.pengrad.telegrambot.request.SendVoice;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
+import net.sytes.jaraya.action.message.command.AboutCommand;
+import net.sytes.jaraya.action.message.command.LangCommand;
+import net.sytes.jaraya.action.message.command.StartCommand;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
-import net.sytes.jaraya.util.Keyboard;
 import net.sytes.jaraya.util.StringUtil;
 import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
-public class CHAT extends Action implements IAction {
+public class CHAT extends SuperAction implements IAction {
 
     public CHAT(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
@@ -39,21 +40,20 @@ public class CHAT extends Action implements IAction {
     @Override
     public boolean check(BaseUpdate baseUpdate) {
         MessageChat message = (MessageChat) baseUpdate;
-        return Objects.nonNull(message)
-                && (message.getText() == null ||
-                (!message.getText().contentEquals(Next.CODE)
-                        && !message.getText().contentEquals(Next.CODE_ALT)
-                        && !message.getText().contentEquals(Pause.CODE)
-                        && !message.getText().contentEquals(Play.CODE)
-                        && !message.getText().contentEquals(Block.CODE)
-                        && !message.getText().contentEquals(Report.CODE)
-                        && !message.getText().contentEquals(Start.CODE)
-                        && !message.getText().contentEquals(Bio.CODE_1)
-                        && !message.getText().contentEquals(Bio.CODE_2)
-                        && !message.getText().startsWith(Bio.SET_CODE)
-                        && !message.getText().startsWith(About.CODE)
-                        && !message.getText().contentEquals(Lang.CODE)
-                        && !message.getText().startsWith(Lang.SET_CODE)))
+        User user = services.user.getByIdUser(message.getFromId().longValue());
+        return message.getText() == null
+                || !message.getText().contentEquals(msg.commandButton(Msg.NEXT, user.getLang()))
+                && !message.getText().contentEquals(msg.commandButton(Msg.PAUSE, user.getLang()))
+                && !message.getText().contentEquals(msg.commandButton(Msg.PLAY, user.getLang()))
+                && !message.getText().contentEquals(msg.commandButton(Msg.BLOCK, user.getLang()))
+                && !message.getText().contentEquals(msg.commandButton(Msg.REPORT, user.getLang()))
+                && !message.getText().contentEquals(StartCommand.CODE)
+                && !message.getText().contentEquals(Bio.CODE_1)
+                && !message.getText().contentEquals(Bio.CODE_2)
+                && !message.getText().startsWith(Bio.SET_CODE)
+                && !message.getText().startsWith(AboutCommand.CODE)
+                && !message.getText().contentEquals(LangCommand.CODE)
+                && !message.getText().startsWith(LangCommand.SET_CODE)
                 ;
     }
 
@@ -73,11 +73,12 @@ public class CHAT extends Action implements IAction {
                     services.chat.save(chat);
                 }
             } else {
-                SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_NO_CHAT, user.getLang()))
+                SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_NO_CHAT, user.getLang(),
+                        msg.commandButton(Msg.NEXT, user.getLang())))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
                         .disableNotification(true)
-                        .replyMarkup(Keyboard.play()));
+                        .replyMarkup(keyboard.getByUserStatus(user)));
                 logResult(Msg.USER_NO_CHAT.name(), message.getChatId(), sendResponse.isOk());
             }
         }
@@ -153,7 +154,8 @@ public class CHAT extends Action implements IAction {
 
     private void sendNextU(User user, Chat chat) {
         log.info("{} :: {} :: {}", Msg.NEXT_YOU, user.getIdUser(),
-                bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.NEXT_YOU, user.getLang()))
+                bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.NEXT_YOU, user.getLang(),
+                        msg.commandButton(Msg.NEXT, user.getLang()), msg.commandButton(Msg.NEXT, user.getLang())))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
                         .disableNotification(true)).isOk());

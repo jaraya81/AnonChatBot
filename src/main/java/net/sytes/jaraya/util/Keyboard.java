@@ -1,54 +1,58 @@
 package net.sytes.jaraya.util;
 
 import com.pengrad.telegrambot.model.request.*;
-import net.sytes.jaraya.action.message.*;
+import net.sytes.jaraya.action.message.Bio;
+import net.sytes.jaraya.action.message.button.ConfigButton;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.Tag;
+import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.model.UserTag;
+import net.sytes.jaraya.state.State;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class Keyboard {
-    private Keyboard() {
+    private final MsgProcess msg;
+
+    public Keyboard(MsgProcess msg) {
+        this.msg = msg;
     }
 
-    public static com.pengrad.telegrambot.model.request.Keyboard play() {
+    private com.pengrad.telegrambot.model.request.Keyboard play(String lang) {
         return new ReplyKeyboardMarkup(
-                new KeyboardButton(Pause.CODE),
-                new KeyboardButton(Next.CODE),
-                new KeyboardButton(Block.CODE),
-                new KeyboardButton(Report.CODE)).resizeKeyboard(true).selective(true);
+                new KeyboardButton(msg.commandButton(Msg.PAUSE, lang)),
+                new KeyboardButton(msg.commandButton(Msg.NEXT, lang)),
+                new KeyboardButton(msg.commandButton(Msg.BLOCK, lang)),
+                new KeyboardButton(msg.commandButton(Msg.REPORT, lang)))
+                .resizeKeyboard(true)
+                .selective(true);
     }
 
-    public static com.pengrad.telegrambot.model.request.Keyboard banned() {
+    private com.pengrad.telegrambot.model.request.Keyboard banned() {
         return new ReplyKeyboardRemove();
     }
 
-    public static com.pengrad.telegrambot.model.request.Keyboard remove() {
+    private com.pengrad.telegrambot.model.request.Keyboard remove() {
         return new ReplyKeyboardRemove();
     }
 
-    public static com.pengrad.telegrambot.model.request.Keyboard start() {
+    private com.pengrad.telegrambot.model.request.Keyboard pause(String lang) {
         return new ReplyKeyboardMarkup(
-                new KeyboardButton(Play.CODE),
-                new KeyboardButton(Config.CODE)).resizeKeyboard(true).selective(true);
+                new KeyboardButton(msg.commandButton(Msg.PLAY, lang)),
+                new KeyboardButton(ConfigButton.CODE)).resizeKeyboard(true).selective(true);
     }
 
-    public static com.pengrad.telegrambot.model.request.Keyboard pause() {
-        return new ReplyKeyboardMarkup(
-                new KeyboardButton(Play.CODE),
-                new KeyboardButton(Config.CODE)).resizeKeyboard(true).selective(true);
-    }
-
-    public static com.pengrad.telegrambot.model.request.Keyboard config() {
+    public com.pengrad.telegrambot.model.request.Keyboard config(String lang) {
         return new ReplyKeyboardMarkup(
                 new KeyboardButton(Bio.CODE_1),
-                new KeyboardButton(Play.CODE)).resizeKeyboard(true).selective(true);
+                new KeyboardButton(msg.commandButton(Msg.PLAY, lang)))
+                .resizeKeyboard(true).selective(true);
     }
 
-    public static InlineKeyboardMarkup getInlineKeyboardPref(List<UserTag> tags, MsgProcess msg, String lang) {
+    public InlineKeyboardMarkup getInlineKeyboardPref(List<UserTag> tags, MsgProcess msg, String lang) {
         List<List<InlineKeyboardButton>> grilla = new ArrayList<>();
         List<InlineKeyboardButton> inlines = new ArrayList<>();
 
@@ -76,5 +80,24 @@ public class Keyboard {
         }
         return inlineKeyboard;
 
+    }
+
+    public com.pengrad.telegrambot.model.request.Keyboard getByUserStatus(User user) {
+        if (user.getState().contentEquals(State.BANNED.name())) {
+            return banned();
+        }
+        if (user.getState().contentEquals(State.EMPTY_BIO.name())) {
+            return remove();
+        }
+        if (user.getState().contentEquals(State.PLAY.name())) {
+            return play(user.getLang());
+        }
+        if (user.getState().contentEquals(State.PAUSE.name())) {
+            return pause(user.getLang());
+        }
+        if (user.getState().contentEquals(State.STOP.name())) {
+            return pause(user.getLang());
+        }
+        return null;
     }
 }

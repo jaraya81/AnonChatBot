@@ -24,6 +24,7 @@ public class PeriodicalTasks {
     private final TelegramBot bot;
     private final AnonChatService serviceChat;
     private final MsgProcess msg;
+    private final Keyboard keyboard;
     private final Long userAdmin;
 
     public PeriodicalTasks(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
@@ -31,6 +32,7 @@ public class PeriodicalTasks {
         this.serviceChat = serviceChat;
         this.msg = msg;
         this.userAdmin = userAdmin;
+        this.keyboard = new Keyboard(msg);
     }
 
 
@@ -103,14 +105,14 @@ public class PeriodicalTasks {
         List<User> users = serviceChat.user.getByInactives(State.PAUSE, 60 * 24);
         for (User user : users) {
             serviceChat.user.save(user);
-            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang()))
+            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang(),
+                    msg.commandButton(Msg.PLAY, user.getLang())))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(false)
-                    .replyMarkup(Keyboard.pause()));
+                    .replyMarkup(keyboard.getByUserStatus(user)));
             log.info(MSG_LOG, Msg.REMINDER_PAUSED_USER.name(), user.getIdUser());
         }
-
     }
 
     private void cleanChat() throws TelegramException {
@@ -118,7 +120,8 @@ public class PeriodicalTasks {
         for (Long id : ids) {
             User user = serviceChat.user.getByIdUser(id);
             log.info(MSG_LOG, Msg.CHAT_TIMEOUT.name(), user.getIdUser());
-            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.CHAT_TIMEOUT, user.getLang()))
+            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.CHAT_TIMEOUT, user.getLang(),
+                    msg.commandButton(Msg.NEXT, user.getLang())))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(false));
@@ -132,11 +135,12 @@ public class PeriodicalTasks {
             log.info(MSG_LOG, Msg.INACTIVITY_USER.name(), user.getIdUser());
             user.setState(State.PAUSE.name());
             serviceChat.user.save(user);
-            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.INACTIVITY_USER, user.getLang()))
+            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.INACTIVITY_USER, user.getLang(),
+                    msg.commandButton(Msg.PLAY, user.getLang())))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(false)
-                    .replyMarkup(Keyboard.pause()));
+                    .replyMarkup(keyboard.getByUserStatus(user)));
         }
     }
 
