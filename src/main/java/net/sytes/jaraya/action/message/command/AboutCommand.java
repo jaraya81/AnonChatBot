@@ -45,7 +45,7 @@ public class AboutCommand extends SuperAction implements IAction {
         if (User.exist(user) && !User.isBanned(user) && message.getText().startsWith(CODE)) {
             long size = services.user.getByState(State.PLAY).size();
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(),
-                    msg.msg(Msg.ABOUT, user.getLang(), String.valueOf(size)))
+                    msg.msg(Msg.ABOUT, user.getLang(), msg.commandButton(Msg.NEXT, user.getLang()), String.valueOf(size)))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(true));

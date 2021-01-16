@@ -2,6 +2,7 @@ package net.sytes.jaraya.action.message.button;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +26,17 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NextButton extends SuperAction implements IAction {
 
-    public static final String CODE = "⏩ Next!";
-    public static final String CODE_ALT = "⏩";
-
     public NextButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
+    @Override
+    public boolean check(BaseUpdate baseUpdate) {
+        MessageChat message = (MessageChat) baseUpdate;
+        User me = services.user.getByIdUser(message.getFromId().longValue());
+        return Objects.nonNull(message.getText())
+                && message.getText().contentEquals(msg.commandButton(Msg.NEXT, me.getLang()));
+    }
 
     @Override
     public IAction exec(BaseUpdate baseUpdate) {
@@ -43,11 +48,18 @@ public class NextButton extends SuperAction implements IAction {
     private void next(MessageChat message) {
         User me = services.user.getByIdUser(message.getFromId().longValue());
         services.user.save(me);
-        next(me);
+        next(me, message.getChatId(), message.getMessageId());
     }
 
     public void next(User me) {
+        next(me, null, null);
+    }
+
+    public void next(User me, Long chatId, Integer messageId) {
         if (User.exist(me) && User.isPlayed(me)) {
+            if (chatId != null && messageId != null) {
+                bot.execute(new DeleteMessage(chatId, messageId));
+            }
             boolean isOK;
             do {
                 isOK = true;
@@ -66,7 +78,9 @@ public class NextButton extends SuperAction implements IAction {
                                     formatTags(commonsTags, me.getLang())))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
-                            .disableNotification(false));
+                            .disableNotification(false)
+                            .replyMarkup(keyboard.getByUserStatus(me))
+                    );
                     if (isInactive(sendResponse1, me.getIdUser())) {
                         break;
                     }
@@ -82,7 +96,7 @@ public class NextButton extends SuperAction implements IAction {
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
                             .disableNotification(false));
-                    log.info("{} :: {} {} -> {} {}", CODE, me.getIdUser(), sendResponse1.isOk(), other.getIdUser(), sendResponse2.isOk());
+                    log.info("{} :: {} {} -> {} {}", Msg.NEXT.name(), me.getIdUser(), sendResponse1.isOk(), other.getIdUser(), sendResponse2.isOk());
                     if (isInactive(sendResponse2, other.getIdUser())) {
                         isOK = false;
                     }
@@ -218,18 +232,12 @@ public class NextButton extends SuperAction implements IAction {
         chat.setState(ChatState.SKIPPED.name());
         services.chat.save(chat);
         User otherUser = services.user.getByIdUser(chat.getUser1().compareTo(myUserId) != 0 ? chat.getUser1() : chat.getUser2());
-        isInactive(bot.execute(new SendMessage(otherUser.getIdUser(), msg.msg(Msg.NEXT_YOU, otherUser.getLang()))
+        isInactive(bot.execute(new SendMessage(otherUser.getIdUser(), msg.msg(Msg.NEXT_YOU, otherUser.getLang(),
+                msg.commandButton(Msg.NEXT, otherUser.getLang()), msg.commandButton(Msg.NEXT, otherUser.getLang())))
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(true)
                 .disableNotification(true)), otherUser.getIdUser());
     }
 
-    @Override
-    public boolean check(BaseUpdate baseUpdate) {
-        MessageChat message = (MessageChat) baseUpdate;
-        return Objects.nonNull(message)
-                && Objects.nonNull(message.getText())
-                && (message.getText().contentEquals(CODE) || message.getText().contentEquals(CODE_ALT));
-    }
 
 }

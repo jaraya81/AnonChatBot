@@ -2,6 +2,7 @@ package net.sytes.jaraya.action.message.button;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +23,6 @@ import java.util.Objects;
 @Slf4j
 public class BlockButton extends SuperAction implements IAction {
 
-    public static final String CODE = "✖ Block";
-
     public BlockButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
@@ -38,26 +37,30 @@ public class BlockButton extends SuperAction implements IAction {
     @Override
     public boolean check(BaseUpdate baseUpdate) {
         MessageChat message = (MessageChat) baseUpdate;
-        return Objects.nonNull(message)
-                && Objects.nonNull(message.getText())
-                && message.getText().contentEquals(CODE);
+        User user1 = services.user.getByIdUser(message.getFromId().longValue());
+        return Objects.nonNull(message.getText())
+                && message.getText().contentEquals(msg.commandButton(Msg.BLOCK, user1.getLang()));
     }
 
     private void block(MessageChat message) {
-        User user1 = services.user.getByIdUser(message.getFromId().longValue());
-        if (User.exist(user1) && !User.isBanned(user1) && User.isPlayed(user1)) {
-            List<Chat> chats = services.chat.getByIdUserAndState(user1.getIdUser(), ChatState.ACTIVE);
+        User user = services.user.getByIdUser(message.getFromId().longValue());
+        if (User.exist(user) && !User.isBanned(user) && User.isPlayed(user)) {
+            List<Chat> chats = services.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE);
+            bot.execute(new DeleteMessage(message.getChatId(), message.getMessageId()));
             if (!chats.isEmpty()) {
                 Chat chat = chats.get(0);
                 chat.setState(ChatState.BLOCKED.name());
                 services.chat.save(chat);
-                SendResponse sendResponse = bot.execute(new SendMessage(user1.getIdUser(), msg.msg(Msg.USER_BLOCK, user1.getLang()))
+                SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.USER_BLOCK, user.getLang(),
+                        msg.commandButton(Msg.NEXT, user.getLang())))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
-                        .disableNotification(true));
-
-                logResult(CODE, message.getChatId(), sendResponse.isOk());
+                        .disableNotification(true)
+                        .replyMarkup(keyboard.getByUserStatus(user))
+                );
+                logResult(Msg.BLOCK.name(), message.getChatId(), sendResponse.isOk());
             }
+
         }
     }
 

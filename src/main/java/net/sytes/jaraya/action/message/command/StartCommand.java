@@ -15,7 +15,6 @@ import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
-import net.sytes.jaraya.util.Keyboard;
 import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
@@ -64,7 +63,7 @@ public class StartCommand extends SuperAction implements IAction {
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(true)
-                    .replyMarkup(Keyboard.banned()));
+                    .replyMarkup(keyboard.getByUserStatus(user)));
             logResult(Msg.START_BANNED_USER.name(), message.getChatId(), sendResponse.isOk());
         } else {
             if (!User.isEmptyBio(user)) {
@@ -84,14 +83,14 @@ public class StartCommand extends SuperAction implements IAction {
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(false)
-                    .replyMarkup(Keyboard.remove())
+                    .replyMarkup(keyboard.getByUserStatus(user))
             );
             logResult(Msg.START_OK.name(), message.getChatId(), sendResponse.isOk());
             SendResponse sendResponse2 = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.EMPTY_BIO, user.getLang()))
-                            .parseMode(ParseMode.HTML)
-                            .disableWebPagePreview(false)
-                            .disableNotification(false)
-                    //        .replyMarkup(Keyboard.play())
+                    .parseMode(ParseMode.HTML)
+                    .disableWebPagePreview(false)
+                    .disableNotification(false)
+                    .replyMarkup(keyboard.getByUserStatus(user))
             );
             logResult(Msg.EMPTY_BIO.name(), message.getChatId(), sendResponse2.isOk());
         }

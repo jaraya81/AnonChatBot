@@ -1,15 +1,19 @@
 package net.sytes.jaraya.component;
 
 import com.google.gson.Gson;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.Tag;
+import net.sytes.jaraya.exception.TelegramException;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+
+import static net.sytes.jaraya.util.Operator.elvis;
 
 @Slf4j
 public class MsgProcess {
@@ -114,4 +118,15 @@ public class MsgProcess {
         }
         return get(tag.name(), lang, objects);
     }
+
+    @SneakyThrows
+    public String commandButton(Msg command, String lang) {
+        final String finalLang = elvis(lang, EN);
+        return msg(
+                Arrays.stream(Msg.values()).filter(x -> x.name().contentEquals(command.name())).findFirst()
+                        .orElseThrow(() -> new TelegramException(String.format("'%s' not found in file lang '%s'", command.name(), finalLang))),
+                lang
+        );
+    }
+
 }

@@ -2,6 +2,7 @@ package net.sytes.jaraya.action.message.button;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
-import net.sytes.jaraya.util.Keyboard;
 import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
@@ -23,7 +23,6 @@ import java.util.Objects;
 
 @Slf4j
 public class PauseButton extends SuperAction implements IAction {
-    public static final String CODE = "⏸ Pause";
 
     public PauseButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
@@ -32,9 +31,10 @@ public class PauseButton extends SuperAction implements IAction {
     @Override
     public boolean check(BaseUpdate baseUpdate) {
         MessageChat message = (MessageChat) baseUpdate;
-        return Objects.nonNull(message)
-                && Objects.nonNull(message.getText())
-                && message.getText().contentEquals(CODE);
+        User user = services.user.getByIdUser(message.getFromId().longValue());
+        return Objects.nonNull(message.getText())
+                && message.getText().contentEquals(msg.commandButton(Msg.PAUSE, user.getLang()));
+
     }
 
     @Override
@@ -54,12 +54,15 @@ public class PauseButton extends SuperAction implements IAction {
                 chat.setState(ChatState.SKIPPED.name());
                 services.chat.save(chat);
             }
-            SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_PAUSE, user.getLang()))
+            bot.execute(new DeleteMessage(message.getChatId(), message.getMessageId()));
+            SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.USER_PAUSE, user.getLang(),
+                    msg.commandButton(Msg.PLAY, user.getLang())))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(true)
-                    .replyMarkup(Keyboard.pause()));
-            logResult(CODE, message.getChatId(), sendResponse.isOk());
+                    .replyMarkup(keyboard.getByUserStatus(user))
+            );
+            logResult(Msg.PAUSE.name(), message.getChatId(), sendResponse.isOk());
         }
     }
 }

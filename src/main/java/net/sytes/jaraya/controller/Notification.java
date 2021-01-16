@@ -6,11 +6,11 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.SuperAction;
+import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.State;
-import net.sytes.jaraya.util.Keyboard;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -26,7 +26,7 @@ import static net.sytes.jaraya.util.Operator.elvis;
 public class Notification extends SuperAction implements Route {
 
     public Notification(TelegramBot bot, Long userAdmin) throws TelegramException {
-        super(bot, new AnonChatService(), null, userAdmin);
+        super(bot, new AnonChatService(), new MsgProcess(), userAdmin);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class Notification extends SuperAction implements Route {
             User user = services.user.getByIdUser(userAdmin);
             bot.execute(new SendMessage(user.getIdUser(), "T:" + text)
                     .parseMode(ParseMode.HTML)
-                    .replyMarkup(Keyboard.getByStatus(State.valueOf(user.getState())))
+                    .replyMarkup(keyboard.getByUserStatus(user))
             );
         } else {
             if (lastMinutes == null) {

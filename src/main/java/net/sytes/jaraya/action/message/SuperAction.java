@@ -10,6 +10,7 @@ import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.State;
+import net.sytes.jaraya.util.Keyboard;
 
 @Slf4j
 public class SuperAction {
@@ -20,7 +21,7 @@ public class SuperAction {
     protected TelegramBot bot;
     protected MsgProcess msg;
     protected long userAdmin;
-
+    protected final Keyboard keyboard;
     protected SuperAction(TelegramBot bot,
                           AnonChatService serviceChat,
                           MsgProcess msg,
@@ -29,6 +30,7 @@ public class SuperAction {
         this.bot = bot;
         this.msg = msg;
         this.userAdmin = userAdmin;
+        this.keyboard = new Keyboard(msg);
     }
 
     protected void logResult(String code, Long id, boolean isOK) {
@@ -41,13 +43,15 @@ public class SuperAction {
 
     public boolean isInactive(SendResponse response, Long id) {
         if (!response.isOk() && response.description() != null) {
-            log.info("NOK " + response.description());
+            log.error("NOK " + response.description());
             if (response.description().contentEquals(FORBIDDEN_BLOCKED) ||
                     response.description().contentEquals(FORBIDDEN_DEACTIVATED)) {
                 User user = services.user.getByIdUser(id);
                 user.setState(State.STOP.name());
                 log.info("STOP :: {} :: {}", user.getIdUser(), services.user.save(user));
                 return true;
+            } else {
+                log.error("{}", response);
             }
         }
         return false;
@@ -65,4 +69,5 @@ public class SuperAction {
             return false;
         }
     }
+
 }

@@ -12,7 +12,6 @@ import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.State;
-import net.sytes.jaraya.util.Keyboard;
 import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
@@ -50,7 +49,7 @@ public class TagsCommand extends SuperAction implements IAction {
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(true)
-                    .replyMarkup(Keyboard.getInlineKeyboardPref(services.tag.getByUserId(user), msg, user.getLang()))
+                    .replyMarkup(keyboard.getInlineKeyboardPref(services.tag.getByUserId(user), msg, user.getLang()))
             );
             logResult(Msg.TAGS_PREFERENCES.name(), message.getChatId(), sendResponse.isOk());
         }
