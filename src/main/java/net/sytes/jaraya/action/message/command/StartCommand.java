@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.SuperAction;
+import net.sytes.jaraya.action.message.button.PlayButton;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.PremiumType;
@@ -53,7 +54,7 @@ public class StartCommand extends SuperAction implements IAction {
                     .state(State.EMPTY_BIO.name())
                     .premiumType(PremiumType.TEMPORAL.name())
                     .lang(lang)
-                    .description("")
+                    .description(msg.anyDescription(lang))
                     .build();
             services.user.save(user);
             log.info("NEW USER: {}", user);
@@ -66,11 +67,10 @@ public class StartCommand extends SuperAction implements IAction {
                     .replyMarkup(keyboard.getByUserStatus(user)));
             logResult(Msg.START_BANNED_USER.name(), message.getChatId(), sendResponse.isOk());
         } else {
-            if (!User.isEmptyBio(user)) {
-                user.setState(State.EMPTY_BIO.name());
-                user.setDescription("");
-                services.user.save(user);
-            }
+            user.setDescription(msg.anyDescription(user.getLang()));
+            user.setState(State.PAUSE.name());
+            services.user.save(user);
+
             services.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE)
                     .parallelStream()
                     .forEach(x -> {
@@ -85,14 +85,9 @@ public class StartCommand extends SuperAction implements IAction {
                     .disableNotification(false)
                     .replyMarkup(keyboard.getByUserStatus(user))
             );
+
             logResult(Msg.START_OK.name(), message.getChatId(), sendResponse.isOk());
-            SendResponse sendResponse2 = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.EMPTY_BIO, user.getLang()))
-                    .parseMode(ParseMode.HTML)
-                    .disableWebPagePreview(false)
-                    .disableNotification(false)
-                    .replyMarkup(keyboard.getByUserStatus(user))
-            );
-            logResult(Msg.EMPTY_BIO.name(), message.getChatId(), sendResponse2.isOk());
+            new PlayButton(bot, services, msg, userAdmin).play(user);
         }
 
     }

@@ -23,9 +23,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
-public class Interests extends SuperAction implements IAction {
+public class InterestsCB extends SuperAction implements IAction {
 
-    public Interests(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public InterestsCB(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
 
@@ -44,7 +44,8 @@ public class Interests extends SuperAction implements IAction {
                 && Objects.nonNull(callbackQuery.message())
                 && Objects.nonNull(callbackQuery.message().chat())
                 && Objects.nonNull(callbackQuery.message().chat().id())
-                ;
+                && Arrays.stream(Tag.values()).anyMatch(x -> x.name().contentEquals(callbackQuery.data()));
+
     }
 
     private void action(CallbackQuery callbackQuery) {
@@ -72,7 +73,7 @@ public class Interests extends SuperAction implements IAction {
                         callbackQuery.message().chat().id(),
                         callbackQuery.message().messageId(),
                         callbackQuery.message().text())
-                        .replyMarkup(keyboard.getInlineKeyboardPref(services.tag.getByUserId(user), msg, user.getLang()))
+                        .replyMarkup(keyboard.getInlineKeyboardPref(services.tag.getByUserId(user), user.getLang()))
                         .parseMode(ParseMode.MarkdownV2);
 
                 BaseResponse responseEdit = bot.execute(edit);

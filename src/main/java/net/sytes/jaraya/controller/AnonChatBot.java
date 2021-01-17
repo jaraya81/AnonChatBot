@@ -7,8 +7,12 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
-import net.sytes.jaraya.action.callback.Interests;
-import net.sytes.jaraya.action.message.*;
+import net.sytes.jaraya.action.callback.ConfigCB;
+import net.sytes.jaraya.action.callback.InterestsCB;
+import net.sytes.jaraya.action.message.Bio;
+import net.sytes.jaraya.action.message.CHAT;
+import net.sytes.jaraya.action.message.ForceBio;
+import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.button.*;
 import net.sytes.jaraya.action.message.command.*;
 import net.sytes.jaraya.component.MsgProcess;
@@ -62,7 +66,8 @@ public class AnonChatBot implements Route {
         messageActions.add(new TagsCommand(bot, service, msg, userAdmin));
         messageActions.add(new CHAT(bot, service, msg, userAdmin));
 
-        callbackActions.add(new Interests(bot, service, msg, userAdmin));
+        callbackActions.add(new InterestsCB(bot, service, msg, userAdmin));
+        callbackActions.add(new ConfigCB(bot, service, msg, userAdmin));
 
         final PeriodicalTasks periodicalTasks = new PeriodicalTasks(bot, service, msg, userAdmin);
         Executors.newScheduledThreadPool(1)

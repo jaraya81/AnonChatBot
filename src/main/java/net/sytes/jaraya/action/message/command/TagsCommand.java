@@ -28,7 +28,8 @@ public class TagsCommand extends SuperAction implements IAction {
     @Override
     public IAction exec(BaseUpdate baseUpdate) {
         MessageChat message = (MessageChat) baseUpdate;
-        action(message);
+        User user = services.user.getByIdUser(message.getFromId().longValue());
+        action(user);
         return this;
     }
 
@@ -40,18 +41,17 @@ public class TagsCommand extends SuperAction implements IAction {
                 && message.getText().startsWith(CODE);
     }
 
-    private void action(MessageChat message) {
-        User user = services.user.getByIdUser(message.getFromId().longValue());
-        if (User.exist(user) && !User.isBanned(user) && message.getText().startsWith(CODE)) {
+    public void action(User user) {
+        if (User.exist(user) && !User.isBanned(user)) {
             long size = services.user.getByState(State.PLAY).size();
-            SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(),
+            SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(),
                     msg.msg(Msg.TAGS_PREFERENCES, user.getLang(), String.valueOf(size)))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(true)
-                    .replyMarkup(keyboard.getInlineKeyboardPref(services.tag.getByUserId(user), msg, user.getLang()))
+                    .replyMarkup(keyboard.getInlineKeyboardPref(services.tag.getByUserId(user), user.getLang()))
             );
-            logResult(Msg.TAGS_PREFERENCES.name(), message.getChatId(), sendResponse.isOk());
+            logResult(Msg.TAGS_PREFERENCES.name(), user.getIdUser(), sendResponse.isOk());
         }
     }
 

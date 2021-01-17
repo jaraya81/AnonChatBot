@@ -53,26 +53,33 @@ public class ForceBio extends SuperAction implements IAction {
             user.setDescription(text.length() <= 240 ?
                     text
                     : text.substring(0, 239));
-            SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.SET_BIO_OK, user.getLang())
-                    + "<i>" + (user.getDescription() != null ? user.getDescription() : "") + "</i>")
+            services.user.save(user);
+            SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(),
+                    msg.msg(Msg.SET_BIO_OK, user.getLang(), user.getDescription()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(true));
-            services.user.save(user);
             logResult(Msg.SET_BIO_OK.name(), user.getIdUser(), sendResponse.isOk());
             new PlayButton(bot, services, msg, userAdmin).play(user);
         } else if (User.exist(user) && !User.isBanned(user) && user.getDescription() == null || user.getDescription().isEmpty()) {
-            SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.EMPTY_BIO, user.getLang())
-                    + "\n\n<i>" + (user.getDescription() != null ? user.getDescription() : "") + "</i>")
-                    .parseMode(ParseMode.HTML)
-                    .disableWebPagePreview(false)
-                    .disableNotification(true));
-            user.setState(State.EMPTY_BIO.name());
-            services.user.save(user);
-            logResult(Msg.BIO.name(), user.getIdUser(), sendResponse.isOk());
+            sendMessage(user);
         }
 
     }
 
+    public void sendMessage(User user) {
+        if (!User.isEmptyBio(user) || user.getDescription() == null || user.getDescription().isEmpty()) {
+            user.setState(State.EMPTY_BIO.name());
+            user.setDescription("");
+            services.user.save(user);
+        }
 
+        SendResponse sendResponse2 = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.EMPTY_BIO, user.getLang()))
+                .parseMode(ParseMode.HTML)
+                .disableWebPagePreview(false)
+                .disableNotification(false)
+                .replyMarkup(keyboard.getByUserStatus(user))
+        );
+        logResult(Msg.EMPTY_BIO.name(), user.getIdUser(), sendResponse2.isOk());
+    }
 }

@@ -17,9 +17,7 @@ import java.util.Objects;
 @Slf4j
 public class Bio extends SuperAction implements IAction {
 
-    public static final String CODE_1 = "Bio";
-    public static final String CODE_2 = "/bio";
-    public static final String SET_CODE = "/bio ";
+    public static final String CODE = "/bio";
 
     public Bio(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
@@ -37,32 +35,37 @@ public class Bio extends SuperAction implements IAction {
         MessageChat message = (MessageChat) baseUpdate;
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
-                && (message.getText().contentEquals(CODE_1) || message.getText().contentEquals(CODE_2) || message.getText().startsWith(SET_CODE));
+                && (message.getText().contentEquals(CODE)
+                || message.getText().startsWith(CODE));
     }
 
     private void bio(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
-
         if (User.exist(user) && !User.isBanned(user)) {
-            if (message.getText().startsWith(SET_CODE)) {
-                String bio = message.getText().replace(SET_CODE, "");
-                user.setDescription(bio.length() <= 140 ? bio : bio.substring(0, 139));
+            if (message.getText().contentEquals(CODE)) {
+                String mensaje = msg.msg(Msg.BIO,
+                        user.getLang(),
+                        msg.commandButton(Msg.CONFIG, user.getLang()),
+                        user.getDescription());
+                log.info(mensaje);
+                SendResponse sendResponse = bot.execute(new SendMessage(
+                        user.getIdUser(), mensaje)
+                        .parseMode(ParseMode.HTML)
+                        .disableWebPagePreview(false)
+                        .disableNotification(true));
+                logResult(CODE, message.getChatId(), sendResponse.isOk());
+            } else if (message.getText().startsWith(CODE)) {
+                String bio = message.getText().replace(CODE, "");
+                user.setDescription(bio.length() <= 240 ? bio : bio.substring(0, 239));
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(),
-                        msg.msg(Msg.SET_BIO_OK, user.getLang())
-                                + "<i>" + (user.getDescription() != null ? user.getDescription() : "") + "</i>")
+                        msg.msg(Msg.SET_BIO_OK, user.getLang(), user.getDescription()))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(false)
                         .disableNotification(true));
                 services.user.save(user);
-                logResult(SET_CODE, message.getChatId(), sendResponse.isOk());
-            } else if (message.getText().contentEquals(CODE_1) || message.getText().contentEquals(CODE_2)) {
-                SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.BIO, user.getLang())
-                        + "\n\n<i>" + (user.getDescription() != null ? user.getDescription() : "") + "</i>")
-                        .parseMode(ParseMode.HTML)
-                        .disableWebPagePreview(false)
-                        .disableNotification(true));
-                logResult(CODE_1, message.getChatId(), sendResponse.isOk());
+                logResult(CODE, message.getChatId(), sendResponse.isOk());
             }
+
 
         }
 

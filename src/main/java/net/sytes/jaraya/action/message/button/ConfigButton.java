@@ -2,6 +2,7 @@ package net.sytes.jaraya.action.message.button;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +19,6 @@ import java.util.Objects;
 
 @Slf4j
 public class ConfigButton extends SuperAction implements IAction {
-    @Deprecated
-    public static final String CODE = "Config";
 
     public ConfigButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
@@ -35,20 +34,23 @@ public class ConfigButton extends SuperAction implements IAction {
     @Override
     public boolean check(BaseUpdate baseUpdate) {
         MessageChat message = (MessageChat) baseUpdate;
-        return Objects.nonNull(message)
-                && Objects.nonNull(message.getText())
-                && message.getText().contentEquals(CODE);
+        User user = services.user.getByIdUser(message.getFromId().longValue());
+
+        return Objects.nonNull(message.getText())
+                && message.getText().contentEquals(msg.commandButton(Msg.CONFIG, user.getLang()));
     }
 
     private void config(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user)) {
-            SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.CONFIG, user.getLang()))
+            bot.execute(new DeleteMessage(message.getChatId(), message.getMessageId()));
+            SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.CONFIG_MSG, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(true)
-                    .replyMarkup(keyboard.config(user.getLang())));
-            logResult(CODE, message.getChatId(), sendResponse.isOk());
+                    .replyMarkup(keyboard.getInlineKeyboardConfig(user.getLang()))
+            );
+            logResult(Msg.CONFIG.name(), message.getChatId(), sendResponse.isOk());
         }
     }
 }
