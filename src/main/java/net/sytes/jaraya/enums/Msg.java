@@ -11,7 +11,7 @@ public enum Msg {
     USER_NO_CHAT,
     SET_BIO_OK,
     BIO,
-    CONFIG,
+    CONFIG_MSG,
     CHAT_TIMEOUT,
     USER_BLOCK,
     ABOUT,
@@ -31,6 +31,9 @@ public enum Msg {
     PLAY,
     BLOCK,
     REPORT,
-    NEXT
+    NEXT,
+    CONFIG,
+    CB_BIO,
+    CB_TAGS,
     ;
 }

@@ -1,8 +1,6 @@
 package net.sytes.jaraya.util;
 
 import com.pengrad.telegrambot.model.request.*;
-import net.sytes.jaraya.action.message.Bio;
-import net.sytes.jaraya.action.message.button.ConfigButton;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.Tag;
@@ -26,7 +24,9 @@ public class Keyboard {
                 new KeyboardButton(msg.commandButton(Msg.PAUSE, lang)),
                 new KeyboardButton(msg.commandButton(Msg.NEXT, lang)),
                 new KeyboardButton(msg.commandButton(Msg.BLOCK, lang)),
-                new KeyboardButton(msg.commandButton(Msg.REPORT, lang)))
+                new KeyboardButton(msg.commandButton(Msg.REPORT, lang)),
+                new KeyboardButton(msg.commandButton(Msg.CONFIG, lang))
+        )
                 .resizeKeyboard(true)
                 .selective(true);
     }
@@ -42,17 +42,19 @@ public class Keyboard {
     private com.pengrad.telegrambot.model.request.Keyboard pause(String lang) {
         return new ReplyKeyboardMarkup(
                 new KeyboardButton(msg.commandButton(Msg.PLAY, lang)),
-                new KeyboardButton(ConfigButton.CODE)).resizeKeyboard(true).selective(true);
-    }
-
-    public com.pengrad.telegrambot.model.request.Keyboard config(String lang) {
-        return new ReplyKeyboardMarkup(
-                new KeyboardButton(Bio.CODE_1),
-                new KeyboardButton(msg.commandButton(Msg.PLAY, lang)))
+                new KeyboardButton(msg.commandButton(Msg.CONFIG, lang))
+        )
                 .resizeKeyboard(true).selective(true);
     }
 
-    public InlineKeyboardMarkup getInlineKeyboardPref(List<UserTag> tags, MsgProcess msg, String lang) {
+    public InlineKeyboardMarkup getInlineKeyboardConfig(String lang) {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        inlineKeyboard.addRow(new InlineKeyboardButton(msg.commandButton(Msg.CB_BIO, lang)).callbackData(Msg.CB_BIO.name()));
+        inlineKeyboard.addRow(new InlineKeyboardButton(msg.commandButton(Msg.CB_TAGS, lang)).callbackData(Msg.CB_TAGS.name()));
+        return inlineKeyboard;
+    }
+
+    public InlineKeyboardMarkup getInlineKeyboardPref(List<UserTag> tags, String lang) {
         List<List<InlineKeyboardButton>> grilla = new ArrayList<>();
         List<InlineKeyboardButton> inlines = new ArrayList<>();
 
