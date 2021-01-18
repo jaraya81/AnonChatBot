@@ -40,6 +40,7 @@ public class Notification extends SuperAction implements Route {
         String type = (String) params.get("type");
         String msg = (String) params.get("msg");
         Double lastMinutes = (Double) params.get("last_minutes");
+        Map<String, String> buttons = (Map<String, String>) params.get("buttons");
 
         String text = String.format("<pre>%s</pre>%n%n%s", elvis(type, "Broadcast Message"), msg);
 
@@ -48,7 +49,9 @@ public class Notification extends SuperAction implements Route {
             User user = services.user.getByIdUser(userAdmin);
             bot.execute(new SendMessage(user.getIdUser(), "T:" + text)
                     .parseMode(ParseMode.HTML)
-                    .replyMarkup(keyboard.getByUserStatus(user))
+                    .replyMarkup(buttons != null
+                            ? keyboard.getInlineKeyboardUrls(buttons)
+                            : keyboard.getByUserStatus(user))
             );
         } else {
             if (lastMinutes == null) {
@@ -61,7 +64,10 @@ public class Notification extends SuperAction implements Route {
                     .filter(x -> !x.getState().contentEquals(State.STOP.name()))
                     .collect(Collectors.toList());
             userList.forEach(x -> isInactive(bot.execute(new SendMessage(x.getIdUser(), text)
-                    .parseMode(ParseMode.HTML)), x.getIdUser()));
+                    .parseMode(ParseMode.HTML)
+                    .replyMarkup(buttons != null
+                            ? keyboard.getInlineKeyboardUrls(buttons)
+                            : keyboard.getByUserStatus(x))), x.getIdUser()));
         }
         return userList.size();
     }
