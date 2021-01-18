@@ -10,6 +10,7 @@ import net.sytes.jaraya.state.State;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class Keyboard {
@@ -45,6 +46,15 @@ public class Keyboard {
                 new KeyboardButton(msg.commandButton(Msg.CONFIG, lang))
         )
                 .resizeKeyboard(true).selective(true);
+    }
+
+    public InlineKeyboardMarkup getInlineKeyboardUrls(Map<String, String> urls) {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        for (Map.Entry<String, String> entry : urls.entrySet()) {
+            inlineKeyboard.addRow(new InlineKeyboardButton(entry.getKey())
+                    .url(entry.getValue()));
+        }
+        return inlineKeyboard;
     }
 
     public InlineKeyboardMarkup getInlineKeyboardConfig(String lang) {
