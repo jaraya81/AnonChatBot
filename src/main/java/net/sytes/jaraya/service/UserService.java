@@ -22,7 +22,7 @@ public class UserService {
         return userRepo.getByState(state);
     }
 
-    public List<User> getByLang(String lang) throws TelegramException {
+    public List<User> getByLang(String lang) {
         return userRepo.getByLang(lang);
     }
 

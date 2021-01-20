@@ -134,7 +134,8 @@ public class UserRepo extends Repository {
         }
     }
 
-    public List<User> getByLang(String lang) throws TelegramException {
+    @SneakyThrows
+    public List<User> getByLang(String lang) {
         List<User> users;
         try {
             String query = String.format(QUERY_BASIC,
