@@ -74,7 +74,7 @@ public class UserRepo extends Repository {
     }
 
     @SneakyThrows
-    public int save(User user) {
+    public User save(User user) {
         if (Objects.isNull(user) || Objects.isNull(user.getIdUser()) || Objects.isNull(user.getState())) {
             throw new TelegramException(String.format("%s", user != null ? user : "user is null"));
         }
@@ -93,7 +93,7 @@ public class UserRepo extends Repository {
                         UPDATE.value(),
                         DATE_PREMIUM.value()
                 );
-                return new QueryRunner().update(connect, query,
+                new QueryRunner().update(connect, query,
                         user.getIdUser(),
                         user.getUsername(),
                         user.getDescription(),
@@ -116,7 +116,7 @@ public class UserRepo extends Repository {
                         DATE_PREMIUM.value(),
                         UPDATE.value(),
                         ID.value());
-                return new QueryRunner().update(connect, query,
+                new QueryRunner().update(connect, query,
                         user.getIdUser(),
                         user.getUsername(),
                         user.getDescription(),
@@ -128,10 +128,10 @@ public class UserRepo extends Repository {
                         user.getId()
                 );
             }
+            return getByIdUser(user.getIdUser());
         } catch (SQLException e) {
             throw new TelegramException(e);
         }
-
     }
 
     public List<User> getByLang(String lang) throws TelegramException {

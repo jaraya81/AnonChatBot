@@ -53,7 +53,7 @@ public class ForceBio extends SuperAction implements IAction {
             user.setDescription(text.length() <= 240 ?
                     text
                     : text.substring(0, 239));
-            services.user.save(user);
+            user = services.user.save(user);
             SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(),
                     msg.msg(Msg.SET_BIO_OK, user.getLang(), user.getDescription()))
                     .parseMode(ParseMode.HTML)
@@ -71,7 +71,7 @@ public class ForceBio extends SuperAction implements IAction {
         if (!User.isEmptyBio(user) || user.getDescription() == null || user.getDescription().isEmpty()) {
             user.setState(State.EMPTY_BIO.name());
             user.setDescription("");
-            services.user.save(user);
+            user = services.user.save(user);
         }
 
         SendResponse sendResponse2 = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.EMPTY_BIO, user.getLang()))

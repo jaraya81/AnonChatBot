@@ -57,7 +57,7 @@ public class PeriodicalTasks {
                 .filter(User::isPremium)
                 .forEach(user -> {
                     user.setState(State.STOP.name());
-                    serviceChat.user.save(user);
+                    user = serviceChat.user.save(user);
                     log.info(MSG_LOG, "removeSuspension", user.getIdUser());
                 });
     }
@@ -76,7 +76,7 @@ public class PeriodicalTasks {
                 })
                 .forEach(user -> {
                     user.setPremium(PremiumType.NO.name());
-                    serviceChat.user.save(user);
+                    user = serviceChat.user.save(user);
                     bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.PREMIUM_EXPIRED, user.getLang()))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(true)
@@ -104,7 +104,7 @@ public class PeriodicalTasks {
     private void reminderInactiveUsers() {
         List<User> users = serviceChat.user.getByInactives(State.PAUSE, 60 * 24);
         for (User user : users) {
-            serviceChat.user.save(user);
+            user = serviceChat.user.save(user);
             bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang(),
                     msg.commandButton(Msg.PLAY, user.getLang())))
                     .parseMode(ParseMode.HTML)
@@ -134,7 +134,7 @@ public class PeriodicalTasks {
         for (User user : users) {
             log.info(MSG_LOG, Msg.INACTIVITY_USER.name(), user.getIdUser());
             user.setState(State.PAUSE.name());
-            serviceChat.user.save(user);
+            user = serviceChat.user.save(user);
             bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.INACTIVITY_USER, user.getLang(),
                     msg.commandButton(Msg.PLAY, user.getLang())))
                     .parseMode(ParseMode.HTML)

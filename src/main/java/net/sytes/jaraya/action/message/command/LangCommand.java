@@ -49,7 +49,7 @@ public class LangCommand extends SuperAction implements IAction {
                 String langUser = message.getText().replace(SET_CODE, "");
                 String lang = msg.langOrDefault(langUser.toLowerCase());
                 user.setLang(lang);
-                services.user.save(user);
+                user = services.user.save(user);
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.SET_LANG_OK, user.getLang())
                         + "<i>" + user.getLang() + "</i>")
                         .parseMode(ParseMode.HTML)

@@ -26,7 +26,7 @@ public class UserService {
         return userRepo.getByLang(lang);
     }
 
-    public int save(User user) {
+    public User save(User user) {
         return userRepo.save(user);
     }
 

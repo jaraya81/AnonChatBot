@@ -44,7 +44,7 @@ public class StartCommand extends SuperAction implements IAction {
                 && message.getText().contentEquals(CODE);
     }
 
-    private void start(MessageChat message) {
+    public void start(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         if (user == null) {
             String lang = msg.langOrDefault(message.getLanguageCode());
@@ -56,7 +56,7 @@ public class StartCommand extends SuperAction implements IAction {
                     .lang(lang)
                     .description(msg.anyDescription(lang))
                     .build();
-            services.user.save(user);
+            user = services.user.save(user);
             log.info("NEW USER: {}", user);
         }
         if (User.isBanned(user)) {
@@ -69,7 +69,7 @@ public class StartCommand extends SuperAction implements IAction {
         } else {
             user.setDescription(msg.anyDescription(user.getLang()));
             user.setState(State.PAUSE.name());
-            services.user.save(user);
+            user = services.user.save(user);
 
             services.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE)
                     .parallelStream()
