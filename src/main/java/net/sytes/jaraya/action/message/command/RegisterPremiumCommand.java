@@ -55,7 +55,7 @@ public class RegisterPremiumCommand extends SuperAction implements IAction {
                     PremiumType type = PremiumType.valueOf(params[2]);
                     user.setPremium(type.name());
                     user.setDatePremium(new Timestamp(new Date().getTime()));
-                    services.user.save(user);
+                    user = services.user.save(user);
                     SendResponse sendResponseAdmin = bot.execute(
                             new SendMessage(userAdmin, msg.msg(Msg.PREMIUM_REGISTER_ADMIN, user.getLang(),
                                     user.getIdUser(), user.getPremiumType()))

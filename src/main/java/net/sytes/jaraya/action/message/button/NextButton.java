@@ -47,7 +47,7 @@ public class NextButton extends SuperAction implements IAction {
 
     private void next(MessageChat message) {
         User me = services.user.getByIdUser(message.getFromId().longValue());
-        services.user.save(me);
+        me = services.user.save(me);
         next(me, message.getChatId(), message.getMessageId());
     }
 
@@ -68,22 +68,6 @@ public class NextButton extends SuperAction implements IAction {
                 Chat chat = assignNew(me, other);
                 if (chat != null) {
                     List<Tag> commonsTags = commonsTags(me, other);
-                    SendResponse sendResponse1 = bot.execute(new SendMessage(
-                            me.getIdUser(),
-                            msg.msg(Msg.USER_NEXT_OK, me.getLang(),
-                                    me.isPremium() ? me.bioPremium()
-                                            : me.getDescription(),
-                                    other.isPremium() ? other.bioPremium()
-                                            : other.getDescription(),
-                                    formatTags(commonsTags, me.getLang())))
-                            .parseMode(ParseMode.HTML)
-                            .disableWebPagePreview(false)
-                            .disableNotification(false)
-                            .replyMarkup(keyboard.getByUserStatus(me))
-                    );
-                    if (isInactive(sendResponse1, me.getIdUser())) {
-                        break;
-                    }
                     SendResponse sendResponse2 = bot.execute(new SendMessage(
                             other.getIdUser(),
                             msg.msg(Msg.USER_NEXT_OK,
@@ -96,9 +80,30 @@ public class NextButton extends SuperAction implements IAction {
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
                             .disableNotification(false));
-                    log.info("{} :: {} {} -> {} {}", Msg.NEXT.name(), me.getIdUser(), sendResponse1.isOk(), other.getIdUser(), sendResponse2.isOk());
                     if (isInactive(sendResponse2, other.getIdUser())) {
+                        chat.setState(ChatState.SKIPPED.name());
+                        services.chat.save(chat);
                         isOK = false;
+                    } else {
+                        SendResponse sendResponse1 = bot.execute(new SendMessage(
+                                me.getIdUser(),
+                                msg.msg(Msg.USER_NEXT_OK, me.getLang(),
+                                        me.isPremium() ? me.bioPremium()
+                                                : me.getDescription(),
+                                        other.isPremium() ? other.bioPremium()
+                                                : other.getDescription(),
+                                        formatTags(commonsTags, me.getLang())))
+                                .parseMode(ParseMode.HTML)
+                                .disableWebPagePreview(false)
+                                .disableNotification(false)
+                                .replyMarkup(keyboard.getByUserStatus(me))
+                        );
+                        if (isInactive(sendResponse1, me.getIdUser())) {
+                            chat.setState(ChatState.SKIPPED.name());
+                            services.chat.save(chat);
+                            break;
+                        }
+                        log.info("{} :: {} {} -> {} {}", Msg.NEXT.name(), me.getIdUser(), sendResponse1.isOk(), other.getIdUser(), sendResponse2.isOk());
                     }
                 } else {
                     SendResponse sendResponse = bot.execute(new SendMessage(me.getIdUser(), msg.msg(Msg.USER_NEXT_WAITING, me.getLang()))

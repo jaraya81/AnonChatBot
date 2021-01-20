@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.SuperAction;
+import net.sytes.jaraya.action.message.command.StartCommand;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
@@ -36,6 +37,10 @@ public class PlayButton extends SuperAction implements IAction {
     public boolean check(BaseUpdate baseUpdate) {
         MessageChat message = (MessageChat) baseUpdate;
         User user = services.user.getByIdUser(message.getFromId().longValue());
+        if (user == null) {
+            new StartCommand(bot, services, msg, userAdmin).start(message);
+            user = services.user.getByIdUser(message.getFromId().longValue());
+        }
         return Objects.nonNull(message.getText())
                 && message.getText().contentEquals(msg.commandButton(Msg.PLAY, user.getLang()));
     }
@@ -52,7 +57,7 @@ public class PlayButton extends SuperAction implements IAction {
     public void play(User user, Long chatId, Integer messageId) {
         if (User.exist(user) && !User.isBanned(user) && !User.isPlayed(user)) {
             user.setState(State.PLAY.name());
-            services.user.save(user);
+            user = services.user.save(user);
             if (chatId != null && messageId != null) {
                 bot.execute(new DeleteMessage(chatId, messageId));
             }

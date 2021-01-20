@@ -48,7 +48,7 @@ public class PauseButton extends SuperAction implements IAction {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user) && (User.isPlayed(user) || User.isPausedOrStop(user))) {
             user.setState(State.PAUSE.name());
-            services.user.save(user);
+            user = services.user.save(user);
             List<Chat> chats = services.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE);
             for (Chat chat : chats) {
                 chat.setState(ChatState.SKIPPED.name());

@@ -58,7 +58,7 @@ public class CHAT extends SuperAction implements IAction {
 
     private void chat(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
-        services.user.save(user);
+        user = services.user.save(user);
         if (User.exist(user) && !User.isBanned(user) && User.isPlayed(user)) {
             List<Chat> chats = services.chat.getByIdUserAndState(user.getIdUser(), ChatState.ACTIVE);
             if (!chats.isEmpty()) {
