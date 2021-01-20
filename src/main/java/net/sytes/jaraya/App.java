@@ -31,7 +31,7 @@ public class App {
 
         Authorization auth = new Authorization();
         AnonChatBot anonChatBot = new AnonChatBot(userAdmin);
-        Notification notification2 = new Notification(anonChatBot.getBot(), userAdmin);
+        Notification notification2 = new Notification(anonChatBot.getBot(), userAdmin, anonChatBot.getPeriodicalTasks());
         Stats stats = new Stats();
 
         port(Integer.parseInt(Properties.get(Property.PORT.name(), fileProperties)));

@@ -42,6 +42,7 @@ public class AnonChatBot implements Route {
     private final List<IAction> messageActions = new ArrayList<>();
     private final List<IAction> callbackActions = new ArrayList<>();
     private final MsgProcess msg;
+    private final PeriodicalTasks periodicalTasks;
 
     public AnonChatBot(Long userAdmin) throws CoreException {
 
@@ -69,7 +70,7 @@ public class AnonChatBot implements Route {
         callbackActions.add(new InterestsCB(bot, service, msg, userAdmin));
         callbackActions.add(new ConfigCB(bot, service, msg, userAdmin));
 
-        final PeriodicalTasks periodicalTasks = new PeriodicalTasks(bot, service, msg, userAdmin);
+        periodicalTasks = new PeriodicalTasks(bot, service, msg, userAdmin);
         Executors.newScheduledThreadPool(1)
                 .scheduleAtFixedRate(periodicalTasks::exec, 0, 2, TimeUnit.MINUTES);
 
@@ -109,7 +110,7 @@ public class AnonChatBot implements Route {
                 }
             }
         }
-}
+    }
 
     public TelegramBot getBot() {
         return bot;
@@ -117,5 +118,9 @@ public class AnonChatBot implements Route {
 
     public String getToken() {
         return token;
+    }
+
+    public PeriodicalTasks getPeriodicalTasks() {
+        return periodicalTasks;
     }
 }
