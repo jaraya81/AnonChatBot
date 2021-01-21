@@ -48,7 +48,9 @@ public class AboutCommand extends SuperAction implements IAction {
                     msg.msg(Msg.ABOUT, user.getLang(), msg.commandButton(Msg.NEXT, user.getLang()), String.valueOf(size)))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
-                    .disableNotification(true));
+                    .disableNotification(true)
+                    .replyMarkup(keyboard.getByUserStatus(user)));
+
             logResult(CODE, message.getChatId(), sendResponse.isOk());
         }
     }

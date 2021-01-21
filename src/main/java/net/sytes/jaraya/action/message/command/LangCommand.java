@@ -54,13 +54,17 @@ public class LangCommand extends SuperAction implements IAction {
                         + "<i>" + user.getLang() + "</i>")
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
-                        .disableNotification(true));
+                        .disableNotification(true)
+                        .replyMarkup(keyboard.getByUserStatus(user)));
+
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
             } else if (message.getText().contentEquals(CODE)) {
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.LANG, user.getLang()))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
-                        .disableNotification(true));
+                        .disableNotification(true)
+                        .replyMarkup(keyboard.getByUserStatus(user)));
+
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
             }
 
