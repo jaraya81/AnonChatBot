@@ -181,4 +181,17 @@ public class UserRepo extends Repository {
         return users;
     }
 
+    @SneakyThrows
+    public List<User> getAll() {
+        List<User> users = null;
+        String sql = String.format("SELECT * FROM %s", TABLE);
+        try {
+            users = new QueryRunner().query(connect,
+                    sql,
+                    new BeanListHandler<>(User.class));
+        } catch (SQLException e) {
+            TelegramException.throwIt(e);
+        }
+        return users;
+    }
 }
