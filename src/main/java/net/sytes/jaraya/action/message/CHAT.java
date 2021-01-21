@@ -2,10 +2,7 @@ package net.sytes.jaraya.action.message;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.request.SendPhoto;
-import com.pengrad.telegrambot.request.SendSticker;
-import com.pengrad.telegrambot.request.SendVoice;
+import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.command.AboutCommand;
@@ -65,9 +62,12 @@ public class CHAT extends SuperAction implements IAction {
                 Chat chat = chats.get(0);
                 Long id = chat.otherId(user.getIdUser());
                 if (User.isPlayed(services.user.getByIdUser(id))) {
-                    ifIsStickerSend(message, user, id, chat);
-                    ifIsPhotoSend(message, user, id, chat);
                     ifIsVoiceSend(message, user, id, chat);
+                    ifIsVideoNoteSend(message, user, id, chat);
+                    ifIsAnimationSend(message, user, id, chat);
+                    ifIsStickerSend(message, user, id, chat);
+                    ifIsVideoSend(message, user, id, chat);
+                    ifIsPhotoSend(message, user, id, chat);
                     ifIsTextSend(message, user, id, chat);
                     services.chat.save(chat);
                 }
@@ -80,6 +80,35 @@ public class CHAT extends SuperAction implements IAction {
                         .replyMarkup(keyboard.getByUserStatus(user)));
                 logResult(Msg.USER_NO_CHAT.name(), message.getChatId(), sendResponse.isOk());
             }
+        }
+    }
+
+    private void ifIsVideoSend(MessageChat message, User me, Long otherId, Chat chat) {
+        if (message.getVideo() != null
+                && isPremium(me, "Video")
+                && isInactive(bot.execute(new SendVideo(otherId, message.getVideo())
+                .disableNotification(false)), otherId)) {
+            sendNextU(me, chat);
+        }
+    }
+
+    private void ifIsVideoNoteSend(MessageChat message, User me, Long otherId, Chat chat) {
+        if (message.getVideoNote() != null
+                && isPremium(me, "VideoNote")
+                && isInactive(bot.execute(new SendVideoNote(otherId, message.getVideoNote())
+                .disableNotification(false)), otherId)) {
+            sendNextU(me, chat);
+        }
+    }
+
+    private void ifIsAnimationSend(MessageChat message, User me, Long otherId, Chat chat) {
+        if (message.getAnimation() != null
+                && isPremium(me, "Animation")
+                && isInactive(bot.execute(new SendAnimation(otherId, message.getAnimation())
+                .parseMode(ParseMode.MarkdownV2)
+                .caption(message.getCaption() != null ? message.getCaption() : "")
+                .disableNotification(false)), otherId)) {
+            sendNextU(me, chat);
         }
     }
 

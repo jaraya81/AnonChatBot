@@ -25,6 +25,9 @@ public class MessageChat extends BaseUpdate {
     private String voiceFileId;
     private String caption;
     private String photo;
+    private String animation;
+    private String videoNote;
+    private String video;
 
     public static MessageChat to(Message message) {
         if (message == null) return null;
@@ -40,6 +43,9 @@ public class MessageChat extends BaseUpdate {
                 .voiceFileId(message.voice() != null ? message.voice().fileId() : null)
                 .caption(message.caption())
                 .photo(photoSize.isPresent() ? photoSize.get().fileId() : null)
+                .animation(message.animation() != null ? message.animation().fileId() : null)
+                .videoNote(message.videoNote() != null ? message.videoNote().fileId() : null)
+                .video(message.video() != null ? message.video().fileId() : null)
                 .build();
     }
 
