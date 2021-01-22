@@ -18,6 +18,7 @@ public enum Tag {
     COLOMBIA("COLOMBIA"),
     CUBA("CUBA"),
     ESPANA("ESPANA"),
+    GUATEMALA("GUATEMALA"),
     MEXICO("MEXICO"),
     PANAMA("PANAMA"),
     PERU("PERU"),
