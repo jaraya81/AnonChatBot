@@ -112,7 +112,7 @@ public class PeriodicalTasks extends SuperAction {
                 .filter(User::isPremium)
                 .filter(user -> {
                     if (user.getPremiumType().contentEquals(PremiumType.TEMPORAL.name())
-                            && user.getDatePremium().toLocalDateTime().plusDays(10).isBefore(LocalDateTime.now())) {
+                            && user.getDatePremium().toLocalDateTime().plusDays(30).isBefore(LocalDateTime.now())) {
                         return true;
                     } else
                         return user.getPremiumType().contentEquals(PremiumType.ANNUAL.name())
@@ -141,12 +141,12 @@ public class PeriodicalTasks extends SuperAction {
 
     private void deleteOldsSkips() {
         services.chat.deletes(
-                services.chat.getByStatusMinusMinute(ChatState.SKIPPED, 60 * 6)
+                services.chat.getByStatusMinusMinute(ChatState.SKIPPED, 60 * 2)
         );
     }
 
     private void reminderInactiveUsers() {
-        List<User> users = services.user.getByInactives(State.PAUSE, 60 * 24);
+        List<User> users = services.user.getByInactives(State.PAUSE, 60 * 12);
         for (User user : users) {
             user = services.user.save(user);
             bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang(),
@@ -174,7 +174,7 @@ public class PeriodicalTasks extends SuperAction {
 
 
     private void pauseUsersInactive() {
-        List<User> users = services.user.getByInactives(State.PLAY, 60 * 24 * 7);
+        List<User> users = services.user.getByInactives(State.PLAY, 60 * 3);
         for (User user : users) {
             log.info(MSG_LOG, Msg.INACTIVITY_USER.name(), user.getIdUser());
             user.setState(State.PAUSE.name());
