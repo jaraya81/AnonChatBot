@@ -9,11 +9,14 @@ import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.action.message.button.PlayButton;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.PremiumType;
+import net.sytes.jaraya.enums.Property;
 import net.sytes.jaraya.exception.TelegramException;
+import net.sytes.jaraya.exception.UtilException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
+import net.sytes.jaraya.util.Properties;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -27,9 +30,11 @@ public class PeriodicalTasks extends SuperAction {
     private static final String MSG_LOG = "{} :: {}";
 
     private final Map<LocalDateTime, Map> notifications = new HashMap<>();
+    private Map<String, String> parameters;
 
-    public PeriodicalTasks(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public PeriodicalTasks(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) throws UtilException {
         super(bot, serviceChat, msg, userAdmin);
+        parameters = Properties.gets();
     }
 
     public void exec() {
@@ -175,7 +180,13 @@ public class PeriodicalTasks extends SuperAction {
 
 
     private void pauseUsersInactive() {
-        List<User> users = services.user.getByInactives(State.PLAY, 60 * 2);
+        String pauseMinutes = parameters.get(Property.PAUSE_USERS_INACTIVE.name());
+        pauseMinutes = elvis(pauseMinutes, "240");
+        log.info("pauseMinutes: {}", pauseMinutes);
+        List<User> users = services.user.getByInactives(
+                State.PLAY,
+                Integer.parseInt(pauseMinutes)
+        );
         for (User user : users) {
             log.info(MSG_LOG, Msg.INACTIVITY_USER.name(), user.getIdUser());
             user.setState(State.PAUSE.name());
