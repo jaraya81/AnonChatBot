@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.command.AboutCommand;
+import net.sytes.jaraya.action.message.command.AdminCommand;
 import net.sytes.jaraya.action.message.command.LangCommand;
 import net.sytes.jaraya.action.message.command.StartCommand;
 import net.sytes.jaraya.component.MsgProcess;
@@ -50,6 +51,7 @@ public class CHAT extends SuperAction implements IAction {
                 && !message.getText().startsWith(AboutCommand.CODE)
                 && !message.getText().contentEquals(LangCommand.CODE)
                 && !message.getText().startsWith(LangCommand.SET_CODE)
+                && !message.getText().startsWith(AdminCommand.CODE)
                 ;
     }
 

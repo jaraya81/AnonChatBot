@@ -59,5 +59,7 @@
   "NEXT": "⏭️ Next!",
   "CONFIG": "⚙️",
   "CB_BIO": "\uD83D\uDCDD Bio",
-  "CB_TAGS": "#️⃣ Interests"
+  "CB_TAGS": "#️⃣ Interests",
+  "STATS_COUNT": "<b>Usuarios por estado:</b>%n%s",
+  "STATS_INC": "<b>Nuevas incorporaciones:</b>%n%s"
 }
