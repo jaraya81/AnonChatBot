@@ -6,7 +6,6 @@ import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.ForceBio;
 import net.sytes.jaraya.action.message.SuperAction;
-import net.sytes.jaraya.action.message.button.PlayButton;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.enums.Property;
@@ -152,7 +151,7 @@ public class PeriodicalTasks extends SuperAction {
     }
 
     private void reminderInactiveUsers() {
-        List<User> users = services.user.getByInactives(State.PAUSE, 60 * 12);
+        List<User> users = services.user.getByInactives(State.PAUSE, 720);
         for (User user : users) {
             user = services.user.save(user);
             bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang()))
@@ -161,7 +160,6 @@ public class PeriodicalTasks extends SuperAction {
                     .disableNotification(false)
                     .replyMarkup(keyboard.getByUserStatus(user)));
             log.info(MSG_LOG, Msg.REMINDER_PAUSED_USER.name(), user.getIdUser());
-            new PlayButton(bot, services, msg, userAdmin).play(user);
         }
     }
 
@@ -181,7 +179,7 @@ public class PeriodicalTasks extends SuperAction {
 
     private void pauseUsersInactive() {
         String pauseMinutes = parameters.get(Property.PAUSE_USERS_INACTIVE.name());
-        pauseMinutes = elvis(pauseMinutes, "240");
+        pauseMinutes = elvis(pauseMinutes, "6000");
         log.info("pauseMinutes: {}", pauseMinutes);
         List<User> users = services.user.getByInactives(
                 State.PLAY,
