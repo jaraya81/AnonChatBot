@@ -1,27 +1,29 @@
 package net.sytes.jaraya.controller;
 
 import com.google.gson.GsonBuilder;
+import com.pengrad.telegrambot.TelegramBot;
 import lombok.extern.slf4j.Slf4j;
+import net.sytes.jaraya.action.message.SuperAction;
+import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
-import net.sytes.jaraya.repo.UserRepo;
+import net.sytes.jaraya.service.AnonChatService;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class Stats implements Route {
+public class Stats extends SuperAction implements Route {
 
-    private final UserRepo userRepo = new UserRepo();
+    private PeriodicalTasks periodicalTasks;
 
-    public Stats() throws TelegramException {
+    public Stats(TelegramBot bot, Long userAdmin, PeriodicalTasks periodicalTasks) throws TelegramException {
+        super(bot, new AnonChatService(), new MsgProcess(), userAdmin);
+        this.periodicalTasks = periodicalTasks;
     }
 
     private enum TypeStat {
@@ -51,42 +53,18 @@ public class Stats implements Route {
 
     private Object incorportarions(Request request) {
         String lang = request.queryParams("lang");
-        List<User> users;
-        if (lang == null) {
-            users = userRepo.getAll();
-        } else {
-            users = userRepo.getByLang(lang);
-        }
         String days = request.queryParams("days");
-        Map<String, Long> result = users.stream()
-                .filter(x -> x
-                        .getDatecreation()
-                        .toLocalDateTime()
-                        .toLocalDate().isAfter(
-                                LocalDate.now().minusDays(days != null
-                                        ? Long.parseLong(days)
-                                        : 7L)
-                        )
-                )
-                .collect(Collectors
-                        .groupingBy(x -> to(x
-                                .getDatecreation()
-                                .toLocalDateTime()
-                                .toLocalDate()), Collectors.counting()));
-        return new GsonBuilder().setPrettyPrinting().create().toJson(new TreeMap<>(result));
+        return new GsonBuilder().setPrettyPrinting().create().toJson(services.user.incorporation(lang, days));
     }
 
-    private static String to(LocalDate date) {
-        return date.format(DateTimeFormatter.ISO_DATE);
-    }
 
     private Object users(Request request) {
         String lang = request.queryParams("lang");
         List<User> users;
         if (lang == null) {
-            users = userRepo.getAll();
+            users = services.user.getAll();
         } else {
-            users = userRepo.getByLang(lang);
+            users = services.user.getByLang(lang);
         }
         String state = request.queryParams("state");
         if (state != null && !state.isEmpty()) {
@@ -100,15 +78,9 @@ public class Stats implements Route {
     }
 
     private Object count(Request request) {
-        List<User> users;
-        String lang = request.queryParams("lang");
-        if (lang == null) {
-            users = userRepo.getAll();
-        } else {
-            users = userRepo.getByLang(lang);
-        }
-        return new GsonBuilder().setPrettyPrinting().create().toJson(
-                users.stream().collect(Collectors.groupingBy(User::getState, Collectors.counting()))
-        );
+        return new GsonBuilder()
+                .setPrettyPrinting()
+                .create()
+                .toJson(services.user.countByState(request.queryParams("lang")));
     }
 }

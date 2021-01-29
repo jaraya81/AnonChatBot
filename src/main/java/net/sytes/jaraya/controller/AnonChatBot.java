@@ -65,6 +65,7 @@ public class AnonChatBot implements Route {
         messageActions.add(new AboutCommand(bot, service, msg, userAdmin));
         messageActions.add(new RegisterPremiumCommand(bot, service, msg, userAdmin));
         messageActions.add(new TagsCommand(bot, service, msg, userAdmin));
+        messageActions.add(new AdminCommand(bot, service, msg, userAdmin));
         messageActions.add(new CHAT(bot, service, msg, userAdmin));
 
         callbackActions.add(new InterestsCB(bot, service, msg, userAdmin));
