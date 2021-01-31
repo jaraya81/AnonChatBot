@@ -46,7 +46,7 @@ public class SuperAction {
             sr = bot.execute(new SendMessage(userTo.getIdUser(),
                     userFrom.isPremium() ? userFrom.bioPremium()
                             : userFrom.getDescriptionText())
-                    .parseMode(ParseMode.HTML)
+                    .parseMode(ParseMode.MarkdownV2)
                     .disableWebPagePreview(false)
                     .disableNotification(true));
         }
