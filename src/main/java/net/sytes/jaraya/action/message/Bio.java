@@ -43,35 +43,20 @@ public class Bio extends SuperAction implements IAction {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user)) {
             if (message.getText().contentEquals(CODE)) {
-                String mensaje = msg.msg(Msg.BIO,
-                        user.getLang(),
-                        msg.commandButton(Msg.CONFIG, user.getLang()),
-                        user.getDescriptionText());
-                log.info(mensaje);
                 SendResponse sendResponse = bot.execute(new SendMessage(
-                        user.getIdUser(), mensaje)
+                        user.getIdUser(), msg.msg(Msg.BIO,
+                        user.getLang(),
+                        msg.commandButton(Msg.CONFIG, user.getLang())))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(false)
                         .disableNotification(true));
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
+                sendMyBio(user);
             } else if (message.getText().startsWith(CODE)) {
-                new ForceBio(bot, services, msg, userAdmin).forceBio(message);
-/*                String bio = message.getText().replace(CODE, "");
-                user.setDescription(bio.length() <= 240 ? bio : bio.substring(0, 239));
-                SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(),
-                        msg.msg(Msg.SET_BIO_OK, user.getLang(), user.getDescriptionText()))
-                        .parseMode(ParseMode.HTML)
-                        .disableWebPagePreview(false)
-                        .disableNotification(true));
-
-                services.user.save(user);
-                logResult(CODE, message.getChatId(), sendResponse.isOk());
-  */
+                new ForceBio(bot, services, msg, userAdmin).sendMessage(user);
             }
-
-
         }
-
     }
+
 
 }

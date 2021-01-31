@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.experimental.Tolerate;
+import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.state.State;
@@ -16,6 +17,7 @@ import java.util.Objects;
 @Data
 @Builder
 @ToString
+@Slf4j
 public class User implements Serializable {
 
     private static final String START_PREMIUM = "\uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F";
@@ -40,7 +42,7 @@ public class User implements Serializable {
         String text = description != null
                 ? description.replace("\uD83C\uDF1F", "").trim()
                 : "";
-        this.description = text.replace("|", " ") + (idPhoto != null ? "|" + idPhoto : "");
+        this.description = text + (idPhoto != null ? "|" + idPhoto : "");
     }
 
     public void setDescription(String description) {
@@ -101,7 +103,7 @@ public class User implements Serializable {
     }
 
     public String bioPremium() {
-        return String.format("%s %s", START_PREMIUM, getDescription());
+        return String.format("%s %s", START_PREMIUM, getDescriptionText());
     }
 
 

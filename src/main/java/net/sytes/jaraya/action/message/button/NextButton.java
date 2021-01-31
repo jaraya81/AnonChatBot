@@ -72,10 +72,6 @@ public class NextButton extends SuperAction implements IAction {
                             other.getIdUser(),
                             msg.msg(Msg.USER_NEXT_OK,
                                     other.getLang(),
-                                    other.isPremium() ? other.bioPremium()
-                                            : other.getDescriptionText(),
-                                    me.isPremium() ? me.bioPremium()
-                                            : me.getDescriptionText(),
                                     formatReverseTags(commonsTags, other.getLang())))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
@@ -85,13 +81,10 @@ public class NextButton extends SuperAction implements IAction {
                         services.chat.save(chat);
                         isOK = false;
                     } else {
+                        sendYouMyBio(me, other);
                         SendResponse sendResponse1 = bot.execute(new SendMessage(
                                 me.getIdUser(),
                                 msg.msg(Msg.USER_NEXT_OK, me.getLang(),
-                                        me.isPremium() ? me.bioPremium()
-                                                : me.getDescriptionText(),
-                                        other.isPremium() ? other.bioPremium()
-                                                : other.getDescriptionText(),
                                         formatTags(commonsTags, me.getLang())))
                                 .parseMode(ParseMode.HTML)
                                 .disableWebPagePreview(false)
@@ -103,6 +96,7 @@ public class NextButton extends SuperAction implements IAction {
                             services.chat.save(chat);
                             break;
                         }
+                        sendYouMyBio(other, me);
                         log.info("{} :: {} {} -> {} {}", Msg.NEXT.name(), me.getIdUser(), sendResponse1.isOk(), other.getIdUser(), sendResponse2.isOk());
                     }
                 } else {

@@ -3,7 +3,6 @@ package net.sytes.jaraya.action.message;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.button.PlayButton;
@@ -55,6 +54,7 @@ public class ForceBio extends SuperAction implements IAction {
     public void forceBio(User user, String idPhoto, String text) {
         if (User.exist(user) && User.isEmptyBio(user)) {
             text = text != null && !text.isEmpty() ? text : msg.anyDescription(user.getLang());
+            text = text.replace("|", " ");
             user.setDescription(idPhoto, text.length() <= 240 ?
                     text
                     : text.substring(0, 239));
@@ -65,25 +65,11 @@ public class ForceBio extends SuperAction implements IAction {
                     .disableWebPagePreview(false)
                     .disableNotification(true));
             logResult(Msg.SET_BIO_OK.name(), user.getIdUser(), sendResponse.isOk());
-            if (user.getDescriptionPhoto() != null && !user.getDescriptionPhoto().isEmpty()) {
-                SendResponse sendResponse2 = bot.execute(new SendPhoto(user.getIdUser(), user.getDescriptionPhoto())
-                        .parseMode(ParseMode.MarkdownV2)
-                        .caption(user.getDescriptionText())
-                        .disableNotification(false));
-                logResult(Msg.SET_BIO_OK.name(), user.getIdUser(), sendResponse2.isOk());
-            } else {
-                SendResponse sendResponse2 = bot.execute(new SendMessage(user.getIdUser(),
-                        user.getDescriptionText())
-                        .parseMode(ParseMode.HTML)
-                        .disableWebPagePreview(false)
-                        .disableNotification(true));
-                logResult(Msg.SET_BIO_OK.name(), user.getIdUser(), sendResponse2.isOk());
-            }
+            sendMyBio(user);
             new PlayButton(bot, services, msg, userAdmin).play(user);
         } else if (User.exist(user) && !User.isBanned(user) && user.getDescriptionText() == null || user.getDescriptionText().isEmpty()) {
             sendMessage(user);
         }
-
     }
 
     public void sendMessage(User user) {
@@ -93,7 +79,8 @@ public class ForceBio extends SuperAction implements IAction {
             user = services.user.save(user);
         }
 
-        SendResponse sendResponse2 = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.EMPTY_BIO, user.getLang()))
+        SendResponse sendResponse2 = bot.execute(new SendMessage(user.getIdUser(),
+                msg.msg(Msg.EMPTY_BIO, user.getLang()))
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(false)
                 .disableNotification(false)
