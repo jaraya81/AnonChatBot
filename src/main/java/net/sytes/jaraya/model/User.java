@@ -36,10 +36,24 @@ public class User implements Serializable {
         super();
     }
 
-    public void setDescription(String description) {
-        this.description = description != null
+    public void setDescription(String idPhoto, String description) {
+        String text = description != null
                 ? description.replace("\uD83C\uDF1F", "").trim()
-                : null;
+                : "";
+        this.description = text.replace("|", " ") + (idPhoto != null ? "|" + idPhoto : "");
+    }
+
+    public void setDescription(String description) {
+        setDescription(null, description);
+    }
+
+    public String getDescriptionText() {
+        return this.description.split("\\|")[0];
+    }
+
+    public String getDescriptionPhoto() {
+        String[] arr = this.description.split("\\|");
+        return arr.length > 1 ? arr[1] : null;
     }
 
     public void setPremium(String premium) {

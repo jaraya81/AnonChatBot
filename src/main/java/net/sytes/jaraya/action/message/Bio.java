@@ -46,7 +46,7 @@ public class Bio extends SuperAction implements IAction {
                 String mensaje = msg.msg(Msg.BIO,
                         user.getLang(),
                         msg.commandButton(Msg.CONFIG, user.getLang()),
-                        user.getDescription());
+                        user.getDescriptionText());
                 log.info(mensaje);
                 SendResponse sendResponse = bot.execute(new SendMessage(
                         user.getIdUser(), mensaje)
@@ -55,15 +55,18 @@ public class Bio extends SuperAction implements IAction {
                         .disableNotification(true));
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
             } else if (message.getText().startsWith(CODE)) {
-                String bio = message.getText().replace(CODE, "");
+                new ForceBio(bot, services, msg, userAdmin).forceBio(message);
+/*                String bio = message.getText().replace(CODE, "");
                 user.setDescription(bio.length() <= 240 ? bio : bio.substring(0, 239));
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(),
-                        msg.msg(Msg.SET_BIO_OK, user.getLang(), user.getDescription()))
+                        msg.msg(Msg.SET_BIO_OK, user.getLang(), user.getDescriptionText()))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(false)
                         .disableNotification(true));
+
                 services.user.save(user);
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
+  */
             }
 
 

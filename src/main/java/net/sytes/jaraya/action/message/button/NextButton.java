@@ -73,9 +73,9 @@ public class NextButton extends SuperAction implements IAction {
                             msg.msg(Msg.USER_NEXT_OK,
                                     other.getLang(),
                                     other.isPremium() ? other.bioPremium()
-                                            : other.getDescription(),
+                                            : other.getDescriptionText(),
                                     me.isPremium() ? me.bioPremium()
-                                            : me.getDescription(),
+                                            : me.getDescriptionText(),
                                     formatReverseTags(commonsTags, other.getLang())))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
@@ -89,9 +89,9 @@ public class NextButton extends SuperAction implements IAction {
                                 me.getIdUser(),
                                 msg.msg(Msg.USER_NEXT_OK, me.getLang(),
                                         me.isPremium() ? me.bioPremium()
-                                                : me.getDescription(),
+                                                : me.getDescriptionText(),
                                         other.isPremium() ? other.bioPremium()
-                                                : other.getDescription(),
+                                                : other.getDescriptionText(),
                                         formatTags(commonsTags, me.getLang())))
                                 .parseMode(ParseMode.HTML)
                                 .disableWebPagePreview(false)

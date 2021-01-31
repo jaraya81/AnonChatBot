@@ -8,7 +8,7 @@
   "USER_NEXT_OK": "<pre>⏭ Next! Say hello to a new user ✅%nYour bio:</pre><i> %s </i> %n<pre>Your bio:</pre><i> %s </i>\n<pre>Tags in common:</pre><i> %s </i>",
   "USER_NEXT_WAITING": "<pre>No one available to chat, wait for someone to vacate \uD83D\uDCA4</pre>",
   "USER_NO_CHAT": "<pre>You are not in any chat, press<b> %s </b>.</pre>",
-  "SET_BIO_OK": "<pre>You have modified your bio:</pre><i> %s </i>",
+  "SET_BIO_OK": "<pre>You have modified your bio:</pre>",
   "BIO": "<pre>The bio is a short description of you. To modify it press the %s button or type /bio 'your bio'</pre>\nYour current bio is:<i> %s </i>",
   "CONFIG_MSG": "<pre>Enter any of the options to configure or <b>Play</b> to start.</pre>",
   "CHAT_TIMEOUT": "<pre>Chat timed out, press<b> %s </b> for a new chat.</pre>",

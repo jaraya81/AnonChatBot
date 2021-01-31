@@ -140,7 +140,7 @@ public class PeriodicalTasks extends SuperAction {
         List<User> users = services.user.getByInactives(State.EMPTY_BIO, 2);
         for (User user : users) {
             log.info(MSG_LOG, "updateEmptyBio", user.getIdUser());
-            forceBio.forceBio(user, msg.anyDescription(user.getLang()));
+            forceBio.forceBio(user, null, msg.anyDescription(user.getLang()));
         }
     }
 
