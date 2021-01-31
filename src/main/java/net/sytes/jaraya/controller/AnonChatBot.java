@@ -73,7 +73,7 @@ public class AnonChatBot implements Route {
 
         periodicalTasks = new PeriodicalTasks(bot, service, msg, userAdmin);
         Executors.newScheduledThreadPool(1)
-                .scheduleAtFixedRate(periodicalTasks::exec, 0, 2, TimeUnit.MINUTES);
+                .scheduleAtFixedRate(periodicalTasks::exec, 0, 15, TimeUnit.SECONDS);
 
     }
 
