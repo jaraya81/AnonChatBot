@@ -5,9 +5,11 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.experimental.Tolerate;
+import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.state.State;
+import net.sytes.jaraya.util.StringUtil;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -16,6 +18,7 @@ import java.util.Objects;
 @Data
 @Builder
 @ToString
+@Slf4j
 public class User implements Serializable {
 
     private static final String START_PREMIUM = "\uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F";
@@ -36,10 +39,24 @@ public class User implements Serializable {
         super();
     }
 
-    public void setDescription(String description) {
-        this.description = description != null
+    public void setDescription(String idPhoto, String description) {
+        String text = description != null
                 ? description.replace("\uD83C\uDF1F", "").trim()
-                : null;
+                : "";
+        this.description = text + (idPhoto != null ? "|" + idPhoto : "");
+    }
+
+    public void setDescription(String description) {
+        setDescription(null, description);
+    }
+
+    public String getDescriptionText() {
+        return StringUtil.clean(this.description.split("\\|")[0]);
+    }
+
+    public String getDescriptionPhoto() {
+        String[] arr = this.description.split("\\|");
+        return arr.length > 1 ? arr[1] : null;
     }
 
     public void setPremium(String premium) {
@@ -87,7 +104,7 @@ public class User implements Serializable {
     }
 
     public String bioPremium() {
-        return String.format("%s %s", START_PREMIUM, getDescription());
+        return String.format("%s %s", START_PREMIUM, getDescriptionText());
     }
 
 

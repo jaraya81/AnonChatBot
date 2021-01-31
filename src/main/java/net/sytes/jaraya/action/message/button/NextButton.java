@@ -46,7 +46,7 @@ public class NextButton extends SuperAction implements IAction {
     }
 
     private void next(MessageChat message) {
-        User me = services.user.getByIdUser(message.getFromId().longValue());
+        User me = services.user.get(message);
         me = services.user.save(me);
         next(me, message.getChatId(), message.getMessageId());
     }
@@ -72,10 +72,6 @@ public class NextButton extends SuperAction implements IAction {
                             other.getIdUser(),
                             msg.msg(Msg.USER_NEXT_OK,
                                     other.getLang(),
-                                    other.isPremium() ? other.bioPremium()
-                                            : other.getDescription(),
-                                    me.isPremium() ? me.bioPremium()
-                                            : me.getDescription(),
                                     formatReverseTags(commonsTags, other.getLang())))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
@@ -85,13 +81,10 @@ public class NextButton extends SuperAction implements IAction {
                         services.chat.save(chat);
                         isOK = false;
                     } else {
+                        sendYouMyBio(me, other);
                         SendResponse sendResponse1 = bot.execute(new SendMessage(
                                 me.getIdUser(),
                                 msg.msg(Msg.USER_NEXT_OK, me.getLang(),
-                                        me.isPremium() ? me.bioPremium()
-                                                : me.getDescription(),
-                                        other.isPremium() ? other.bioPremium()
-                                                : other.getDescription(),
                                         formatTags(commonsTags, me.getLang())))
                                 .parseMode(ParseMode.HTML)
                                 .disableWebPagePreview(false)
@@ -103,6 +96,7 @@ public class NextButton extends SuperAction implements IAction {
                             services.chat.save(chat);
                             break;
                         }
+                        sendYouMyBio(other, me);
                         log.info("{} :: {} {} -> {} {}", Msg.NEXT.name(), me.getIdUser(), sendResponse1.isOk(), other.getIdUser(), sendResponse2.isOk());
                     }
                 } else {
@@ -163,12 +157,15 @@ public class NextButton extends SuperAction implements IAction {
 
     public User selectNewNext(User me) {
         List<User> users = services.user.getByState(State.PLAY);
-        List<User> filter = users.parallelStream()
+        List<User> preFilter = users.parallelStream()
                 .filter(User::isPlayed)
                 .sorted(Comparator.comparing(User::getDateupdate).reversed())
-                .filter(user -> !isRepetido(me, user))
                 .filter(user -> isAsignable(me, user))
                 .filter(user -> matchTags(me, user))
+                .collect(Collectors.toList());
+        List<User> filter = preFilter.subList(0, (int) (preFilter.size() * 0.2))
+                .stream()
+                .filter(user -> !isRepetido(me, user))
                 .collect(Collectors.toList());
         log.info("{}/{}", filter.size(), users.size());
         if (filter.isEmpty()) {

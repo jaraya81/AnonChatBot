@@ -37,7 +37,6 @@ public class PeriodicalTasks extends SuperAction {
     }
 
     public void exec() {
-        log.info("Starting periodicals jobs");
         try {
             cleanChat();
             deleteOldsSkips();
@@ -57,7 +56,9 @@ public class PeriodicalTasks extends SuperAction {
                 .stream()
                 .filter(x -> x.getKey().isBefore(LocalDateTime.now(ZoneId.systemDefault())))
                 .collect(Collectors.toList());
-        log.info("Notifications pending: {}", running.size());
+        if (!running.isEmpty()) {
+            log.info("Notifications pending: {}", running.size());
+        }
         for (Map.Entry<LocalDateTime, Map> entry : running) {
             notifications.remove(entry.getKey());
             Map params = entry.getValue();
@@ -140,7 +141,7 @@ public class PeriodicalTasks extends SuperAction {
         List<User> users = services.user.getByInactives(State.EMPTY_BIO, 2);
         for (User user : users) {
             log.info(MSG_LOG, "updateEmptyBio", user.getIdUser());
-            forceBio.forceBio(user, msg.anyDescription(user.getLang()));
+            forceBio.forceBio(user, null, msg.anyDescription(user.getLang()));
         }
     }
 
@@ -181,7 +182,6 @@ public class PeriodicalTasks extends SuperAction {
     private void pauseUsersInactive() {
         String pauseMinutes = parameters.get(Property.PAUSE_USERS_INACTIVE.name());
         pauseMinutes = elvis(pauseMinutes, "6000");
-        log.info("pauseMinutes: {}", pauseMinutes);
         List<User> users = services.user.getByInactives(
                 State.PLAY,
                 Integer.parseInt(pauseMinutes)

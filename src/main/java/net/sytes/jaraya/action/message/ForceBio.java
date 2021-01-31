@@ -35,46 +35,52 @@ public class ForceBio extends SuperAction implements IAction {
     public boolean check(BaseUpdate baseUpdate) {
         MessageChat message = (MessageChat) baseUpdate;
         if (Objects.nonNull(message)
-                && Objects.nonNull(message.getText())
-                && !message.getText().contentEquals(StartCommand.CODE)) {
+                && ((Objects.nonNull(message.getText())
+                && !message.getText().contentEquals(StartCommand.CODE))
+                || (message.getPhoto() != null))
+        ) {
             User user = services.user.getByIdUser(message.getFromId().longValue());
-            return user != null && (user.getState().contentEquals(State.EMPTY_BIO.name()) || user.getDescription() == null || user.getDescription().isEmpty());
+            return user != null && (user.getState().contentEquals(State.EMPTY_BIO.name()) || user.getDescriptionText() == null || user.getDescriptionText().isEmpty());
         }
         return false;
     }
 
-    private void forceBio(MessageChat message) {
+    public void forceBio(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
-        forceBio(user, message.getText());
+        String text = message.getCaption() != null ? message.getCaption() : message.getText();
+        forceBio(user, message.getPhoto(), text);
     }
 
-    public void forceBio(User user, String text) {
+    public void forceBio(User user, String idPhoto, String text) {
         if (User.exist(user) && User.isEmptyBio(user)) {
-            user.setDescription(text.length() <= 240 ?
+            text = text != null && !text.isEmpty() ? text : msg.anyDescription(user.getLang());
+            text = text.replace("|", " ");
+            user.setDescription(idPhoto, text.length() <= 240 ?
                     text
                     : text.substring(0, 239));
             user = services.user.save(user);
             SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(),
-                    msg.msg(Msg.SET_BIO_OK, user.getLang(), user.getDescription()))
+                    msg.msg(Msg.SET_BIO_OK, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(true));
             logResult(Msg.SET_BIO_OK.name(), user.getIdUser(), sendResponse.isOk());
+            sendMyBio(user);
             new PlayButton(bot, services, msg, userAdmin).play(user);
-        } else if (User.exist(user) && !User.isBanned(user) && user.getDescription() == null || user.getDescription().isEmpty()) {
+        } else if (User.exist(user) && !User.isBanned(user) && user.getDescriptionText() == null || user.getDescriptionText().isEmpty()) {
             sendMessage(user);
         }
-
     }
 
     public void sendMessage(User user) {
-        if (!User.isEmptyBio(user) || user.getDescription() == null || user.getDescription().isEmpty()) {
+        if (!User.isEmptyBio(user) || user.getDescriptionText() == null || user.getDescriptionText().isEmpty()) {
             user.setState(State.EMPTY_BIO.name());
             user.setDescription("");
             user = services.user.save(user);
         }
 
-        SendResponse sendResponse2 = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.EMPTY_BIO, user.getLang()))
+        SendResponse sendResponse2 = bot.execute(new SendMessage(user.getIdUser(),
+                msg.msg(Msg.EMPTY_BIO, user.getLang()))
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(false)
                 .disableNotification(false)
