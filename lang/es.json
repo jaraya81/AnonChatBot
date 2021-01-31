@@ -13,7 +13,7 @@
   "CONFIG_MSG": "<pre>Ingresa a alguna de las opciones a configurar o <b>Play</b> para iniciar.</pre>",
   "CHAT_TIMEOUT": "<pre>Tiempo de chat agotado, presiona <b>%s</b> para un nuevo chat.</pre>",
   "USER_BLOCK": "<pre>El participante ha sido bloqueado, ya no lo verás nuevamente por acá!%nPresiona nuevamente <b>%s</b> para un chat</pre>",
-  "ABOUT": "<b>¿Qué es RandomNext?</b>%n%nEs un chat donde puedes conversar con otras personas de manera anónima. Cada vez que hagas <b>%s</b> te conectará con una persona distinta.%n%nSi tienes dudas o sugerencias, puedes ingresar al chat de la aplicación:%n%nhttps://t.me/RandomNextChat %n%n<b>Donaciones</b>%nWallet BTC: <pre>1JC6Y1XGqcMZyXjKtMxvomWsCuBRT2KXM5</pre>%n%nUsuarios activos: %s",
+  "ABOUT": "<b>¿Qué es RandomNext?</b>%n%nEs un chat donde puedes conversar con otras personas de manera anónima. Cada vez que hagas <b>%s</b> te conectará con una persona distinta.%n%nSi tienes dudas o sugerencias, puedes hacerlas directo al administrador del bot %n@MyUsernameIsJulian%n%n<b>Donaciones</b>%nWallet BTC: <pre>1JC6Y1XGqcMZyXjKtMxvomWsCuBRT2KXM5</pre>%n%nUsuarios activos: %s",
   "NEXT_YOU": "<pre>Te han hecho <b>%s</b> Tú haz <b>%s</b> para encontrar tu chat.</pre>",
   "INACTIVITY_USER": "<pre>Se ha pausado tu bot por inactividad, presiona <b>%s</b> para continuar chateando.</pre>",
   "SET_LANG_OK": "<pre>Idioma: </pre>",
