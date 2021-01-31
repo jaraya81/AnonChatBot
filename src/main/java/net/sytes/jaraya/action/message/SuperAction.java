@@ -50,7 +50,10 @@ public class SuperAction {
                     .disableWebPagePreview(false)
                     .disableNotification(true));
         }
-        logResult("sendYouMyBio " + userFrom.getIdUser() + " -> " + userTo.getIdUser(), 0L, sr.isOk());
+        if (!sr.isOk()) {
+            logResult("sendYouMyBio " + userFrom.getIdUser() + " -> " + userTo.getIdUser(), 0L, sr.isOk());
+            log.error(sr.description());
+        }
     }
 
     protected void sendMyBio(User user) {
