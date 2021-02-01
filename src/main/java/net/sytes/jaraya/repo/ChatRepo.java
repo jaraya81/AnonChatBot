@@ -108,8 +108,12 @@ public class ChatRepo extends Repository {
 
     }
 
-    @SneakyThrows
     public List<Chat> getByStatusAndMinusMinute(ChatState chatState, int minutes) {
+        return getByStatusAndMinusSeconds(chatState, minutes * 60);
+    }
+
+    @SneakyThrows
+    public List<Chat> getByStatusAndMinusSeconds(ChatState chatState, int seconds) {
         List<Chat> chats;
         try {
             chats = new QueryRunner().query(connect, "SELECT * FROM " + TABLE + " WHERE " + COLUMN_STATE + "=?",
@@ -119,7 +123,8 @@ public class ChatRepo extends Repository {
         }
 
         return chats.stream()
-                .filter(x -> x.getDateupdate().toLocalDateTime().plusMinutes(minutes).isBefore(LocalDateTime.now()))
+                .filter(x -> x.getDateupdate().toLocalDateTime().plusSeconds(seconds)
+                        .isBefore(LocalDateTime.now()))
                 .collect(Collectors.toList());
 
     }
