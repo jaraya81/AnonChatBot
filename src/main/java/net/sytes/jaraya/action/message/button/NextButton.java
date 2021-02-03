@@ -163,7 +163,7 @@ public class NextButton extends SuperAction implements IAction {
                 .filter(user -> isAsignable(me, user))
                 .filter(user -> matchTags(me, user))
                 .collect(Collectors.toList());
-        List<User> filter = preFilter.subList(0, (int) (preFilter.size() * 0.2))
+        List<User> filter = preFilter.subList(0, (int) (preFilter.size() * 0.7))
                 .stream()
                 .filter(user -> !isRepetido(me, user))
                 .collect(Collectors.toList());

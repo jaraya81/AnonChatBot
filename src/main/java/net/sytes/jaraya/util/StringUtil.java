@@ -10,6 +10,7 @@ public class StringUtil {
                 .replace("+", "\\+")
                 .replace("!", "\\!")
                 .replace("#", "\\#")
+                .replace("-", "\\-")
                 .replace("=", "\\=");
     }
 }
