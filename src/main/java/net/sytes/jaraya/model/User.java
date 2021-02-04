@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.state.State;
-import net.sytes.jaraya.util.StringUtil;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -51,7 +50,7 @@ public class User implements Serializable {
     }
 
     public String getDescriptionText() {
-        return StringUtil.clean(this.description.split("\\|")[0]);
+        return this.description.split("\\|")[0];
     }
 
     public String getDescriptionPhoto() {

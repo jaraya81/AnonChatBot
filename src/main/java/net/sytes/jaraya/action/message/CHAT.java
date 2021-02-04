@@ -50,6 +50,7 @@ public class CHAT extends SuperAction implements IAction {
                 && !message.getText().contentEquals(StartCommand.CODE)
                 && !message.getText().contentEquals(Bio.CODE)
                 && !message.getText().startsWith(Bio.CODE)
+                && !message.getText().contentEquals(Bio.CHANGE_CODE)
                 && !message.getText().startsWith(AboutCommand.CODE)
                 && !message.getText().contentEquals(LangCommand.CODE)
                 && !message.getText().startsWith(LangCommand.SET_CODE)

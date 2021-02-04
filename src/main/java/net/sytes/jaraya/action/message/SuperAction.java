@@ -38,15 +38,15 @@ public class SuperAction {
         SendResponse sr;
         if (userFrom.getDescriptionPhoto() != null && !userFrom.getDescriptionPhoto().isEmpty()) {
             sr = bot.execute(new SendPhoto(userTo.getIdUser(), userFrom.getDescriptionPhoto())
-                    .parseMode(ParseMode.MarkdownV2)
+                    .parseMode(ParseMode.HTML)
                     .caption(userFrom.isPremium() ? userFrom.bioPremium()
                             : userFrom.getDescriptionText())
-                    .disableNotification(false));
+                    .disableNotification(true));
         } else {
             sr = bot.execute(new SendMessage(userTo.getIdUser(),
                     userFrom.isPremium() ? userFrom.bioPremium()
                             : userFrom.getDescriptionText())
-                    .parseMode(ParseMode.MarkdownV2)
+                    .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(true));
         }

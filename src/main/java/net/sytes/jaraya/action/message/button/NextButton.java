@@ -75,7 +75,7 @@ public class NextButton extends SuperAction implements IAction {
                                     formatReverseTags(commonsTags, other.getLang())))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
-                            .disableNotification(false));
+                            .disableNotification(true));
                     if (isInactive(sendResponse2, other.getIdUser())) {
                         chat.setState(ChatState.SKIPPED.name());
                         services.chat.save(chat);
@@ -88,7 +88,7 @@ public class NextButton extends SuperAction implements IAction {
                                         formatTags(commonsTags, me.getLang())))
                                 .parseMode(ParseMode.HTML)
                                 .disableWebPagePreview(false)
-                                .disableNotification(false)
+                                .disableNotification(true)
                                 .replyMarkup(keyboard.getByUserStatus(me))
                         );
                         if (isInactive(sendResponse1, me.getIdUser())) {
@@ -103,7 +103,7 @@ public class NextButton extends SuperAction implements IAction {
                     SendResponse sendResponse = bot.execute(new SendMessage(me.getIdUser(), msg.msg(Msg.USER_NEXT_WAITING, me.getLang()))
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
-                            .disableNotification(false));
+                            .disableNotification(true));
                     logResult(Msg.USER_NEXT_WAITING.name(), me.getIdUser(), sendResponse.isOk());
                 }
 
