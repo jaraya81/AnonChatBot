@@ -52,6 +52,9 @@ public class AnonChatBot implements Route {
         token = Properties.get(Property.TOKEN_BOT.name());
         log.info("TOKEN: ..." + token.substring(0, 5));
         bot = new TelegramBot.Builder(token).build();
+
+        periodicalTasks = new PeriodicalTasks(bot, service, msg, userAdmin);
+
         messageActions.add(new StartCommand(bot, service, msg, userAdmin));
         messageActions.add(new ForceBio(bot, service, msg, userAdmin));
         messageActions.add(new PlayButton(bot, service, msg, userAdmin));
@@ -65,13 +68,11 @@ public class AnonChatBot implements Route {
         messageActions.add(new AboutCommand(bot, service, msg, userAdmin));
         messageActions.add(new RegisterPremiumCommand(bot, service, msg, userAdmin));
         messageActions.add(new TagsCommand(bot, service, msg, userAdmin));
-        messageActions.add(new AdminCommand(bot, service, msg, userAdmin));
+        messageActions.add(new AdminCommand(bot, service, msg, userAdmin, periodicalTasks));
         messageActions.add(new CHAT(bot, service, msg, userAdmin));
-
         callbackActions.add(new InterestsCB(bot, service, msg, userAdmin));
         callbackActions.add(new ConfigCB(bot, service, msg, userAdmin));
 
-        periodicalTasks = new PeriodicalTasks(bot, service, msg, userAdmin);
         Executors.newScheduledThreadPool(1)
                 .scheduleAtFixedRate(periodicalTasks::exec, 0, 15, TimeUnit.SECONDS);
 

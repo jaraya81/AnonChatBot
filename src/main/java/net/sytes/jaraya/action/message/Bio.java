@@ -18,6 +18,7 @@ import java.util.Objects;
 public class Bio extends SuperAction implements IAction {
 
     public static final String CODE = "/bio";
+    public static final String CHANGE_CODE = "/changebio";
 
     public Bio(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
@@ -36,7 +37,9 @@ public class Bio extends SuperAction implements IAction {
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
                 && (message.getText().contentEquals(CODE)
-                || message.getText().startsWith(CODE));
+                || message.getText().startsWith(CODE)
+                || message.getText().startsWith(CHANGE_CODE)
+        );
     }
 
     private void bio(MessageChat message) {
@@ -52,7 +55,7 @@ public class Bio extends SuperAction implements IAction {
                         .disableNotification(true));
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
                 sendMyBio(user);
-            } else if (message.getText().startsWith(CODE)) {
+            } else if (message.getText().startsWith(CODE) || message.getText().contentEquals(CHANGE_CODE)) {
                 new ForceBio(bot, services, msg, userAdmin).sendMessage(user);
             }
         }

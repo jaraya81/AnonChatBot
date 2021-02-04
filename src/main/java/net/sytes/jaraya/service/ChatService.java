@@ -42,7 +42,7 @@ public class ChatService {
     }
 
 
-    public Set<Long> cleaner() throws TelegramException {
+    public Set<Long> cleaner() {
         List<Chat> chats = chatRepo.getByStatusAndMinusMinute(ChatState.ACTIVE, 4);
         for (Chat chat : chats) {
             chat.setState(ChatState.SKIPPED.name());
@@ -50,6 +50,17 @@ public class ChatService {
         }
         Set<Long> ids = chats.stream().map(Chat::getUser1).collect(Collectors.toSet());
         ids.addAll(chats.stream().map(Chat::getUser2).collect(Collectors.toSet()));
+
+        List<Chat> almostNewChats = chatRepo.getByStatusAndMinusSeconds(ChatState.ACTIVE, 30)
+                .parallelStream()
+                .filter(x -> x.getDatecreation().toLocalDateTime().plusSeconds(45).isAfter(x.getDateupdate().toLocalDateTime()))
+                .collect(Collectors.toList());
+        for (Chat chat : almostNewChats) {
+            chat.setState(ChatState.SKIPPED.name());
+            chatRepo.save(chat);
+        }
+        ids.addAll(almostNewChats.stream().map(Chat::getUser1).collect(Collectors.toSet()));
+        ids.addAll(almostNewChats.stream().map(Chat::getUser2).collect(Collectors.toSet()));
         return ids;
     }
 

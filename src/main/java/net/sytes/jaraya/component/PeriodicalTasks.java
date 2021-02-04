@@ -3,6 +3,7 @@ package net.sytes.jaraya.component;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.BaseResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.ForceBio;
 import net.sytes.jaraya.action.message.SuperAction;
@@ -74,12 +75,13 @@ public class PeriodicalTasks extends SuperAction {
             List<User> userList = new ArrayList<>();
             if (elvis(test, true)) {
                 User user = services.user.getByIdUser(userAdmin);
-                bot.execute(new SendMessage(user.getIdUser(), "T:" + text)
+                BaseResponse response = bot.execute(new SendMessage(user.getIdUser(), "T:" + text)
                         .parseMode(ParseMode.HTML)
-                        .replyMarkup(buttons != null
+                        .replyMarkup(buttons != null && !buttons.isEmpty()
                                 ? keyboard.getInlineKeyboardUrls(buttons)
                                 : keyboard.getByUserStatus(user))
                 );
+                if (!response.isOk()) log.error(response.description());
             } else {
                 if (lastMinutes == null) {
                     userList = services.user.getByLang(lang);
