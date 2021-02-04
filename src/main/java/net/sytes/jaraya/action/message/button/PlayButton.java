@@ -22,6 +22,8 @@ import java.util.Objects;
 @Slf4j
 public class PlayButton extends SuperAction implements IAction {
 
+    public static final String COMMAND = "/play";
+
     public PlayButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
         super(bot, serviceChat, msg, userAdmin);
     }
@@ -42,7 +44,8 @@ public class PlayButton extends SuperAction implements IAction {
             user = services.user.getByIdUser(message.getFromId().longValue());
         }
         return Objects.nonNull(message.getText())
-                && message.getText().contentEquals(msg.commandButton(Msg.PLAY, user.getLang()));
+                && (message.getText().contentEquals(msg.commandButton(Msg.PLAY, user.getLang()))
+                || message.getText().toLowerCase().contentEquals(COMMAND));
     }
 
     private void play(MessageChat message) {

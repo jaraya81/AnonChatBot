@@ -5,7 +5,7 @@
   "USER_PLAY": "<pre>You are participating, every time you want to change chat press <b>%s</b>.</pre>",
   "USER_PAUSE": "<pre>Estás en pausa, no recibirás nuevos chats hasta presionar %s.</pre>",
   "USER_REPORT": "<pre>The participant has been reported, if more complaints are accumulated against him, he will be expelled from the chat !.</pre>",
-  "USER_NEXT_OK": "<pre>⏭ Next! Nuevo usuario en común:</pre><i> %s </i>",
+  "USER_NEXT_OK": "<pre>⏭ Next! Saluda a este nuevo usuario:</pre><i> %s </i>",
   "USER_NEXT_WAITING": "<pre>No one available to chat, wait for someone to vacate \uD83D\uDCA4</pre>",
   "USER_NO_CHAT": "<pre>You are not in any chat, press<b> %s </b>.</pre>",
   "SET_BIO_OK": "<pre>You have modified your bio:</pre>",
