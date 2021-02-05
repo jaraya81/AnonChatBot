@@ -2,14 +2,14 @@
   "START_OK": "Com este Bot você pode conhecer novas pessoas enquanto mantém seu anonimato. Lembre-se <b>de não fornecer dados pessoais ou senhas a estranhos.</b>",
   "START_AGAIN": "Com este Bot você pode conhecer novas pessoas enquanto mantém seu anonimato. Lembre-se <b>de não fornecer dados pessoais ou senhas a estranhos.</b>",
   "START_BANNED_USER": "Desculpe, você foi suspenso pela comunidade devido ao acúmulo de reclamações. Se sua conta for Premium, pressione /start em 24 horas para cancelar a suspensão. Para ser Premium, entre em contato com <b>@MyUsernameIsJulian</b>",
-  "USER_PLAY": "<pre>Você está participando, toda vez que quiser mudar o bate-papo, pressione <b>%s</b>.</pre>",
+  "USER_PLAY": "<pre>Estás activo, cada vez que quieras cambiar de chat presiona <b>%s</b>. </pre>%nSi quieres cambiar tu bio presiona %s",
   "USER_PAUSE": "<pre>Estás en pausa, no recibirás nuevos chats hasta presionar %s.</pre>",
   "USER_REPORT": "<pre>El participante ha sido reportado, si se acumulas más denuncias en su contra, será expulsado del chat!.</pre>",
-  "USER_NEXT_OK": "<i> %s </i>%n<pre>⏭ Next! Saluda a este nuevo usuario:</pre>",
+  "USER_NEXT_OK": "<i>Intereses: %s </i>%n<pre>⏭ Next! Saluda a este nuevo usuario:</pre>",
   "USER_NEXT_WAITING": "<pre>No hay nadie disponible para chatear, espera que alguien se desocupe \uD83D\uDCA4</pre>",
   "USER_NO_CHAT": "<pre>No estás en ningún chat, presiona <b>%s</b>.</pre>",
   "SET_BIO_OK": "<pre>Você modificou sua biografia:</pre>",
-  "BIO": "<pre>La bio es una pequeña descripción de tí. Para modificarla presiona el botón %s o escribe /bio x</pre>\nTu bio actual es:",
+  "BIO": "La bio es una pequeña descripción de tí. Para modificarla presiona el botón %s o escribe %s%nTu bio actual es:",
   "CONFIG_MSG": "<pre>Ingresa a alguna de las opciones a configurar o <b>Play</b> para iniciar.</pre>",
   "CHAT_TIMEOUT": "<pre>Tiempo de chat agotado, presiona <b>%s</b> para un nuevo chat.</pre>",
   "USER_BLOCK": "<pre>El participante ha sido bloqueado, ya no lo verás nuevamente por acá!%nPresiona nuevamente <b>%s</b> para un chat</pre>",
@@ -64,5 +64,6 @@
   "CB_BIO": "\uD83D\uDCDD Bio",
   "CB_TAGS": "#️⃣ Intereses",
   "STATS_COUNT": "<b>Usuarios por estado:</b>%n%s",
-  "STATS_INC": "<b>Nuevas incorporaciones:</b>%n%s"
+  "STATS_INC": "<b>Nuevas incorporaciones:</b>%n%s",
+  "DEFAULT_BIO": "Sin bio. Participante #%s"
 }

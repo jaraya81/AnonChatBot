@@ -36,6 +36,6 @@ public enum Msg {
     CB_BIO,
     CB_TAGS,
     STATS_COUNT,
-    STATS_INC
-    ;
+    STATS_INC,
+    DEFAULT_BIO;
 }
