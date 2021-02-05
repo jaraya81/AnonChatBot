@@ -9,7 +9,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.callback.ConfigCB;
 import net.sytes.jaraya.action.callback.InterestsCB;
-import net.sytes.jaraya.action.message.Bio;
+import net.sytes.jaraya.action.message.command.BioCommand;
 import net.sytes.jaraya.action.message.CHAT;
 import net.sytes.jaraya.action.message.ForceBio;
 import net.sytes.jaraya.action.message.IAction;
@@ -63,7 +63,7 @@ public class AnonChatBot implements Route {
         messageActions.add(new BlockButton(bot, service, msg, userAdmin));
         messageActions.add(new ReportButton(bot, service, msg, userAdmin));
         messageActions.add(new ConfigButton(bot, service, msg, userAdmin));
-        messageActions.add(new Bio(bot, service, msg, userAdmin));
+        messageActions.add(new BioCommand(bot, service, msg, userAdmin));
         messageActions.add(new LangCommand(bot, service, msg, userAdmin));
         messageActions.add(new AboutCommand(bot, service, msg, userAdmin));
         messageActions.add(new RegisterPremiumCommand(bot, service, msg, userAdmin));

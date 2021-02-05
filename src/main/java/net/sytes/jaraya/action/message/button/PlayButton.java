@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.SuperAction;
+import net.sytes.jaraya.action.message.command.BioCommand;
 import net.sytes.jaraya.action.message.command.StartCommand;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
@@ -65,7 +66,7 @@ public class PlayButton extends SuperAction implements IAction {
                 bot.execute(new DeleteMessage(chatId, messageId));
             }
             SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.USER_PLAY, user.getLang(),
-                    msg.commandButton(Msg.NEXT, user.getLang())))
+                    msg.commandButton(Msg.NEXT, user.getLang()), BioCommand.CHANGE_CODE))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(true)

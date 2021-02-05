@@ -6,10 +6,7 @@ import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.button.PlayButton;
-import net.sytes.jaraya.action.message.command.AboutCommand;
-import net.sytes.jaraya.action.message.command.AdminCommand;
-import net.sytes.jaraya.action.message.command.LangCommand;
-import net.sytes.jaraya.action.message.command.StartCommand;
+import net.sytes.jaraya.action.message.command.*;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.Chat;
@@ -48,9 +45,9 @@ public class CHAT extends SuperAction implements IAction {
                 && !message.getText().contentEquals(msg.commandButton(Msg.BLOCK, user.getLang()))
                 && !message.getText().contentEquals(msg.commandButton(Msg.REPORT, user.getLang()))
                 && !message.getText().contentEquals(StartCommand.CODE)
-                && !message.getText().contentEquals(Bio.CODE)
-                && !message.getText().startsWith(Bio.CODE)
-                && !message.getText().contentEquals(Bio.CHANGE_CODE)
+                && !message.getText().contentEquals(BioCommand.CODE)
+                && !message.getText().startsWith(BioCommand.CODE)
+                && !message.getText().contentEquals(BioCommand.CHANGE_CODE)
                 && !message.getText().startsWith(AboutCommand.CODE)
                 && !message.getText().contentEquals(LangCommand.CODE)
                 && !message.getText().startsWith(LangCommand.SET_CODE)

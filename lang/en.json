@@ -2,14 +2,14 @@
   "START_OK": "With this Bot you can meet new people while maintaining your anonymity. Remember <b>not to give personal data or passwords to strangers.</b>",
   "START_AGAIN": "With this Bot you can meet new people while maintaining your anonymity. Remember <b>not to give personal data or passwords to strangers.</b>",
   "START_BANNED_USER": "Sorry, you have been suspended by the community due to accumulation of complaints. If your account is Premium press /start within 24 hours to lift the suspension. To be Premium contact <b>@MyUsernameIsJulian</b>",
-  "USER_PLAY": "<pre>You are participating, every time you want to change chat press <b>%s</b>.</pre>",
+  "USER_PLAY": "<pre>Estás activo, cada vez que quieras cambiar de chat presiona <b>%s</b>. </pre>%nSi quieres cambiar tu bio presiona %s",
   "USER_PAUSE": "<pre>Estás en pausa, no recibirás nuevos chats hasta presionar %s.</pre>",
   "USER_REPORT": "<pre>The participant has been reported, if more complaints are accumulated against him, he will be expelled from the chat !.</pre>",
-  "USER_NEXT_OK": "<i> %s </i>%n<pre>⏭ Next! Saluda a este nuevo usuario:</pre>",
+  "USER_NEXT_OK": "<i>Intereses: %s </i>%n<pre>⏭ Next! Saluda a este nuevo usuario:</pre>",
   "USER_NEXT_WAITING": "<pre>No one available to chat, wait for someone to vacate \uD83D\uDCA4</pre>",
   "USER_NO_CHAT": "<pre>You are not in any chat, press<b> %s </b>.</pre>",
   "SET_BIO_OK": "<pre>You have modified your bio:</pre>",
-  "BIO": "<pre>La bio es una pequeña descripción de tí. Para modificarla presiona el botón %s o escribe /bio x</pre>\nTu bio actual es:",
+  "BIO": "La bio es una pequeña descripción de tí. Para modificarla presiona el botón %s o escribe %s%nTu bio actual es:",
   "CONFIG_MSG": "<pre>Enter any of the options to configure or <b>Play</b> to start.</pre>",
   "CHAT_TIMEOUT": "<pre>Chat timed out, press<b> %s </b> for a new chat.</pre>",
   "USER_BLOCK": "<pre>The participant has been blocked, you will not see him again here!%nPress<b> %s </b>again for a chat</pre>",
@@ -64,5 +64,6 @@
   "CB_BIO": "\uD83D\uDCDD Bio",
   "CB_TAGS": "#️⃣ Interests",
   "STATS_COUNT": "<b>Usuarios por estado:</b>%n%s",
-  "STATS_INC": "<b>Nuevas incorporaciones:</b>%n%s"
+  "STATS_INC": "<b>Nuevas incorporaciones:</b>%n%s",
+  "DEFAULT_BIO": "Sin bio. Participante #%s"
 }

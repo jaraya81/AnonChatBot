@@ -53,7 +53,7 @@ public class ForceBio extends SuperAction implements IAction {
 
     public void forceBio(User user, String idPhoto, String text) {
         if (User.exist(user) && User.isEmptyBio(user)) {
-            text = text != null && !text.isEmpty() ? text : msg.anyDescription(user.getLang());
+            text = text != null && !text.isEmpty() ? text : msg.takeADescription(user.getLang(), user.getIdUser());
             text = text.replace("|", " ");
             user.setDescription(idPhoto, text.length() <= 240 ?
                     text

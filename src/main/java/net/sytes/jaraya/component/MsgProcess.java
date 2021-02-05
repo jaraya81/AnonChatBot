@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static net.sytes.jaraya.util.Operator.elvis;
 
@@ -93,6 +94,11 @@ public class MsgProcess {
             return false;
         }
         return languages.get(lang) != null;
+    }
+
+    public String takeADescription(String lang, Long idUser) {
+        int i = ThreadLocalRandom.current().nextInt(1, idUser.intValue());
+        return msg(Msg.DEFAULT_BIO, lang, idUser % i);
     }
 
     public String anyDescription(String lang) {

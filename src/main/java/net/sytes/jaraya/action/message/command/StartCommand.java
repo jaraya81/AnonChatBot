@@ -54,7 +54,7 @@ public class StartCommand extends SuperAction implements IAction {
                     .state(State.EMPTY_BIO.name())
                     .premiumType(PremiumType.TEMPORAL.name())
                     .lang(lang)
-                    .description(msg.anyDescription(lang))
+                    .description(msg.takeADescription(lang, message.getFromId().longValue()))
                     .build();
             user = services.user.save(user);
             log.info("NEW USER: {}", user);
@@ -67,7 +67,7 @@ public class StartCommand extends SuperAction implements IAction {
                     .replyMarkup(keyboard.getByUserStatus(user)));
             logResult(Msg.START_BANNED_USER.name(), message.getChatId(), sendResponse.isOk());
         } else {
-            user.setDescription(msg.anyDescription(user.getLang()));
+            user.setDescription(msg.takeADescription(user.getLang(), user.getIdUser()));
             user.setState(State.PAUSE.name());
             user = services.user.save(user);
 
@@ -82,7 +82,7 @@ public class StartCommand extends SuperAction implements IAction {
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.START_OK, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
-                    .disableNotification(false)
+                    .disableNotification(true)
                     .replyMarkup(keyboard.getByUserStatus(user))
             );
 
