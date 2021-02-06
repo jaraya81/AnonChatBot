@@ -151,7 +151,10 @@ public class PeriodicalTasks extends SuperAction {
                 .filter(User::isPremium)
                 .filter(user -> {
                     if (user.getPremiumType().contentEquals(PremiumType.TEMPORAL.name())
-                            && user.getDatePremium().toLocalDateTime().plusDays(30).isBefore(LocalDateTime.now())) {
+                            && user.getDatePremium().toLocalDateTime().plusDays(14).isBefore(LocalDateTime.now())) {
+                        return true;
+                    } else if (user.getPremiumType().contentEquals(PremiumType.MONTHLY.name())
+                            && user.getDatePremium().toLocalDateTime().plusMonths(1).isBefore(LocalDateTime.now())) {
                         return true;
                     } else
                         return user.getPremiumType().contentEquals(PremiumType.ANNUAL.name())

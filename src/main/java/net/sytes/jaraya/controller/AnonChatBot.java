@@ -65,7 +65,7 @@ public class AnonChatBot implements Route {
         messageActions.add(new BioCommand(bot, service, msg, userAdmin, periodicalTasks));
         messageActions.add(new LangCommand(bot, service, msg, userAdmin, periodicalTasks));
         messageActions.add(new AboutCommand(bot, service, msg, userAdmin, periodicalTasks));
-        messageActions.add(new RegisterPremiumCommand(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new PremiumCommand(bot, service, msg, userAdmin, periodicalTasks));
         messageActions.add(new TagsCommand(bot, service, msg, userAdmin, periodicalTasks));
         messageActions.add(new AdminCommand(bot, service, msg, userAdmin, periodicalTasks));
         messageActions.add(new CHAT(bot, service, msg, userAdmin, periodicalTasks));
