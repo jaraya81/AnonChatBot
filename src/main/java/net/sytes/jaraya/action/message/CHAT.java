@@ -93,6 +93,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsVideoSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getVideo() != null
                 && isPremium(me, "Video")) {
+            log.info("{} {} -> {}", "Video", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendVideo(otherId, message.getVideo())
                     .disableNotification(false));
             if (isInactive(response, otherId)) {
@@ -106,6 +107,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsVideoNoteSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getVideoNote() != null
                 && isPremium(me, "VideoNote")) {
+            log.info("{} {} -> {}", "VideoNote", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendVideoNote(otherId, message.getVideoNote())
                     .disableNotification(false));
             if (isInactive(response, otherId)) {
@@ -119,6 +121,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsAnimationSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getAnimation() != null
                 && isPremium(me, "Animation")) {
+            log.info("{} {} -> {}", "Animation", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendAnimation(otherId, message.getAnimation())
                     .parseMode(ParseMode.MarkdownV2)
                     .caption(message.getCaption() != null ? message.getCaption() : "")
@@ -131,7 +134,7 @@ public class CHAT extends SuperAction implements IAction {
         if (message.getText() != null) {
             String msgText = cleanText(message.getText(), user);
             if (msgText != null) {
-                log.info("{} -> {}: {}", user.getIdUser(), id, msgText.replaceAll("[\\d\\D]+", "*"));
+                log.info("{} {} -> {}: {}", "Text", user.getIdUser(), id, msgText.replaceAll("[\\d\\D]+", "*"));
                 if (user.getIdUser().longValue() == getUserAdmin()) {
                     SendResponse response = bot.execute(new SendMessage(user.getIdUser(), msgText)
                             .parseMode(ParseMode.MarkdownV2)
@@ -173,6 +176,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsVoiceSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getVoiceFileId() != null
                 && isPremium(me, "Voice")) {
+            log.info("{} {} -> {}", "Voice", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendVoice(otherId, message.getVoiceFileId())
                     .parseMode(ParseMode.MarkdownV2)
                     .disableNotification(false));
@@ -184,6 +188,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsPhotoSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getPhoto() != null
                 && isPremium(me, "Photo")) {
+            log.info("{} {} -> {}", "Photo", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendPhoto(otherId, message.getPhoto())
                     .parseMode(ParseMode.MarkdownV2)
                     .caption(message.getCaption() != null ? message.getCaption() : "")
@@ -196,6 +201,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsStickerSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getStickerFileId() != null
                 && isPremium(me, "Stickers")) {
+            log.info("{} {} -> {}", "Stickers", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendSticker(otherId, message.getStickerFileId())
                     .disableNotification(false));
             checkResponse(response, otherId, me, chat);
