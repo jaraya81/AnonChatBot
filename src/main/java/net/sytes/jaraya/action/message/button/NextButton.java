@@ -21,7 +21,10 @@ import net.sytes.jaraya.state.State;
 import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -165,26 +168,31 @@ public class NextButton extends SuperAction implements IAction {
     public User selectNewNext(User me) {
         List<User> users = services.user.getByState(State.PLAY);
         List<User> preFilter = users.parallelStream()
-                .filter(User::isPlayed)
                 .sorted(Comparator.comparing(User::getDateupdate).reversed())
                 .filter(user -> isAsignable(me, user))
                 .filter(user -> matchTags(me, user))
                 .collect(Collectors.toList());
-        List<User> filter = preFilter.subList(0, (int) (preFilter.size() * 0.7))
-                .stream()
+        List<User> filter = preFilter.stream()
+                .filter(user -> equalsLang(me, user))
                 .filter(user -> !isRepetido(me, user))
                 .collect(Collectors.toList());
-        log.info("{}/{}", filter.size(), users.size());
-        if (filter.isEmpty()) {
-            filter = users.parallelStream()
-                    .filter(User::isPlayed)
-                    .filter(user -> isAsignable(me, user))
-                    .filter(user -> matchTags(me, user))
-                    .collect(Collectors.toList());
-            log.info("{}/{}", filter.size(), users.size());
-            Collections.shuffle(filter);
+        if (!filter.isEmpty()) {
+            return filter.get(0);
         }
-        return filter.isEmpty() ? null : filter.get(0);
+        filter = preFilter.stream()
+                .filter(user -> !isRepetido(me, user))
+                .collect(Collectors.toList());
+        if (!filter.isEmpty()) {
+            return filter.get(0);
+        }
+        return null;
+        //Collections.shuffle(preFilter);
+        //return preFilter.isEmpty() ? null : preFilter.get(0);
+    }
+
+    private boolean equalsLang(User me, User user) {
+        if (me.getLang() == null || user.getLang() == null) return true;
+        return me.getLang().contentEquals(user.getLang());
     }
 
     public Chat assignNew(User me, User other) {

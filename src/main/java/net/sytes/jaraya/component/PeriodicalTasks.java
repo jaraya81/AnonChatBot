@@ -179,9 +179,8 @@ public class PeriodicalTasks extends SuperAction {
     }
 
     private void deleteOldsSkips() {
-        int sizeUsers = services.user.getByState(State.PLAY).size();
         services.chat.deletes(
-                services.chat.getByStatusMinusMinute(ChatState.SKIPPED, sizeUsers > 100 ? 60 * 12 : sizeUsers * 15)
+                services.chat.getByStatusMinusMinute(ChatState.SKIPPED, 60)
         );
     }
 
@@ -217,7 +216,7 @@ public class PeriodicalTasks extends SuperAction {
 
     private void pauseUsersInactive() {
         String pauseMinutes = parameters.get(Property.PAUSE_USERS_INACTIVE.name());
-        pauseMinutes = elvis(pauseMinutes, "6000");
+        pauseMinutes = elvis(pauseMinutes, "1000");
         List<User> users = services.user.getByInactives(
                 State.PLAY,
                 Integer.parseInt(pauseMinutes)

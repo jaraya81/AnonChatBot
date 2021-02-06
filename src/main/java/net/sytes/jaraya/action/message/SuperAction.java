@@ -75,7 +75,8 @@ public class SuperAction {
                     response.description().contentEquals(FORBIDDEN_DEACTIVATED)) {
                 User user = services.user.getByIdUser(id);
                 user.setState(State.STOP.name());
-                log.info("STOP :: {} :: {}", user.getIdUser(), services.user.save(user));
+                services.user.save(user);
+                log.info("STOP :: {}", user.getIdUser());
                 return true;
             } else {
                 log.error("{}", response);

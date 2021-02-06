@@ -23,6 +23,7 @@ import java.util.List;
 @Slf4j
 public class CHAT extends SuperAction implements IAction {
 
+    private static final String LOG_SEND = "{} {} -> {}";
     private final PeriodicalTasks periodicalTasks;
 
     public CHAT(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
@@ -48,7 +49,7 @@ public class CHAT extends SuperAction implements IAction {
                 && !message.getText().contentEquals(PlayButton.COMMAND)
                 && !message.getText().contentEquals(msg.commandButton(Msg.BLOCK, user.getLang()))
                 && !message.getText().contentEquals(msg.commandButton(Msg.REPORT, user.getLang()))
-                && !message.getText().contentEquals(StartCommand.CODE)
+                && !message.getText().startsWith(StartCommand.CODE)
                 && !message.getText().contentEquals(BioCommand.CODE)
                 && !message.getText().startsWith(BioCommand.CODE)
                 && !message.getText().contentEquals(BioCommand.CHANGE_CODE)
@@ -93,7 +94,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsVideoSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getVideo() != null
                 && isPremium(me, "Video")) {
-            log.info("{} {} -> {}", "Video", me.getIdUser(), otherId);
+            log.info(LOG_SEND, "Video", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendVideo(otherId, message.getVideo())
                     .disableNotification(false));
             if (isInactive(response, otherId)) {
@@ -107,7 +108,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsVideoNoteSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getVideoNote() != null
                 && isPremium(me, "VideoNote")) {
-            log.info("{} {} -> {}", "VideoNote", me.getIdUser(), otherId);
+            log.info(LOG_SEND, "VideoNote", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendVideoNote(otherId, message.getVideoNote())
                     .disableNotification(false));
             if (isInactive(response, otherId)) {
@@ -121,7 +122,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsAnimationSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getAnimation() != null
                 && isPremium(me, "Animation")) {
-            log.info("{} {} -> {}", "Animation", me.getIdUser(), otherId);
+            log.info(LOG_SEND, "Animation", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendAnimation(otherId, message.getAnimation())
                     .parseMode(ParseMode.MarkdownV2)
                     .caption(message.getCaption() != null ? message.getCaption() : "")
@@ -130,23 +131,23 @@ public class CHAT extends SuperAction implements IAction {
         }
     }
 
-    private void ifIsTextSend(MessageChat message, User user, Long id, Chat chat) {
+    private void ifIsTextSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getText() != null) {
-            String msgText = cleanText(message.getText(), user);
+            String msgText = cleanText(message.getText(), me);
             if (msgText != null) {
-                log.info("{} {} -> {}: {}", "Text", user.getIdUser(), id, msgText.replaceAll("[\\d\\D]+", "*"));
-                if (user.getIdUser().longValue() == getUserAdmin()) {
-                    SendResponse response = bot.execute(new SendMessage(user.getIdUser(), msgText)
+                log.info(LOG_SEND, "Text", me.getIdUser(), otherId);
+                if (me.getIdUser().longValue() == getUserAdmin()) {
+                    SendResponse response = bot.execute(new SendMessage(me.getIdUser(), msgText)
                             .parseMode(ParseMode.MarkdownV2)
                             .disableWebPagePreview(false)
                             .disableNotification(false));
                     periodicalTasks.addDeleteMessage(response);
                 }
-                SendResponse response = bot.execute(new SendMessage(id, msgText)
+                SendResponse response = bot.execute(new SendMessage(otherId, msgText)
                         .parseMode(ParseMode.MarkdownV2)
-                        .disableWebPagePreview(!user.isPremium())
+                        .disableWebPagePreview(!me.isPremium())
                         .disableNotification(false));
-                checkResponse(response, id, user, chat);
+                checkResponse(response, otherId, me, chat);
             }
         }
 
@@ -176,7 +177,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsVoiceSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getVoiceFileId() != null
                 && isPremium(me, "Voice")) {
-            log.info("{} {} -> {}", "Voice", me.getIdUser(), otherId);
+            log.info(LOG_SEND, "Voice", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendVoice(otherId, message.getVoiceFileId())
                     .parseMode(ParseMode.MarkdownV2)
                     .disableNotification(false));
@@ -188,7 +189,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsPhotoSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getPhoto() != null
                 && isPremium(me, "Photo")) {
-            log.info("{} {} -> {}", "Photo", me.getIdUser(), otherId);
+            log.info(LOG_SEND, "Photo", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendPhoto(otherId, message.getPhoto())
                     .parseMode(ParseMode.MarkdownV2)
                     .caption(message.getCaption() != null ? message.getCaption() : "")
@@ -201,7 +202,7 @@ public class CHAT extends SuperAction implements IAction {
     private void ifIsStickerSend(MessageChat message, User me, Long otherId, Chat chat) {
         if (message.getStickerFileId() != null
                 && isPremium(me, "Stickers")) {
-            log.info("{} {} -> {}", "Stickers", me.getIdUser(), otherId);
+            log.info(LOG_SEND, "Stickers", me.getIdUser(), otherId);
             SendResponse response = bot.execute(new SendSticker(otherId, message.getStickerFileId())
                     .disableNotification(false));
             checkResponse(response, otherId, me, chat);

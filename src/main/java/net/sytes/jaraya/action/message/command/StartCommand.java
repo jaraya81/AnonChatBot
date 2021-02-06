@@ -45,7 +45,7 @@ public class StartCommand extends SuperAction implements IAction {
         MessageChat message = (MessageChat) baseUpdate;
         return Objects.nonNull(message)
                 && Objects.nonNull(message.getText())
-                && message.getText().contentEquals(CODE);
+                && message.getText().startsWith(CODE);
     }
 
     public void start(MessageChat message) {
@@ -94,6 +94,5 @@ public class StartCommand extends SuperAction implements IAction {
             periodicalTasks.addDeleteMessage(sendResponse);
             new PlayButton(bot, services, msg, userAdmin, periodicalTasks).play(user);
         }
-
     }
 }
