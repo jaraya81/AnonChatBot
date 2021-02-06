@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.Chat;
 import net.sytes.jaraya.model.User;
@@ -23,8 +24,11 @@ import java.util.Objects;
 @Slf4j
 public class BlockButton extends SuperAction implements IAction {
 
-    public BlockButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    private final PeriodicalTasks periodicalTasks;
+
+    public BlockButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
         super(bot, serviceChat, msg, userAdmin);
+        this.periodicalTasks = periodicalTasks;
     }
 
     @Override
@@ -59,6 +63,7 @@ public class BlockButton extends SuperAction implements IAction {
                         .replyMarkup(keyboard.getByUserStatus(user))
                 );
                 logResult(Msg.BLOCK.name(), message.getChatId(), sendResponse.isOk());
+                periodicalTasks.addDeleteMessage(sendResponse);
             }
 
         }

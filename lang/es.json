@@ -22,7 +22,7 @@
   "EMPTY_BIO": "<pre>Escribe una pequeña bio o una foto con caption que te describa\nSi luego de 2 minutos no escribes tu bio, será creada de forma automática.</pre>",
   "PREMIUM_REQUIRED": "<pre>Actualmente \"%s\" sólo está disponible para usuarios Premium. Para cambiarte a algún plan Premium contacta a</pre> <b>@MyUsernameIsJulian</b>",
   "PREMIUM_REGISTER_ADMIN": "<pre>Usuario \"%s\" registrado como \"%s\"</pre>",
-  "PREMIUM_REGISTER_USER": "<pre>Has sido registrado con tu id \"%s\" como usuario Premium \"%s\" a partir de ahora, para cualquier requerimiento adicional contacta a @MyUsernameIsJulian<pre>",
+  "PREMIUM_REGISTER_USER": "<pre>Has sido registrado con tu id '%s' como usuario Premium '%s', para cualquier requerimiento adicional contacta a @MyUsernameIsJulian</pre>",
   "PREMIUM_EXPIRED": "<pre>Tu cuenta premium ha expirado, para renovarla contacta a</pre> <b>@MyUsernameIsJulian</b>",
   "ONLY_PRIVATE": "Hola, actualmente no soy un bot para grupos y canales, pero si quieres divertirte conociendo a otros anónimamente iniciame acá -> @RandomNextBot",
   "TAGS_PREFERENCES": "<pre>Elige los tags que concuerden con tus intereses, las personas con quien te conectes tendrán al menos un interés similar al tuyo</pre>",

@@ -9,6 +9,7 @@ import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.action.message.button.PlayButton;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.enums.Tag;
@@ -25,8 +26,11 @@ import java.util.Objects;
 public class StartCommand extends SuperAction implements IAction {
     public static final String CODE = "/start";
 
-    public StartCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    private final PeriodicalTasks periodicalTasks;
+
+    public StartCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
         super(bot, serviceChat, msg, userAdmin);
+        this.periodicalTasks = periodicalTasks;
     }
 
     @Override
@@ -66,6 +70,7 @@ public class StartCommand extends SuperAction implements IAction {
                     .disableNotification(true)
                     .replyMarkup(keyboard.getByUserStatus(user)));
             logResult(Msg.START_BANNED_USER.name(), message.getChatId(), sendResponse.isOk());
+            periodicalTasks.addDeleteMessage(sendResponse);
         } else {
             user.setDescription(msg.takeADescription(user.getLang(), user.getIdUser()));
             user.setState(State.PAUSE.name());
@@ -85,9 +90,9 @@ public class StartCommand extends SuperAction implements IAction {
                     .disableNotification(true)
                     .replyMarkup(keyboard.getByUserStatus(user))
             );
-
             logResult(Msg.START_OK.name(), message.getChatId(), sendResponse.isOk());
-            new PlayButton(bot, services, msg, userAdmin).play(user);
+            periodicalTasks.addDeleteMessage(sendResponse);
+            new PlayButton(bot, services, msg, userAdmin, periodicalTasks).play(user);
         }
 
     }

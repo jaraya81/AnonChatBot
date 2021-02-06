@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.button.PlayButton;
 import net.sytes.jaraya.action.message.command.StartCommand;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
@@ -20,8 +21,11 @@ import java.util.Objects;
 @Slf4j
 public class ForceBio extends SuperAction implements IAction {
 
-    public ForceBio(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    private final PeriodicalTasks periodicalTasks;
+
+    public ForceBio(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
         super(bot, serviceChat, msg, userAdmin);
+        this.periodicalTasks = periodicalTasks;
     }
 
     @Override
@@ -65,8 +69,9 @@ public class ForceBio extends SuperAction implements IAction {
                     .disableWebPagePreview(false)
                     .disableNotification(true));
             logResult(Msg.SET_BIO_OK.name(), user.getIdUser(), sendResponse.isOk());
+            periodicalTasks.addDeleteMessage(sendResponse);
             sendMyBio(user);
-            new PlayButton(bot, services, msg, userAdmin).play(user);
+            new PlayButton(bot, services, msg, userAdmin, periodicalTasks).play(user);
         } else if (User.exist(user) && !User.isBanned(user) && user.getDescriptionText() == null || user.getDescriptionText().isEmpty()) {
             sendMessage(user);
         }
@@ -87,5 +92,6 @@ public class ForceBio extends SuperAction implements IAction {
                 .replyMarkup(keyboard.getByUserStatus(user))
         );
         logResult(Msg.EMPTY_BIO.name(), user.getIdUser(), sendResponse2.isOk());
+        periodicalTasks.addDeleteMessage(sendResponse2);
     }
 }

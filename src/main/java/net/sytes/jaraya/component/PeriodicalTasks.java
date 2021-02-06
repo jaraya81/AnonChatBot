@@ -2,8 +2,9 @@ package net.sytes.jaraya.component;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.BaseResponse;
+import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.ForceBio;
 import net.sytes.jaraya.action.message.SuperAction;
@@ -17,6 +18,8 @@ import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
 import net.sytes.jaraya.util.Properties;
+import net.sytes.jaraya.vo.BaseUpdate;
+import net.sytes.jaraya.vo.MessageChat;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -30,6 +33,8 @@ public class PeriodicalTasks extends SuperAction {
     private static final String MSG_LOG = "{} :: {}";
 
     private final Map<LocalDateTime, Map> notifications = new HashMap<>();
+    private final Map<String, net.sytes.jaraya.dto.DeleteMessage> deleteMessages = new HashMap<>();
+
     private Map<String, String> parameters;
 
     public PeriodicalTasks(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) throws UtilException {
@@ -46,9 +51,27 @@ public class PeriodicalTasks extends SuperAction {
             updateEmptyBio();
             expirePremium();
             removeSuspension();
+            deleteMessages();
             sendNotification();
         } catch (TelegramException e) {
             log.error("", e);
+        }
+    }
+
+
+    private void deleteMessages() {
+        List<Map.Entry<String, net.sytes.jaraya.dto.DeleteMessage>> running = deleteMessages.entrySet()
+                .parallelStream()
+                .filter(x -> x.getValue().getTime().plusHours(12).isBefore(LocalDateTime.now(ZoneId.systemDefault())))
+                .collect(Collectors.toList());
+        for (Map.Entry<String, net.sytes.jaraya.dto.DeleteMessage> entry : running) {
+            bot.execute(
+                    new DeleteMessage(
+                            entry.getValue().getChatId(),
+                            entry.getValue().getMessageId()
+                    )
+            );
+            deleteMessages.remove(entry.getKey());
         }
     }
 
@@ -75,13 +98,16 @@ public class PeriodicalTasks extends SuperAction {
             List<User> userList = new ArrayList<>();
             if (elvis(test, true)) {
                 User user = services.user.getByIdUser(userAdmin);
-                BaseResponse response = bot.execute(new SendMessage(user.getIdUser(), "T:" + text)
+                SendResponse response = bot.execute(new SendMessage(user.getIdUser(), "T:" + text)
                         .parseMode(ParseMode.HTML)
                         .replyMarkup(buttons != null && !buttons.isEmpty()
                                 ? keyboard.getInlineKeyboardUrls(buttons)
                                 : keyboard.getByUserStatus(user))
                 );
-                if (!response.isOk()) log.error(response.description());
+                if (!response.isOk()) {
+                    log.error(response.description());
+                }
+                addDeleteMessage(response);
             } else {
                 if (lastMinutes == null) {
                     userList = services.user.getByLang(lang);
@@ -93,11 +119,16 @@ public class PeriodicalTasks extends SuperAction {
                         .filter(x -> !x.getState().contentEquals(State.STOP.name()))
                         .collect(Collectors.toList());
 
-                userList.forEach(x -> isInactive(bot.execute(new SendMessage(x.getIdUser(), text)
-                        .parseMode(ParseMode.HTML)
-                        .replyMarkup(buttons != null
-                                ? keyboard.getInlineKeyboardUrls(buttons)
-                                : keyboard.getByUserStatus(x))), x.getIdUser()));
+                userList.forEach(x -> {
+                    SendResponse sendResponse = bot.execute(new SendMessage(x.getIdUser(), text)
+                            .parseMode(ParseMode.HTML)
+                            .replyMarkup(buttons != null
+                                    ? keyboard.getInlineKeyboardUrls(buttons)
+                                    : keyboard.getByUserStatus(x)));
+                    isInactive(sendResponse, x.getIdUser());
+                    addDeleteMessage(sendResponse);
+
+                });
             }
             log.info("Notifications sending: {}", userList.size());
         }
@@ -139,7 +170,7 @@ public class PeriodicalTasks extends SuperAction {
     }
 
     private void updateEmptyBio() {
-        ForceBio forceBio = new ForceBio(bot, services, msg, userAdmin);
+        ForceBio forceBio = new ForceBio(bot, services, msg, userAdmin, this);
         List<User> users = services.user.getByInactives(State.EMPTY_BIO, 2);
         for (User user : users) {
             log.info(MSG_LOG, "updateEmptyBio", user.getIdUser());
@@ -158,12 +189,13 @@ public class PeriodicalTasks extends SuperAction {
         List<User> users = services.user.getByInactives(State.PAUSE, 720);
         for (User user : users) {
             user = services.user.save(user);
-            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang()))
+            SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(false)
                     .replyMarkup(keyboard.getByUserStatus(user)));
             log.info(MSG_LOG, Msg.REMINDER_PAUSED_USER.name(), user.getIdUser());
+            addDeleteMessage(sendResponse);
         }
     }
 
@@ -172,11 +204,13 @@ public class PeriodicalTasks extends SuperAction {
         for (Long id : ids) {
             User user = services.user.getByIdUser(id);
             log.info(MSG_LOG, Msg.CHAT_TIMEOUT.name(), user.getIdUser());
-            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.CHAT_TIMEOUT, user.getLang(),
+            SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.CHAT_TIMEOUT, user.getLang(),
                     msg.commandButton(Msg.NEXT, user.getLang())))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(false));
+            addDeleteMessage(sendResponse);
+
         }
     }
 
@@ -204,5 +238,32 @@ public class PeriodicalTasks extends SuperAction {
     public String addNotification(Map params) {
         notifications.put(LocalDateTime.now(ZoneId.systemDefault()), params);
         return String.format("%s", notifications.size());
+    }
+
+    public void addDeleteMessage(long chatId, int messageId) {
+        /*
+        deleteMessages.put(UUID.randomUUID().toString(), net.sytes.jaraya.dto.DeleteMessage.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .time(LocalDateTime.now(ZoneId.systemDefault()))
+                .build());
+    */
+    }
+
+    public void addDeleteMessage(BaseUpdate update) {
+        if (update instanceof MessageChat) {
+            MessageChat messageChat = (MessageChat) update;
+            if (messageChat.getChatId() != null && messageChat.getMessageId() != null) {
+                addDeleteMessage(((MessageChat) update).getChatId(), ((MessageChat) update).getMessageId());
+            }
+        }
+    }
+
+    public void addDeleteMessage(SendResponse response) {
+        if (response != null && response.isOk() && response.message() != null &&
+                response.message().chat() != null && response.message().chat().id() != null &&
+                response.message().messageId() != null) {
+            addDeleteMessage(response.message().chat().id(), response.message().messageId());
+        }
     }
 }

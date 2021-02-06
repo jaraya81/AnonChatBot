@@ -10,6 +10,7 @@ import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.action.message.command.TagsCommand;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
@@ -21,8 +22,11 @@ import java.util.Objects;
 @Slf4j
 public class ConfigCB extends SuperAction implements IAction {
 
-    public ConfigCB(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    private final PeriodicalTasks periodicalTasks;
+
+    public ConfigCB(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
         super(bot, serviceChat, msg, userAdmin);
+        this.periodicalTasks = periodicalTasks;
     }
 
     @Override
@@ -49,14 +53,14 @@ public class ConfigCB extends SuperAction implements IAction {
         User user = services.user.getByIdUser(callbackQuery.message().chat().id());
         if (User.exist(user) && !User.isBanned(user)) {
             if (callbackQuery.data().contentEquals(Msg.CB_BIO.name())) {
-                new ForceBio(bot, services, msg, userAdmin).sendMessage(user);
+                new ForceBio(bot, services, msg, userAdmin, periodicalTasks).sendMessage(user);
                 AnswerCallbackQuery answer = new AnswerCallbackQuery(callbackQuery.id()).showAlert(true);
                 BaseResponse responseAnswer = bot.execute(answer);
                 logResult(this.getClass().getSimpleName(), user.getIdUser(), responseAnswer.isOk());
             } else if (callbackQuery.data().contentEquals(Msg.CB_TAGS.name())) {
                 AnswerCallbackQuery answer = new AnswerCallbackQuery(callbackQuery.id()).showAlert(true);
                 BaseResponse responseAnswer = bot.execute(answer);
-                new TagsCommand(bot, services, msg, userAdmin).action(user);
+                new TagsCommand(bot, services, msg, userAdmin, periodicalTasks).action(user);
                 logResult(this.getClass().getSimpleName(), user.getIdUser(), responseAnswer.isOk());
             }
         }

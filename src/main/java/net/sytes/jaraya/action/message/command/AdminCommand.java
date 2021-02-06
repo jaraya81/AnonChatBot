@@ -24,17 +24,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AdminCommand extends SuperAction implements IAction {
     public static final String CODE = "/admin";
-    PeriodicalTasks periodicalTasks;
+    private final PeriodicalTasks periodicalTasks;
 
     public AdminCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
         super(bot, serviceChat, msg, userAdmin);
         this.periodicalTasks = periodicalTasks;
     }
-
-    public AdminCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
-        super(bot, serviceChat, msg, userAdmin);
-    }
-
     @Override
     public IAction exec(BaseUpdate baseUpdate) {
         MessageChat message = (MessageChat) baseUpdate;
@@ -83,6 +78,8 @@ public class AdminCommand extends SuperAction implements IAction {
                 .disableNotification(true)
                 .replyMarkup(keyboard.getByUserStatus(user)));
         logResult(Msg.STATS_COUNT.name(), user.getIdUser(), sendResponse.isOk());
+        periodicalTasks.addDeleteMessage(sendResponse);
+
     }
 
     private void stats(User user, String[] params) {
@@ -99,6 +96,7 @@ public class AdminCommand extends SuperAction implements IAction {
                         .disableNotification(true)
                         .replyMarkup(keyboard.getByUserStatus(user)));
                 logResult(Msg.STATS_COUNT.name(), user.getIdUser(), sendResponse.isOk());
+                periodicalTasks.addDeleteMessage(sendResponse);
 
             } else if (params[2].contentEquals("inc")) {
                 StringBuilder sb = new StringBuilder();
@@ -116,6 +114,7 @@ public class AdminCommand extends SuperAction implements IAction {
                         .disableNotification(true)
                         .replyMarkup(keyboard.getByUserStatus(user)));
                 logResult(Msg.STATS_INC.name(), user.getIdUser(), sendResponse.isOk());
+                periodicalTasks.addDeleteMessage(sendResponse);
             } else {
                 help(user);
             }

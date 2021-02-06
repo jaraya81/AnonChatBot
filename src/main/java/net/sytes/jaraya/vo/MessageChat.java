@@ -4,12 +4,14 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.PhotoSize;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @ToString

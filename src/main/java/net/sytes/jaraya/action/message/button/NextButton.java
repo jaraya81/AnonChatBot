@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.Tag;
 import net.sytes.jaraya.model.Chat;
@@ -26,8 +27,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NextButton extends SuperAction implements IAction {
 
-    public NextButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    private final PeriodicalTasks periodicalTasks;
+
+    public NextButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
         super(bot, serviceChat, msg, userAdmin);
+        this.periodicalTasks = periodicalTasks;
     }
 
     @Override
@@ -76,6 +80,7 @@ public class NextButton extends SuperAction implements IAction {
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
                             .disableNotification(true));
+                    periodicalTasks.addDeleteMessage(sendResponse2);
                     if (isInactive(sendResponse2, other.getIdUser())) {
                         chat.setState(ChatState.SKIPPED.name());
                         services.chat.save(chat);
@@ -91,6 +96,7 @@ public class NextButton extends SuperAction implements IAction {
                                 .disableNotification(true)
                                 .replyMarkup(keyboard.getByUserStatus(me))
                         );
+                        periodicalTasks.addDeleteMessage(sendResponse1);
                         if (isInactive(sendResponse1, me.getIdUser())) {
                             chat.setState(ChatState.SKIPPED.name());
                             services.chat.save(chat);
@@ -105,6 +111,7 @@ public class NextButton extends SuperAction implements IAction {
                             .disableWebPagePreview(false)
                             .disableNotification(true));
                     logResult(Msg.USER_NEXT_WAITING.name(), me.getIdUser(), sendResponse.isOk());
+                    periodicalTasks.addDeleteMessage(sendResponse);
                 }
 
             } while (!isOK);
@@ -234,11 +241,14 @@ public class NextButton extends SuperAction implements IAction {
         chat.setState(ChatState.SKIPPED.name());
         services.chat.save(chat);
         User otherUser = services.user.getByIdUser(chat.getUser1().compareTo(myUserId) != 0 ? chat.getUser1() : chat.getUser2());
-        isInactive(bot.execute(new SendMessage(otherUser.getIdUser(), msg.msg(Msg.NEXT_YOU, otherUser.getLang(),
+        SendResponse sendResponse = bot.execute(new SendMessage(otherUser.getIdUser(), msg.msg(Msg.NEXT_YOU, otherUser.getLang(),
                 msg.commandButton(Msg.NEXT, otherUser.getLang()), msg.commandButton(Msg.NEXT, otherUser.getLang())))
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(true)
-                .disableNotification(true)), otherUser.getIdUser());
+                .disableNotification(true));
+        isInactive(sendResponse, otherUser.getIdUser());
+        periodicalTasks.addDeleteMessage(sendResponse);
+
     }
 
 

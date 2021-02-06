@@ -20,7 +20,8 @@ import java.util.Objects;
 @Slf4j
 public class User implements Serializable {
 
-    private static final String START_PREMIUM = "\uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F";
+ //   private static final String START_PREMIUM = "\uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F";
+    private static final String START_PREMIUM = "[⭐️Pʀᴇᴍɪᴜᴍ]";
 
     private Long id;
     private Long idUser;
@@ -40,7 +41,7 @@ public class User implements Serializable {
 
     public void setDescription(String idPhoto, String description) {
         String text = description != null
-                ? description.replace("\uD83C\uDF1F", "").trim()
+                ? description.replace(START_PREMIUM, "").trim()
                 : "";
         this.description = text + (idPhoto != null ? "|" + idPhoto : "");
     }
@@ -103,7 +104,7 @@ public class User implements Serializable {
     }
 
     public String bioPremium() {
-        return String.format("%s %s", START_PREMIUM, getDescriptionText());
+        return String.format("<b>%s</b> %s", START_PREMIUM, getDescriptionText());
     }
 
 

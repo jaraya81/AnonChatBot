@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
@@ -21,9 +22,11 @@ public class LangCommand extends SuperAction implements IAction {
     public static final String CODE = "/lang";
     public static final String SET_CODE = "/lang ";
 
+    private final PeriodicalTasks periodicalTasks;
 
-    public LangCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public LangCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
         super(bot, serviceChat, msg, userAdmin);
+        this.periodicalTasks = periodicalTasks;
     }
 
     @Override
@@ -56,16 +59,16 @@ public class LangCommand extends SuperAction implements IAction {
                         .disableWebPagePreview(true)
                         .disableNotification(true)
                         .replyMarkup(keyboard.getByUserStatus(user)));
-
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
+                periodicalTasks.addDeleteMessage(sendResponse);
             } else if (message.getText().contentEquals(CODE)) {
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.LANG, user.getLang()))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
                         .disableNotification(true)
                         .replyMarkup(keyboard.getByUserStatus(user)));
-
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
+                periodicalTasks.addDeleteMessage(sendResponse);
             }
 
         }
