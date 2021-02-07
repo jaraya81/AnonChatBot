@@ -23,7 +23,7 @@
   "PREMIUM_REQUIRED": "<pre>Actualmente \"%s\" sólo está disponible para usuarios Premium. Para cambiarte a algún plan Premium contacta a</pre> <b>@MyUsernameIsJulian</b>",
   "PREMIUM_REGISTER_ADMIN": "<pre>Usuario \"%s\" registrado como \"%s\"</pre>",
   "PREMIUM_REGISTER_USER": "<pre>Has sido registrado con tu id '%s' como Premium '%s', para cualquier requerimiento adicional contacta a @MyUsernameIsJulian</pre>",
-  "PREMIUM_EXPIRED": "<pre>Tu cuenta premium ha expirado, para renovarla escribe /premium",
+  "PREMIUM_EXPIRED": "Tu cuenta premium ha expirado, para renovarla escribe /premium",
   "PREMIUM_HAS": "<pre>Estás registrado como Premium con tu id '%s' hasta el '%s UTC'</pre>",
   "PREMIUM_OPTIONS": "Puedes registrarte como usuario Premium y usar todas las características del Bot por muy poco precio, selecciona tu opción preferida:%n%s - 5 USD - Premium por un mes.%n%s - 10 USD - Premium por un año.%n%s - 20USD - Premium de por vida.",
   "PREMIUM_PETITION": "Solicita a @MyUsernameIsJulian con el siguiente texto <b>\"%s\"</b> las opciones de pago disponibles.",
