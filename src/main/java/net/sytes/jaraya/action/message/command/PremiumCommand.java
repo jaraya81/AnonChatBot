@@ -19,6 +19,7 @@ import net.sytes.jaraya.vo.MessageChat;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Date;
 
 @Slf4j
@@ -54,13 +55,38 @@ public class PremiumCommand extends SuperAction implements IAction {
     private void action(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         if (user != null) {
-            if (userAdmin == user.getIdUser()) {
-                register(message);
+            if (message.getText().startsWith(CODE + "_")) {
+                showBankOptions(user, message);
             } else {
-                if (user.isPremium()) {
-                    userPremiumMessage(user);
+                if (userAdmin == user.getIdUser() && !message.getText().contentEquals(CODE)) {
+                    register(message);
                 } else {
-                    showOptionsPremium(user);
+                    if (user.isPremium()) {
+                        userPremiumMessage(user);
+                    } else {
+                        showOptionsPremium(user);
+                    }
+                }
+            }
+        }
+    }
+
+    private void showBankOptions(User user, MessageChat message) {
+        String value = message.getText().replace(CODE + "_", "");
+        String[] params = value.split("_");
+        log.info("{}|{}", value, Arrays.asList(params));
+        if (params[0].matches("[\\d]+") && Long.parseLong(params[0]) == user.getIdUser()) {
+            if (params.length >= 2) {
+                PremiumType type = Arrays.stream(PremiumType.values()).filter(x -> x.name().contentEquals(params[1])).findFirst().orElse(null);
+                if (type != null) {
+                    SendResponse sendResponseAdmin = bot.execute(
+                            new SendMessage(userAdmin, msg.msg(Msg.PREMIUM_PETITION, user.getLang(),
+                                    String.format("RandomNextBot %s %s", type, params[0])
+                            ))
+                                    .parseMode(ParseMode.HTML)
+                                    .disableWebPagePreview(true)
+                                    .disableNotification(true));
+                    logResult(Msg.PREMIUM_PETITION.name(), user.getIdUser(), sendResponseAdmin.isOk());
                 }
             }
         }
@@ -83,7 +109,7 @@ public class PremiumCommand extends SuperAction implements IAction {
     private void userPremiumMessage(User user) {
         SendResponse sendResponseAdmin = bot.execute(
                 new SendMessage(userAdmin, msg.msg(Msg.PREMIUM_HAS, user.getLang(),
-                        user.getIdUser(), user.getPremiumType(), expiration(user)))
+                        user.getIdUser(), expiration(user)))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)
                         .disableNotification(true));

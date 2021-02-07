@@ -39,5 +39,6 @@ public enum Msg {
     STATS_INC,
     DEFAULT_BIO,
     PREMIUM_HAS,
-    PREMIUM_OPTIONS;
+    PREMIUM_OPTIONS,
+    PREMIUM_PETITION;
 }
