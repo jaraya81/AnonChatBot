@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
@@ -20,9 +21,11 @@ import java.util.Objects;
 @Slf4j
 public class AboutCommand extends SuperAction implements IAction {
     public static final String CODE = "/about";
+    private final PeriodicalTasks periodicalTasks;
 
-    public AboutCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public AboutCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
         super(bot, serviceChat, msg, userAdmin);
+        this.periodicalTasks = periodicalTasks;
     }
 
     @Override
@@ -43,14 +46,17 @@ public class AboutCommand extends SuperAction implements IAction {
     private void action(MessageChat message) {
         User user = services.user.getByIdUser(message.getFromId().longValue());
         if (User.exist(user) && !User.isBanned(user) && message.getText().startsWith(CODE)) {
-            long size = services.user.getByState(State.PLAY).size();
+            long sizePlay = services.user.getByState(State.PLAY).size();
+            long sizePause = services.user.getByState(State.PAUSE).size();
             SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(),
-                    msg.msg(Msg.ABOUT, user.getLang(), msg.commandButton(Msg.NEXT, user.getLang()), String.valueOf(size)))
+                    msg.msg(Msg.ABOUT, user.getLang(),
+                            msg.commandButton(Msg.NEXT, user.getLang()),
+                            String.valueOf(sizePlay),
+                            String.valueOf(sizePause)))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(false)
                     .disableNotification(true)
                     .replyMarkup(keyboard.getByUserStatus(user)));
-
             logResult(CODE, message.getChatId(), sendResponse.isOk());
         }
     }

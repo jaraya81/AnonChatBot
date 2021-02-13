@@ -9,6 +9,7 @@ import net.sytes.jaraya.action.message.ForceBio;
 import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
@@ -23,8 +24,11 @@ public class BioCommand extends SuperAction implements IAction {
     public static final String CODE = "/bio";
     public static final String CHANGE_CODE = "/setbio";
 
-    public BioCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    private final PeriodicalTasks periodicalTasks;
+
+    public BioCommand(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
         super(bot, serviceChat, msg, userAdmin);
+        this.periodicalTasks = periodicalTasks;
     }
 
     @Override
@@ -59,7 +63,7 @@ public class BioCommand extends SuperAction implements IAction {
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
                 sendMyBio(user);
             } else if (message.getText().startsWith(CODE) || message.getText().contentEquals(CHANGE_CODE)) {
-                new ForceBio(bot, services, msg, userAdmin).sendMessage(user);
+                new ForceBio(bot, services, msg, userAdmin, periodicalTasks).sendMessage(user);
             }
         }
     }

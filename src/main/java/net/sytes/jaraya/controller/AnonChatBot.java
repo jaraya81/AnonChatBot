@@ -9,7 +9,6 @@ import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.callback.ConfigCB;
 import net.sytes.jaraya.action.callback.InterestsCB;
-import net.sytes.jaraya.action.message.command.BioCommand;
 import net.sytes.jaraya.action.message.CHAT;
 import net.sytes.jaraya.action.message.ForceBio;
 import net.sytes.jaraya.action.message.IAction;
@@ -55,23 +54,23 @@ public class AnonChatBot implements Route {
 
         periodicalTasks = new PeriodicalTasks(bot, service, msg, userAdmin);
 
-        messageActions.add(new StartCommand(bot, service, msg, userAdmin));
-        messageActions.add(new ForceBio(bot, service, msg, userAdmin));
-        messageActions.add(new PlayButton(bot, service, msg, userAdmin));
-        messageActions.add(new PauseButton(bot, service, msg, userAdmin));
-        messageActions.add(new NextButton(bot, service, msg, userAdmin));
-        messageActions.add(new BlockButton(bot, service, msg, userAdmin));
-        messageActions.add(new ReportButton(bot, service, msg, userAdmin));
-        messageActions.add(new ConfigButton(bot, service, msg, userAdmin));
-        messageActions.add(new BioCommand(bot, service, msg, userAdmin));
-        messageActions.add(new LangCommand(bot, service, msg, userAdmin));
-        messageActions.add(new AboutCommand(bot, service, msg, userAdmin));
-        messageActions.add(new RegisterPremiumCommand(bot, service, msg, userAdmin));
-        messageActions.add(new TagsCommand(bot, service, msg, userAdmin));
+        messageActions.add(new StartCommand(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new ForceBio(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new PlayButton(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new PauseButton(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new NextButton(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new BlockButton(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new ReportButton(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new ConfigButton(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new BioCommand(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new LangCommand(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new AboutCommand(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new PremiumCommand(bot, service, msg, userAdmin, periodicalTasks));
+        messageActions.add(new TagsCommand(bot, service, msg, userAdmin, periodicalTasks));
         messageActions.add(new AdminCommand(bot, service, msg, userAdmin, periodicalTasks));
-        messageActions.add(new CHAT(bot, service, msg, userAdmin));
-        callbackActions.add(new InterestsCB(bot, service, msg, userAdmin));
-        callbackActions.add(new ConfigCB(bot, service, msg, userAdmin));
+        messageActions.add(new CHAT(bot, service, msg, userAdmin, periodicalTasks));
+        callbackActions.add(new InterestsCB(bot, service, msg, userAdmin, periodicalTasks));
+        callbackActions.add(new ConfigCB(bot, service, msg, userAdmin, periodicalTasks));
 
         Executors.newScheduledThreadPool(1)
                 .scheduleAtFixedRate(periodicalTasks::exec, 0, 15, TimeUnit.SECONDS);

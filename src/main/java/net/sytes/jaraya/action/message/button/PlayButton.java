@@ -11,6 +11,7 @@ import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.action.message.command.BioCommand;
 import net.sytes.jaraya.action.message.command.StartCommand;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
@@ -24,9 +25,11 @@ import java.util.Objects;
 public class PlayButton extends SuperAction implements IAction {
 
     public static final String COMMAND = "/play";
+    private final PeriodicalTasks periodicalTasks;
 
-    public PlayButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    public PlayButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
         super(bot, serviceChat, msg, userAdmin);
+        this.periodicalTasks = periodicalTasks;
     }
 
     @Override
@@ -41,7 +44,7 @@ public class PlayButton extends SuperAction implements IAction {
         MessageChat message = (MessageChat) baseUpdate;
         User user = services.user.getByIdUser(message.getFromId().longValue());
         if (user == null) {
-            new StartCommand(bot, services, msg, userAdmin).start(message);
+            new StartCommand(bot, services, msg, userAdmin, periodicalTasks).start(message);
             user = services.user.getByIdUser(message.getFromId().longValue());
         }
         return Objects.nonNull(message.getText())
@@ -73,7 +76,7 @@ public class PlayButton extends SuperAction implements IAction {
                     .replyMarkup(keyboard.getByUserStatus(user))
             );
             logResult(Msg.USER_PLAY.name(), user.getIdUser(), sendResponse.isOk());
-            new NextButton(bot, services, msg, userAdmin).next(user);
+            new NextButton(bot, services, msg, userAdmin, periodicalTasks).next(user);
         }
     }
 }

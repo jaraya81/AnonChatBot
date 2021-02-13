@@ -37,5 +37,8 @@ public enum Msg {
     CB_TAGS,
     STATS_COUNT,
     STATS_INC,
-    DEFAULT_BIO;
+    DEFAULT_BIO,
+    PREMIUM_HAS,
+    PREMIUM_OPTIONS,
+    PREMIUM_PETITION;
 }

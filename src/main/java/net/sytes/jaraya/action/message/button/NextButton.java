@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.IAction;
 import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.component.MsgProcess;
+import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.Tag;
 import net.sytes.jaraya.model.Chat;
@@ -26,8 +27,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NextButton extends SuperAction implements IAction {
 
-    public NextButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin) {
+    private final PeriodicalTasks periodicalTasks;
+
+    public NextButton(TelegramBot bot, AnonChatService serviceChat, MsgProcess msg, Long userAdmin, PeriodicalTasks periodicalTasks) {
         super(bot, serviceChat, msg, userAdmin);
+        this.periodicalTasks = periodicalTasks;
     }
 
     @Override
@@ -158,26 +162,30 @@ public class NextButton extends SuperAction implements IAction {
     public User selectNewNext(User me) {
         List<User> users = services.user.getByState(State.PLAY);
         List<User> preFilter = users.parallelStream()
-                .filter(User::isPlayed)
                 .sorted(Comparator.comparing(User::getDateupdate).reversed())
                 .filter(user -> isAsignable(me, user))
                 .filter(user -> matchTags(me, user))
                 .collect(Collectors.toList());
-        List<User> filter = preFilter.subList(0, (int) (preFilter.size() * 0.7))
-                .stream()
+        List<User> filter = preFilter.stream()
+                .filter(user -> equalsLang(me, user))
                 .filter(user -> !isRepetido(me, user))
                 .collect(Collectors.toList());
-        log.info("{}/{}", filter.size(), users.size());
-        if (filter.isEmpty()) {
-            filter = users.parallelStream()
-                    .filter(User::isPlayed)
-                    .filter(user -> isAsignable(me, user))
-                    .filter(user -> matchTags(me, user))
-                    .collect(Collectors.toList());
-            log.info("{}/{}", filter.size(), users.size());
-            Collections.shuffle(filter);
+        if (!filter.isEmpty()) {
+            return filter.get(0);
         }
-        return filter.isEmpty() ? null : filter.get(0);
+        filter = preFilter.stream()
+                .filter(user -> !isRepetido(me, user))
+                .collect(Collectors.toList());
+        if (!filter.isEmpty()) {
+            return filter.get(0);
+        }
+        Collections.shuffle(preFilter);
+        return preFilter.isEmpty() ? null : preFilter.get(0);
+    }
+
+    private boolean equalsLang(User me, User user) {
+        if (me.getLang() == null || user.getLang() == null) return true;
+        return me.getLang().contentEquals(user.getLang());
     }
 
     public Chat assignNew(User me, User other) {
@@ -234,11 +242,13 @@ public class NextButton extends SuperAction implements IAction {
         chat.setState(ChatState.SKIPPED.name());
         services.chat.save(chat);
         User otherUser = services.user.getByIdUser(chat.getUser1().compareTo(myUserId) != 0 ? chat.getUser1() : chat.getUser2());
-        isInactive(bot.execute(new SendMessage(otherUser.getIdUser(), msg.msg(Msg.NEXT_YOU, otherUser.getLang(),
+        SendResponse sendResponse = bot.execute(new SendMessage(otherUser.getIdUser(), msg.msg(Msg.NEXT_YOU, otherUser.getLang(),
                 msg.commandButton(Msg.NEXT, otherUser.getLang()), msg.commandButton(Msg.NEXT, otherUser.getLang())))
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(true)
-                .disableNotification(true)), otherUser.getIdUser());
+                .disableNotification(true));
+        isInactive(sendResponse, otherUser.getIdUser());
+
     }
 
 
