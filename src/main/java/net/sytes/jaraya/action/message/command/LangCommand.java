@@ -60,7 +60,6 @@ public class LangCommand extends SuperAction implements IAction {
                         .disableNotification(true)
                         .replyMarkup(keyboard.getByUserStatus(user)));
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
-                periodicalTasks.addDeleteMessage(sendResponse);
             } else if (message.getText().contentEquals(CODE)) {
                 SendResponse sendResponse = bot.execute(new SendMessage(message.getChatId(), msg.msg(Msg.LANG, user.getLang()))
                         .parseMode(ParseMode.HTML)
@@ -68,7 +67,6 @@ public class LangCommand extends SuperAction implements IAction {
                         .disableNotification(true)
                         .replyMarkup(keyboard.getByUserStatus(user)));
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
-                periodicalTasks.addDeleteMessage(sendResponse);
             }
 
         }

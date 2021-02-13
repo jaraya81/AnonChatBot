@@ -67,7 +67,6 @@ public class PauseButton extends SuperAction implements IAction {
                     .replyMarkup(keyboard.getByUserStatus(user))
             );
             logResult(Msg.PAUSE.name(), message.getChatId(), sendResponse.isOk());
-            periodicalTasks.addDeleteMessage(sendResponse);
         }
     }
 }

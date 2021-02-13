@@ -63,7 +63,6 @@ public class BlockButton extends SuperAction implements IAction {
                         .replyMarkup(keyboard.getByUserStatus(user))
                 );
                 logResult(Msg.BLOCK.name(), message.getChatId(), sendResponse.isOk());
-                periodicalTasks.addDeleteMessage(sendResponse);
             }
 
         }

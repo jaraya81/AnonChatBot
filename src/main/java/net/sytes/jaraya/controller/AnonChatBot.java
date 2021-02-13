@@ -104,7 +104,6 @@ public class AnonChatBot implements Route {
 
     private void execActions(BaseUpdate update, List<IAction> actions) {
         if (update != null) {
-            periodicalTasks.addDeleteMessage(update);
             for (IAction action : actions) {
                 if (action.check(update)) {
                     action.exec(update);

@@ -22,39 +22,20 @@ public class MsgProcess {
     public static final String EN = "en";
     public static final String ES = "es";
     public static final String PT = "pt";
+    public static final String RU = "ru";
 
     private final Map<String, Map<String, String>> languages = new HashMap<>();
-
-    private final Map<String, List<String>> descriptions = new HashMap<>();
 
     public MsgProcess() {
         super();
         languages();
-        descriptions();
-    }
-
-    private void descriptions() {
-        descriptions.put(ES, getDescriptions(ES));
-        descriptions.put(EN, getDescriptions(EN));
-        descriptions.put(PT, getDescriptions(PT));
-    }
-
-    private List<String> getDescriptions(String lang) {
-        File fileLang = new File("lang/descriptions_" + lang + ".json");
-        try {
-            return fileLang.exists()
-                    ? (List<String>) new Gson().fromJson(new String(Files.readAllBytes(fileLang.toPath()), StandardCharsets.UTF_8), List.class)
-                    : new ArrayList<>();
-        } catch (IOException e) {
-            log.error("", e);
-        }
-        return new ArrayList<>();
     }
 
     private void languages() {
         languages.put(ES, getMap(ES));
         languages.put(EN, getMap(EN));
         languages.put(PT, getMap(PT));
+        languages.put(RU, getMap(RU));
     }
 
     private Map<String, String> getMap(String lang) {
@@ -99,12 +80,6 @@ public class MsgProcess {
     public String takeADescription(String lang, Long idUser) {
         int i = ThreadLocalRandom.current().nextInt(1, idUser.intValue());
         return msg(Msg.DEFAULT_BIO, lang, idUser % i);
-    }
-
-    public String anyDescription(String lang) {
-        List<String> list = new ArrayList<>(descriptions.get(lang));
-        Collections.shuffle(list);
-        return list.stream().findFirst().orElse("NO_BIO");
     }
 
     public String langOrDefault(String lang) {

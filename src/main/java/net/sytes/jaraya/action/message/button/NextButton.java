@@ -21,10 +21,7 @@ import net.sytes.jaraya.state.State;
 import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -83,7 +80,6 @@ public class NextButton extends SuperAction implements IAction {
                             .parseMode(ParseMode.HTML)
                             .disableWebPagePreview(false)
                             .disableNotification(true));
-                    periodicalTasks.addDeleteMessage(sendResponse2);
                     if (isInactive(sendResponse2, other.getIdUser())) {
                         chat.setState(ChatState.SKIPPED.name());
                         services.chat.save(chat);
@@ -99,7 +95,6 @@ public class NextButton extends SuperAction implements IAction {
                                 .disableNotification(true)
                                 .replyMarkup(keyboard.getByUserStatus(me))
                         );
-                        periodicalTasks.addDeleteMessage(sendResponse1);
                         if (isInactive(sendResponse1, me.getIdUser())) {
                             chat.setState(ChatState.SKIPPED.name());
                             services.chat.save(chat);
@@ -114,7 +109,6 @@ public class NextButton extends SuperAction implements IAction {
                             .disableWebPagePreview(false)
                             .disableNotification(true));
                     logResult(Msg.USER_NEXT_WAITING.name(), me.getIdUser(), sendResponse.isOk());
-                    periodicalTasks.addDeleteMessage(sendResponse);
                 }
 
             } while (!isOK);
@@ -185,9 +179,8 @@ public class NextButton extends SuperAction implements IAction {
         if (!filter.isEmpty()) {
             return filter.get(0);
         }
-        return null;
-        //Collections.shuffle(preFilter);
-        //return preFilter.isEmpty() ? null : preFilter.get(0);
+        Collections.shuffle(preFilter);
+        return preFilter.isEmpty() ? null : preFilter.get(0);
     }
 
     private boolean equalsLang(User me, User user) {
@@ -255,7 +248,6 @@ public class NextButton extends SuperAction implements IAction {
                 .disableWebPagePreview(true)
                 .disableNotification(true));
         isInactive(sendResponse, otherUser.getIdUser());
-        periodicalTasks.addDeleteMessage(sendResponse);
 
     }
 

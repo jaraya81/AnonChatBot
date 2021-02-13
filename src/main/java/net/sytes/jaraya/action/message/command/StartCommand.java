@@ -70,7 +70,6 @@ public class StartCommand extends SuperAction implements IAction {
                     .disableNotification(true)
                     .replyMarkup(keyboard.getByUserStatus(user)));
             logResult(Msg.START_BANNED_USER.name(), message.getChatId(), sendResponse.isOk());
-            periodicalTasks.addDeleteMessage(sendResponse);
         } else {
             user.setDescription(msg.takeADescription(user.getLang(), user.getIdUser()));
             user.setState(State.PAUSE.name());
@@ -91,7 +90,6 @@ public class StartCommand extends SuperAction implements IAction {
                     .replyMarkup(keyboard.getByUserStatus(user))
             );
             logResult(Msg.START_OK.name(), message.getChatId(), sendResponse.isOk());
-            periodicalTasks.addDeleteMessage(sendResponse);
             new PlayButton(bot, services, msg, userAdmin, periodicalTasks).play(user);
         }
     }

@@ -76,7 +76,6 @@ public class PlayButton extends SuperAction implements IAction {
                     .replyMarkup(keyboard.getByUserStatus(user))
             );
             logResult(Msg.USER_PLAY.name(), user.getIdUser(), sendResponse.isOk());
-            periodicalTasks.addDeleteMessage(sendResponse);
             new NextButton(bot, services, msg, userAdmin, periodicalTasks).next(user);
         }
     }

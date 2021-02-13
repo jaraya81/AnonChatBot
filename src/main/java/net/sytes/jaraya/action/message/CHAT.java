@@ -86,7 +86,6 @@ public class CHAT extends SuperAction implements IAction {
                         .disableNotification(true)
                         .replyMarkup(keyboard.getByUserStatus(user)));
                 logResult(Msg.USER_NO_CHAT.name(), message.getChatId(), sendResponse.isOk());
-                periodicalTasks.addDeleteMessage(sendResponse);
             }
         }
     }
@@ -99,8 +98,6 @@ public class CHAT extends SuperAction implements IAction {
                     .disableNotification(false));
             if (isInactive(response, otherId)) {
                 sendNextU(me, chat);
-            } else {
-                periodicalTasks.addDeleteMessage(response);
             }
         }
     }
@@ -113,8 +110,6 @@ public class CHAT extends SuperAction implements IAction {
                     .disableNotification(false));
             if (isInactive(response, otherId)) {
                 sendNextU(me, chat);
-            } else {
-                periodicalTasks.addDeleteMessage(response);
             }
         }
     }
@@ -141,7 +136,6 @@ public class CHAT extends SuperAction implements IAction {
                             .parseMode(ParseMode.MarkdownV2)
                             .disableWebPagePreview(false)
                             .disableNotification(false));
-                    periodicalTasks.addDeleteMessage(response);
                 }
                 SendResponse response = bot.execute(new SendMessage(otherId, msgText)
                         .parseMode(ParseMode.MarkdownV2)
@@ -156,8 +150,6 @@ public class CHAT extends SuperAction implements IAction {
     private void checkResponse(SendResponse response, Long id, User user, Chat chat) {
         if (isInactive(response, id)) {
             sendNextU(user, chat);
-        } else {
-            periodicalTasks.addDeleteMessage(response);
         }
     }
 
@@ -216,7 +208,6 @@ public class CHAT extends SuperAction implements IAction {
                 .disableWebPagePreview(true)
                 .disableNotification(true));
         log.info("{} :: {} :: {}", Msg.NEXT_YOU, user.getIdUser(), response.isOk());
-        periodicalTasks.addDeleteMessage(response);
         chat.setState(ChatState.SKIPPED.name());
     }
 

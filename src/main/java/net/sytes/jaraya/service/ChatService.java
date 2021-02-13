@@ -43,7 +43,7 @@ public class ChatService {
 
 
     public Set<Long> cleaner() {
-        List<Chat> chats = chatRepo.getByStatusAndMinusMinute(ChatState.ACTIVE, 4);
+        List<Chat> chats = chatRepo.getByStatusAndMinusMinute(ChatState.ACTIVE, 7);
         for (Chat chat : chats) {
             chat.setState(ChatState.SKIPPED.name());
             chatRepo.save(chat);
@@ -51,9 +51,9 @@ public class ChatService {
         Set<Long> ids = chats.stream().map(Chat::getUser1).collect(Collectors.toSet());
         ids.addAll(chats.stream().map(Chat::getUser2).collect(Collectors.toSet()));
 
-        List<Chat> almostNewChats = chatRepo.getByStatusAndMinusSeconds(ChatState.ACTIVE, 30)
+        List<Chat> almostNewChats = chatRepo.getByStatusAndMinusMinute(ChatState.ACTIVE, 5)
                 .parallelStream()
-                .filter(x -> x.getDatecreation().toLocalDateTime().plusSeconds(45).isAfter(x.getDateupdate().toLocalDateTime()))
+                .filter(x -> x.getDatecreation().toLocalDateTime().plusMinutes(4).isAfter(x.getDateupdate().toLocalDateTime()))
                 .collect(Collectors.toList());
         for (Chat chat : almostNewChats) {
             chat.setState(ChatState.SKIPPED.name());

@@ -43,13 +43,9 @@ public class PremiumCommand extends SuperAction implements IAction {
     @Override
     public boolean check(BaseUpdate baseUpdate) {
         MessageChat message = (MessageChat) baseUpdate;
-        if (message != null
+        return message != null
                 && message.getText() != null
-                && message.getText().startsWith(CODE)) {
-            User user = services.user.getByIdUser(message.getFromId().longValue());
-            return user != null && userAdmin == user.getIdUser();
-        }
-        return false;
+                && message.getText().startsWith(CODE);
     }
 
     private void action(MessageChat message) {
@@ -80,7 +76,7 @@ public class PremiumCommand extends SuperAction implements IAction {
                 PremiumType type = Arrays.stream(PremiumType.values()).filter(x -> x.name().contentEquals(params[1])).findFirst().orElse(null);
                 if (type != null) {
                     SendResponse sendResponseAdmin = bot.execute(
-                            new SendMessage(userAdmin, msg.msg(Msg.PREMIUM_PETITION, user.getLang(),
+                            new SendMessage(user.getIdUser(), msg.msg(Msg.PREMIUM_PETITION, user.getLang(),
                                     String.format("RandomNextBot %s %s", type, params[0])
                             ))
                                     .parseMode(ParseMode.HTML)
@@ -95,7 +91,7 @@ public class PremiumCommand extends SuperAction implements IAction {
     private void showOptionsPremium(User user) {
 
         SendResponse sendResponseAdmin = bot.execute(
-                new SendMessage(userAdmin, msg.msg(Msg.PREMIUM_OPTIONS, user.getLang(),
+                new SendMessage(user.getIdUser(), msg.msg(Msg.PREMIUM_OPTIONS, user.getLang(),
                         String.format("%s_%s_%s", CODE, user.getIdUser(), PremiumType.MONTHLY.name()),
                         String.format("%s_%s_%s", CODE, user.getIdUser(), PremiumType.ANNUAL.name()),
                         String.format("%s_%s_%s", CODE, user.getIdUser(), PremiumType.PERMANENT.name())
@@ -108,7 +104,7 @@ public class PremiumCommand extends SuperAction implements IAction {
 
     private void userPremiumMessage(User user) {
         SendResponse sendResponseAdmin = bot.execute(
-                new SendMessage(userAdmin, msg.msg(Msg.PREMIUM_HAS, user.getLang(),
+                new SendMessage(user.getIdUser(), msg.msg(Msg.PREMIUM_HAS, user.getLang(),
                         user.getIdUser(), expiration(user)))
                         .parseMode(ParseMode.HTML)
                         .disableWebPagePreview(true)

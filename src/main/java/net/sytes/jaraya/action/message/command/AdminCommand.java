@@ -78,7 +78,6 @@ public class AdminCommand extends SuperAction implements IAction {
                 .disableNotification(true)
                 .replyMarkup(keyboard.getByUserStatus(user)));
         logResult(Msg.STATS_COUNT.name(), user.getIdUser(), sendResponse.isOk());
-        periodicalTasks.addDeleteMessage(sendResponse);
 
     }
 
@@ -96,7 +95,6 @@ public class AdminCommand extends SuperAction implements IAction {
                         .disableNotification(true)
                         .replyMarkup(keyboard.getByUserStatus(user)));
                 logResult(Msg.STATS_COUNT.name(), user.getIdUser(), sendResponse.isOk());
-                periodicalTasks.addDeleteMessage(sendResponse);
 
             } else if (params[2].contentEquals("inc")) {
                 StringBuilder sb = new StringBuilder();
@@ -114,7 +112,6 @@ public class AdminCommand extends SuperAction implements IAction {
                         .disableNotification(true)
                         .replyMarkup(keyboard.getByUserStatus(user)));
                 logResult(Msg.STATS_INC.name(), user.getIdUser(), sendResponse.isOk());
-                periodicalTasks.addDeleteMessage(sendResponse);
             } else {
                 help(user);
             }

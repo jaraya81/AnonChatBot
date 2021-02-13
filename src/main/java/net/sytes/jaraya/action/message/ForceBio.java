@@ -69,7 +69,6 @@ public class ForceBio extends SuperAction implements IAction {
                     .disableWebPagePreview(false)
                     .disableNotification(true));
             logResult(Msg.SET_BIO_OK.name(), user.getIdUser(), sendResponse.isOk());
-            periodicalTasks.addDeleteMessage(sendResponse);
             sendMyBio(user);
             new PlayButton(bot, services, msg, userAdmin, periodicalTasks).play(user);
         } else if (User.exist(user) && !User.isBanned(user) && user.getDescriptionText() == null || user.getDescriptionText().isEmpty()) {
@@ -92,6 +91,5 @@ public class ForceBio extends SuperAction implements IAction {
                 .replyMarkup(keyboard.getByUserStatus(user))
         );
         logResult(Msg.EMPTY_BIO.name(), user.getIdUser(), sendResponse2.isOk());
-        periodicalTasks.addDeleteMessage(sendResponse2);
     }
 }

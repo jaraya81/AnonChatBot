@@ -68,7 +68,6 @@ public class ReportButton extends SuperAction implements IAction {
                     .replyMarkup(keyboard.getByUserStatus(me))
             );
             logResult(Msg.REPORT.name(), message.getChatId(), sendResponse.isOk());
-            periodicalTasks.addDeleteMessage(sendResponse);
         }
 
     }

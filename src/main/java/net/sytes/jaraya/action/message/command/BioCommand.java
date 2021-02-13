@@ -61,7 +61,6 @@ public class BioCommand extends SuperAction implements IAction {
                         .disableWebPagePreview(false)
                         .disableNotification(true));
                 logResult(CODE, message.getChatId(), sendResponse.isOk());
-                periodicalTasks.addDeleteMessage(sendResponse);
                 sendMyBio(user);
             } else if (message.getText().startsWith(CODE) || message.getText().contentEquals(CHANGE_CODE)) {
                 new ForceBio(bot, services, msg, userAdmin, periodicalTasks).sendMessage(user);

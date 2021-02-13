@@ -58,7 +58,6 @@ public class AboutCommand extends SuperAction implements IAction {
                     .disableNotification(true)
                     .replyMarkup(keyboard.getByUserStatus(user)));
             logResult(CODE, message.getChatId(), sendResponse.isOk());
-            periodicalTasks.addDeleteMessage(sendResponse);
         }
     }
 

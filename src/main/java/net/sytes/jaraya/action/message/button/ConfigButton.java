@@ -55,7 +55,6 @@ public class ConfigButton extends SuperAction implements IAction {
                     .replyMarkup(keyboard.getInlineKeyboardConfig(user.getLang()))
             );
             logResult(Msg.CONFIG.name(), message.getChatId(), sendResponse.isOk());
-            periodicalTasks.addDeleteMessage(sendResponse);
         }
     }
 }

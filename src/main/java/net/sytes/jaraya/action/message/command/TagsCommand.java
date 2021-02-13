@@ -56,7 +56,6 @@ public class TagsCommand extends SuperAction implements IAction {
                     .replyMarkup(keyboard.getInlineKeyboardPref(services.tag.getByUserId(user), user.getLang()))
             );
             logResult(Msg.TAGS_PREFERENCES.name(), user.getIdUser(), sendResponse.isOk());
-            periodicalTasks.addDeleteMessage(sendResponse);
         }
     }
 
