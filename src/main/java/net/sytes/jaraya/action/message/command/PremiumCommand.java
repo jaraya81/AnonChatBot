@@ -16,11 +16,9 @@ import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Date;
 
 @Slf4j
 public class PremiumCommand extends SuperAction implements IAction {
@@ -115,15 +113,7 @@ public class PremiumCommand extends SuperAction implements IAction {
 
     private LocalDateTime expiration(User user) {
         if (user != null && user.isPremium()) {
-            if (user.getPremiumType().contentEquals(PremiumType.TEMPORAL.name())) {
-                return user.getDatePremium().toLocalDateTime().plusDays(14);
-            } else if (user.getPremiumType().contentEquals(PremiumType.MONTHLY.name())) {
-                return user.getDatePremium().toLocalDateTime().plusMonths(1);
-            } else if (user.getPremiumType().contentEquals(PremiumType.ANNUAL.name())) {
-                return user.getDatePremium().toLocalDateTime().plusYears(1);
-            } else if (user.getPremiumType().contentEquals(PremiumType.PERMANENT.name())) {
-                return user.getDatePremium().toLocalDateTime().plusYears(150);
-            }
+            return user.getDatePremium().toLocalDateTime();
         }
         return LocalDateTime.now(ZoneId.systemDefault());
     }
@@ -135,7 +125,7 @@ public class PremiumCommand extends SuperAction implements IAction {
             if (user != null) {
                 PremiumType type = PremiumType.valueOf(params[2]);
                 user.setPremium(type.name());
-                user.setDatePremium(new Timestamp(new Date().getTime()));
+                user.setDatePremium(User.calcDatePremium(type, user.getDatePremium()));
                 user = services.user.save(user);
                 SendResponse sendResponseAdmin = bot.execute(
                         new SendMessage(userAdmin, msg.msg(Msg.PREMIUM_REGISTER_ADMIN, user.getLang(),

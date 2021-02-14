@@ -99,10 +99,10 @@ public class UserRepo extends Repository {
                         user.getDescription(),
                         user.getState(),
                         user.getLang() != null && !user.getLang().isEmpty() ? user.getLang() : MsgProcess.ES,
-                        user.getPremiumType(),
+                        PremiumType.TEMPORAL,
                         new Date(),
                         new Date(),
-                        new Date()
+                        User.calcDatePremium(PremiumType.TEMPORAL, new Date())
                 );
             } else {
                 String query = String.format("UPDATE %s SET %s=?,%s=?,%s=?,%s=?,%s=?,%s=?,%s=?,%s=? WHERE %s=?",
@@ -123,7 +123,7 @@ public class UserRepo extends Repository {
                         user.getState(),
                         user.getLang() != null && !user.getLang().isEmpty() ? user.getLang() : MsgProcess.ES,
                         user.getPremiumType() != null ? user.getPremiumType() : PremiumType.TEMPORAL.name(),
-                        user.getPremiumType() != null ? user.getDatePremium() : new Date(),
+                        user.getPremiumType() != null ? user.getDatePremium() : User.calcDatePremium(PremiumType.TEMPORAL, new Date()),
                         new Date(),
                         user.getId()
                 );
@@ -133,6 +133,7 @@ public class UserRepo extends Repository {
             throw new TelegramException(e);
         }
     }
+
 
     @SneakyThrows
     public List<User> getByLang(String lang) {

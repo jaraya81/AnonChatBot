@@ -11,7 +11,6 @@ import net.sytes.jaraya.action.message.button.PlayButton;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
-import net.sytes.jaraya.enums.PremiumType;
 import net.sytes.jaraya.enums.Tag;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
@@ -56,7 +55,6 @@ public class StartCommand extends SuperAction implements IAction {
                     .idUser(message.getFromId().longValue())
                     .username(message.getFromUsername())
                     .state(State.EMPTY_BIO.name())
-                    .premiumType(PremiumType.TEMPORAL.name())
                     .lang(lang)
                     .description(msg.takeADescription(lang, message.getFromId().longValue()))
                     .build();
