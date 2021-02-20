@@ -32,6 +32,7 @@ public class User implements Serializable {
     private Timestamp dateupdate;
     private String premiumType;
     private Timestamp datePremium;
+    private Long idReference;
 
     @Tolerate
     public User() {
@@ -113,7 +114,8 @@ public class User implements Serializable {
         PREMIUM("premiumType"),
         CREATION("datecreation"),
         UPDATE("dateupdate"),
-        DATE_PREMIUM("datePremium");
+        DATE_PREMIUM("datePremium"),
+        ID_REFERENCE("idReference");
 
         String value;
 

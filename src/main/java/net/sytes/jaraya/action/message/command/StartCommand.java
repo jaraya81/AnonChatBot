@@ -13,6 +13,7 @@ import net.sytes.jaraya.component.PeriodicalTasks;
 import net.sytes.jaraya.enums.Msg;
 import net.sytes.jaraya.enums.Tag;
 import net.sytes.jaraya.model.User;
+import net.sytes.jaraya.security.Base64;
 import net.sytes.jaraya.service.AnonChatService;
 import net.sytes.jaraya.state.ChatState;
 import net.sytes.jaraya.state.State;
@@ -57,6 +58,7 @@ public class StartCommand extends SuperAction implements IAction {
                     .state(State.EMPTY_BIO.name())
                     .lang(lang)
                     .description(msg.takeADescription(lang, message.getFromId().longValue()))
+                    .idReference(getReference(message.getText()))
                     .build();
             user = services.user.save(user);
             log.info("NEW USER: {}", user);
@@ -90,5 +92,18 @@ public class StartCommand extends SuperAction implements IAction {
             logResult(Msg.START_OK.name(), message.getChatId(), sendResponse.isOk());
             new PlayButton(bot, services, msg, userAdmin, periodicalTasks).play(user);
         }
+    }
+
+    private Long getReference(String text) {
+        String enc = text.replace(CODE, "").trim();
+        if (enc.isEmpty()) return null;
+        try {
+            String value = Base64.decodeUrl(enc);
+            String[] params = value.split("\\|");
+            if (params.length >= 2 && params[0].contentEquals("REFERENCE")) return Long.parseLong(params[1]);
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
     }
 }
