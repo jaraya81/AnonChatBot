@@ -50,6 +50,7 @@ public class PeriodicalTasks extends SuperAction {
             reminderInactiveUsers();
             updateEmptyBio();
             expirePremium();
+//            renoveAll();
             removeSuspension();
             sendNotification();
         } catch (TelegramException e) {
@@ -145,21 +146,23 @@ public class PeriodicalTasks extends SuperAction {
                 });
     }
 
+    private void renoveAll() {
+        //log.info("renoveAll");
+        services.user.getAll().parallelStream()
+            //    .peek(user -> log.info("{} :: {} :: {} :: {}", user, LocalDateTime.now(ZoneId.systemDefault()), user.getDatePremium().toLocalDateTime(), LocalDateTime.now(ZoneId.systemDefault()).isAfter(user.getDatePremium().toLocalDateTime())))
+                .filter(user -> LocalDateTime.now(ZoneId.systemDefault()).isAfter(user.getDatePremium().toLocalDateTime()))
+                .forEach(user -> {
+                    user.setPremium(PremiumType.TEMPORAL.name());
+                    user.setDatePremium(User.calcDatePremium(PremiumType.TEMPORAL, new Date()));
+                    services.user.save(user);
+                });
+    }
+
     private void expirePremium() {
         services.user.getByState(State.PLAY)
                 .parallelStream()
-                .filter(User::isPremium)
-                .filter(user -> {
-                    if (user.getPremiumType().contentEquals(PremiumType.TEMPORAL.name())
-                            && user.getDatePremium().toLocalDateTime().plusDays(14).isBefore(LocalDateTime.now())) {
-                        return true;
-                    } else if (user.getPremiumType().contentEquals(PremiumType.MONTHLY.name())
-                            && user.getDatePremium().toLocalDateTime().plusMonths(1).isBefore(LocalDateTime.now())) {
-                        return true;
-                    } else
-                        return user.getPremiumType().contentEquals(PremiumType.ANNUAL.name())
-                                && user.getDatePremium().toLocalDateTime().plusYears(1).isBefore(LocalDateTime.now());
-                })
+                .filter(x -> PremiumType.valueOf(x.getPremiumType()) != PremiumType.NO)
+                .filter(x -> !x.isPremium())
                 .forEach(user -> {
                     user.setPremium(PremiumType.NO.name());
                     user = services.user.save(user);

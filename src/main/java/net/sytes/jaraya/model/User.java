@@ -1,9 +1,6 @@
 package net.sytes.jaraya.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.SneakyThrows;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.Tolerate;
 import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.enums.PremiumType;
@@ -12,6 +9,9 @@ import net.sytes.jaraya.state.State;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Objects;
 
 @Data
@@ -20,7 +20,6 @@ import java.util.Objects;
 @Slf4j
 public class User implements Serializable {
 
- //   private static final String START_PREMIUM = "\uD83C\uDF1F\uD83C\uDF1F\uD83C\uDF1F";
     private static final String START_PREMIUM = "[⭐️Pʀᴇᴍɪᴜᴍ]";
 
     private Long id;
@@ -33,6 +32,7 @@ public class User implements Serializable {
     private Timestamp dateupdate;
     private String premiumType;
     private Timestamp datePremium;
+    private Long idReference;
 
     @Tolerate
     public User() {
@@ -64,11 +64,7 @@ public class User implements Serializable {
     }
 
     public boolean isPremium() {
-        return premiumType != null && (
-                premiumType.contentEquals(PremiumType.ANNUAL.name())
-                        || premiumType.contentEquals(PremiumType.PERMANENT.name())
-                        || premiumType.contentEquals(PremiumType.TEMPORAL.name())
-        );
+        return LocalDateTime.now(ZoneId.systemDefault()).isBefore(datePremium.toLocalDateTime());
     }
 
     public static boolean exist(User user) {
@@ -118,7 +114,8 @@ public class User implements Serializable {
         PREMIUM("premiumType"),
         CREATION("datecreation"),
         UPDATE("dateupdate"),
-        DATE_PREMIUM("datePremium");
+        DATE_PREMIUM("datePremium"),
+        ID_REFERENCE("idReference");
 
         String value;
 
@@ -130,4 +127,29 @@ public class User implements Serializable {
             return value;
         }
     }
+
+    public static Timestamp calcDatePremium(@NonNull PremiumType premiumType, @NonNull Date date) {
+        LocalDateTime ldt = Timestamp.from(date.toInstant()).toLocalDateTime();
+        ldt = ldt.isBefore(LocalDateTime.now()) ? LocalDateTime.now() : ldt;
+        if (premiumType == PremiumType.TEMPORAL) {
+            return Timestamp.valueOf(ldt.plusDays(7));
+        }
+        if (premiumType == PremiumType.MONTHLY) {
+            return Timestamp.valueOf(ldt.plusMonths(1));
+        }
+        if (premiumType == PremiumType.ANNUAL) {
+            return Timestamp.valueOf(ldt.plusYears(1));
+        }
+        if (premiumType == PremiumType.DAY) {
+            return Timestamp.valueOf(ldt.plusDays(2));
+        }
+        if (premiumType == PremiumType.NO) {
+            return Timestamp.valueOf(LocalDateTime.now());
+        }
+        if (premiumType == PremiumType.PERMANENT) {
+            return Timestamp.valueOf(ldt.plusYears(100));
+        }
+        return Timestamp.valueOf(ldt);
+    }
+
 }

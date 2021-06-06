@@ -2,6 +2,8 @@ package net.sytes.jaraya;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.sytes.jaraya.security.Base64;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -11,6 +13,12 @@ import java.util.concurrent.ExecutionException;
 
 @Slf4j
 public class AppTest {
+
+    @Test
+    public void urlEncoding() {
+        String value = "17777";
+        Assert.assertTrue(value.contentEquals(Base64.decodeUrl(Base64.encodeUrl(value))));
+    }
 
     @Test
     public void formar() {
