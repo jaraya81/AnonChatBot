@@ -194,7 +194,7 @@ public class PeriodicalTasks extends SuperAction {
         List<User> users = services.user.getByInactives(State.PAUSE, 720);
         for (User user : users) {
             user = services.user.save(user);
-            SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang()))
+            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.REMINDER_PAUSED_USER, user.getLang()))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(false)
@@ -208,7 +208,7 @@ public class PeriodicalTasks extends SuperAction {
         for (Long id : ids) {
             User user = services.user.getByIdUser(id);
             log.info(MSG_LOG, Msg.CHAT_TIMEOUT.name(), user.getIdUser());
-            SendResponse sendResponse = bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.CHAT_TIMEOUT, user.getLang(),
+            bot.execute(new SendMessage(user.getIdUser(), msg.msg(Msg.CHAT_TIMEOUT, user.getLang(),
                     msg.commandButton(Msg.NEXT, user.getLang())))
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
