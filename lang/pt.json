@@ -17,7 +17,7 @@
   "NEXT_YOU": "<pre>Te han hecho <b>%s</b> Tú haz <b>%s</b> para encontrar tu chat.</pre>",
   "INACTIVITY_USER": "<pre>Se ha pausado tu bot por inactividad, presiona <b>%s</b> para continuar chateando.</pre>",
   "SET_LANG_OK": "<pre>Idioma: </pre>",
-  "LANG": "<pre>Escribe /lang seguido del idioma de tu preferencia. Idiomas disponibles actualmente 'es' (Español), 'en' (English) y 'pt' (Português)%n%nEjemplo: /lang es</pre>%n%n",
+  "LANG": "<pre>Escribe /lang seguido del idioma de tu preferencia. Idiomas disponibles actualmente 'es' (Español), 'en' (English), 'pt' (Português) y 'ru' (Ruso) %n%nEjemplo: /lang es</pre>%n%n",
   "REMINDER_PAUSED_USER": "Actívate y diviértete anónimamente con @RandomNextBot presiona /play para chatear",
   "EMPTY_BIO": "<pre>Escribe una pequeña bio o una foto con caption que te describa\nSi luego de 2 minutos no escribes tu bio, será creada de forma automática.</pre>",
   "PREMIUM_REQUIRED": "<pre>Actualmente \"%s\" sólo está disponible para usuarios Premium. Para cambiarte a algún plan Premium contacta a</pre> <b>@MyUsernameIsJulian</b>",

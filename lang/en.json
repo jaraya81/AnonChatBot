@@ -17,7 +17,7 @@
   "NEXT_YOU": "<pre>They made you<b> %s </b>You did<b> %s </b>to find your chat.</pre>",
   "INACTIVITY_USER": "<pre>Your bot has been paused due to inactivity, press<b> %s </b>to continue chatting.</pre>",
   "SET_LANG_OK": "<pre>Language: </pre>",
-  "LANG": "<pre>Type /lang followed by the language of your choice. Currently available languages 'es' (Spanish), 'en' (English) and 'pt' (Português)%n%nExample: /lang es</pre>%n%n",
+  "LANG": "<pre>Escribe /lang seguido del idioma de tu preferencia. Idiomas disponibles actualmente 'es' (Español), 'en' (English), 'pt' (Português) y 'ru' (Ruso) %n%nEjemplo: /lang es</pre>%n%n",
   "REMINDER_PAUSED_USER": "Get active and have fun anonymously with @RandomNextBot press /play to chat",
   "EMPTY_BIO": "<pre>Write a short bio or photo with caption that describes you If after 2 minutes you do not write your bio, it will be created automatically.</pre>",
   "PREMIUM_REQUIRED": "<pre>Currently \"%s\" is only available for Premium users. To change to a Premium plan contact</pre><b>@MyUsernameIsJulian</b>",
