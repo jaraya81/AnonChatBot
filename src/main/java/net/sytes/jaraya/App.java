@@ -33,7 +33,7 @@ public class App {
         AnonChatBot anonChatBot = new AnonChatBot(userAdmin);
         Notification notification2 = new Notification(anonChatBot.getBot(), userAdmin, anonChatBot.getPeriodicalTasks());
         Stats stats = new Stats(anonChatBot.getBot(), userAdmin, anonChatBot.getPeriodicalTasks());
-
+staticFileLocation("public");
         port(Integer.parseInt(Properties.get(Property.PORT.name(), fileProperties)));
 
         path("/" + nameBot + "/", () -> {

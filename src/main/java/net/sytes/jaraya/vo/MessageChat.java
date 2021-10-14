@@ -17,7 +17,7 @@ import java.util.Optional;
 @ToString
 public class MessageChat extends BaseUpdate {
 
-    private Integer fromId;
+    private Long fromId;
     private Integer messageId;
     private String text;
     private Long chatId;

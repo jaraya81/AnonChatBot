@@ -22,6 +22,7 @@ import net.sytes.jaraya.vo.BaseUpdate;
 import net.sytes.jaraya.vo.MessageChat;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -160,27 +161,27 @@ public class NextButton extends SuperAction implements IAction {
     }
 
     public User selectNewNext(User me) {
-        List<User> users = services.user.getByState(State.PLAY);
-        List<User> preFilter = users.parallelStream()
-                .sorted(Comparator.comparing(User::getDateupdate).reversed())
+        List<User> preFilter = services.user.getByState(State.PLAY).parallelStream()
                 .filter(user -> isAsignable(me, user))
                 .filter(user -> matchTags(me, user))
                 .collect(Collectors.toList());
-        List<User> filter = preFilter.stream()
+        List<User> filter = preFilter.parallelStream()
                 .filter(user -> equalsLang(me, user))
                 .filter(user -> !isRepetido(me, user))
                 .collect(Collectors.toList());
         if (!filter.isEmpty()) {
-            return filter.get(0);
+            Collections.shuffle(ThreadLocalRandom.current().nextInt(3) == 0 ? preFilter : new ArrayList<>());
+            return filter.parallelStream().max(Comparator.comparing(User::getDateupdate)).orElse(null);
         }
-        filter = preFilter.stream()
+        filter = preFilter.parallelStream()
                 .filter(user -> !isRepetido(me, user))
                 .collect(Collectors.toList());
         if (!filter.isEmpty()) {
-            return filter.get(0);
+            Collections.shuffle(preFilter);
+            return filter.parallelStream().max(Comparator.comparing(User::getDateupdate)).orElse(null);
         }
         Collections.shuffle(preFilter);
-        return preFilter.isEmpty() ? null : preFilter.get(0);
+        return preFilter.stream().findFirst().orElse(null);
     }
 
     private boolean equalsLang(User me, User user) {

@@ -49,7 +49,7 @@ public class PeriodicalTasks extends SuperAction {
             pauseUsersInactive();
             reminderInactiveUsers();
             updateEmptyBio();
-            expirePremium();
+//            expirePremium();
 //            renoveAll();
             removeSuspension();
             sendNotification();
