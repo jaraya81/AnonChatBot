@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sytes.jaraya.action.message.SuperAction;
 import net.sytes.jaraya.component.MsgProcess;
 import net.sytes.jaraya.component.PeriodicalTasks;
+import net.sytes.jaraya.dto.StatsDto;
 import net.sytes.jaraya.exception.TelegramException;
 import net.sytes.jaraya.model.User;
 import net.sytes.jaraya.service.AnonChatService;
@@ -14,6 +15,7 @@ import spark.Response;
 import spark.Route;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,6 +35,7 @@ public class Stats extends SuperAction implements Route {
     @Override
     public Object handle(Request request, Response response) throws Exception {
         log.info(request.url());
+
         String type = request.queryParams("type");
         response.type("application/json");
         if (type == null || type.isEmpty()) {
@@ -78,9 +81,17 @@ public class Stats extends SuperAction implements Route {
     }
 
     private Object count(Request request) {
+        List<StatsDto> result = services.user.countByState(request.queryParams("lang"))
+                .entrySet().stream()
+                .map(entry -> StatsDto.builder()
+                        .key(UUID.randomUUID().toString())
+                        .name(entry.getKey())
+                        .value(entry.getValue())
+                        .build())
+                .collect(Collectors.toList());
         return new GsonBuilder()
                 .setPrettyPrinting()
                 .create()
-                .toJson(services.user.countByState(request.queryParams("lang")));
+                .toJson(result);
     }
 }

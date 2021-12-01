@@ -33,14 +33,9 @@ public class App {
         AnonChatBot anonChatBot = new AnonChatBot(userAdmin);
         Notification notification2 = new Notification(anonChatBot.getBot(), userAdmin, anonChatBot.getPeriodicalTasks());
         Stats stats = new Stats(anonChatBot.getBot(), userAdmin, anonChatBot.getPeriodicalTasks());
-staticFileLocation("public");
+        staticFileLocation("public");
         port(Integer.parseInt(Properties.get(Property.PORT.name(), fileProperties)));
 
-        path("/" + nameBot + "/", () -> {
-            before("/*", auth);
-            post("/notification", notification2);
-            get("/stats", stats);
-        });
 
         post("/" + anonChatBot.getToken(), anonChatBot);
         String appSite = Properties.get(Property.APP_SITE.name());
@@ -49,7 +44,16 @@ staticFileLocation("public");
         }
         log.info(Property.APP_SITE.name() + ": " + appSite);
         anonChatBot.getBot().execute(new SetWebhook().url(appSite + "/" + anonChatBot.getToken()));
+        path("/" + nameBot + "/", () -> {
+            before("/*", auth);
+            post("/notification", notification2);
+            get("/stats", stats);
+            options("/stats", (request, response) -> {
+                halt(200);
+                return null;
+            });
 
+        });
 
         log.info("Microservice ready!");
 

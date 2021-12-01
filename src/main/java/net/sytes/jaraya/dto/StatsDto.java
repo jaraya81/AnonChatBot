@@ -8,9 +8,7 @@ import lombok.ToString;
 @ToString
 @Data
 public class StatsDto {
-
-    private Long total;
-    private Long active;
-    private Long paused;
-    private Long banned;
+    String key;
+    String name;
+    Object value;
 }
